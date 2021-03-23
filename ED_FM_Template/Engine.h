@@ -24,8 +24,8 @@ public:
 private:
 	
 	Vec3 m_force;
-	State m_state;
 	Input m_input;
+	State m_state;
 	//--------------Aerodynamic Values--------------------------------
 	double m_scalarVelocity = 0.0;
 	double m_scalarVelocitySquared = 0.0;
