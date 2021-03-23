@@ -13,7 +13,7 @@ public:
 	Engine(Input& input, State& state);
 
 	void update(double dt); //in der () "double dt" eingefügt, war vorher ohne
-
+	double updateThrust();
 	inline const Vec3& getForce() const;
 
 	inline double getThrust();
@@ -46,6 +46,8 @@ double Engine::getThrust()
 {
 	return m_thrust;
 }
+
+
 
 //void Engine::setThrust(double thrust) //rauskommentiert zur Angleichung an A4 Engine.h
 //{
