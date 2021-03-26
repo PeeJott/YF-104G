@@ -104,7 +104,7 @@ void FlightModel::thrustForce()
 	//m_force = Vec3();
 	//m_engine.update(123); //neu eingefügt// und wieder zum testen auskommentiert 
 	m_force.x += m_engine.updateThrust(); //m_engine.getThrust(); //m_engine.m_thrust geht nicht, da m_thrust "private" in engine.h, daher durch Funktion aufrufen
-	//printf("vector %f \n", m_engine.getThrust()); //neu eingebaut für Ausgabe
+	//printf("vector %f \n", m_engine.updateThrust()); //neu eingebaut für Ausgabe
 }
 
 void FlightModel::update(double dt)
@@ -140,6 +140,6 @@ void FlightModel::update(double dt)
 	drag();
 	sideForce();
 	thrustForce();
-	printf("vector %f \n", m_force.x);
+	//printf("vector %f \n", m_force.x); //--Der Test für die gesamte (Thrust abzgl. Drag) resultierende m_force.x
 }
 

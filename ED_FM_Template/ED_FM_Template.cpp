@@ -30,7 +30,7 @@
 //============================= Statics ===================================//
 static Input s_input;
 static State s_state;
-static Engine s_engine(s_input, s_state); //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
+static Engine s_engine(s_state, s_input); //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
 static FlightModel s_flightModel(s_state, s_input, s_engine); 
 
 //=========================================================================//
@@ -187,8 +187,8 @@ void ed_fm_set_command(int command,
 	case COMMAND_YAW:
 		s_input.m_yaw = value;
 		break;
-	default:
-		printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
+	//default:
+		//printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
 	}
 }
 /*
