@@ -27,6 +27,7 @@ FlightModel::FlightModel
 	CLmax(DAT_CLmax, CON_CLmaxmin, CON_CLmaxmax),
 	CLmach(DAT_CLmach_SL, CON_CLmach_SLmin, CON_CLmach_SLmax),
 	CLa(DAT_CLa, CON_CLamin, CON_CLamax),
+	CLds(DAT_CLds, CON_CLdsmin, CON_CLdsmax),
 	//--------------ROLL----------------------------------------
 	Clb(DAT_Clb_SL, CON_Clb_SLmin, CON_Clb_SLmax),
 	Clp(DAT_Clp_SL, CON_Clp_SLmin, CON_Clp_SLmax),
@@ -36,7 +37,10 @@ FlightModel::FlightModel
 	//---------------YAW---------------------------------------
 	Cnb(DAT_Cnb_SL, CON_Cnb_SLmin, CON_Cnb_SLmax),
 	Cndr(DAT_Cndr, CON_Cndrmin, CON_Cndrmax),
-	Cnr(DAT_Cnr, CON_Cnrmin, CON_Cnrmax)
+	Cnr(DAT_Cnr, CON_Cnrmin, CON_Cnrmax),
+	Cyb(DAT_Cyb, CON_Cybmin, CON_Cybmax),
+	Cydr(DAT_Cydr, CON_Cydrmin, CON_Cydrmax)
+	
 	//---------------Thrust------------------------------------
 	//PMax(DAT_PMax, CON_PMaxmin, CON_PMaxmax)
 	//PFor(DAT_PFor, CON_PFormin, CON_PFormax)
@@ -53,15 +57,15 @@ void FlightModel::L_stab()
 {
 	//set roll moment -- Neu eingefügt am 14.02.2021 PJ-- "-" vor Clr eingefügt, da Clr Daten positiv waren und negativ sein müssten da Dämpfung
 	//m_moment.x-- "2 *" vor Clda eingefügt für stärkere Ailerons = schon besser-- "2*" vor Clp eingefügt -- "0,5 *" vor Clb eingefügt
-	m_moment.x += m_q * (Clb(m_state.m_mach) * m_state.m_beta + Clda(m_state.m_mach) * m_input.m_roll + Cldr(m_state.m_mach) * m_input.m_yaw)
-		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * (2 * Clp(m_state.m_mach) * m_state.m_omega.x + -Clr(m_state.m_mach) * m_state.m_omega.y);
+	m_moment.x += m_q * (Clb(m_state.m_mach) * m_state.m_beta + Clda(m_state.m_mach) * m_input.m_roll + (0.55 * Cldr(m_state.m_mach)) * m_input.m_yaw)
+		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * (2 * Clp(m_state.m_mach) * m_state.m_omega.x + (1.5 * -Clr(m_state.m_mach)) * m_state.m_omega.y);
 }
 
 void FlightModel::M_stab()
 {
 	//set pitch moment-- "-" vor Cmde eingefügt, da positiver Wert erwartet--
 	m_moment.z += m_k * CON_mac * (Cmalpha(m_state.m_mach) * m_state.m_aoa + -Cmde(m_state.m_mach) * m_input.m_pitch) 
-			+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_mac * CON_mac * (Cmq(m_state.m_mach)*m_state.m_omega.z + Cmadot(m_state.m_mach) * m_aoaDot);
+			+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_mac * CON_mac * ((1.55 * Cmq(m_state.m_mach))*m_state.m_omega.z + Cmadot(m_state.m_mach) * m_aoaDot);
 }
 
 void FlightModel::N_stab()
@@ -69,8 +73,8 @@ void FlightModel::N_stab()
 	//set yaw moment-- "Cnda * da" ausgelassen, da wegen gegenläufiger ailerons geringfügig (Buch Seite 114) "Cnp * Pstab" ausgelassen, da ggf. unnötig 
 	// "-" vor Cndr eingefügt, da "Rudereffektivität" positiv sein müsste-- "-" vor Cnb eingefügt, da Dämpfung-- "2 *" vor Cnr eingefügt für mehr Dämpfung
 	//moment.y
-	m_moment.y += m_q * (-Cnb(m_state.m_mach) * m_state.m_beta + -Cndr(m_state.m_mach) * -m_input.m_yaw)
-		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * (2 * Cnr(m_state.m_mach) * m_state.m_omega.y);
+	m_moment.y += m_q * (1.5 * -Cnb(m_state.m_mach) * m_state.m_beta + -Cndr(m_state.m_mach) * -m_input.m_yaw)
+		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * (2.5 * Cnr(m_state.m_mach) * m_state.m_omega.y);
 }
 
 
@@ -79,7 +83,7 @@ void FlightModel::lift()
 	//set lift -- eingefügt am 16.02. als "Lift = 0.5 * p * V² * s * CL
 	//approx m_force.y
 	// erster Versuch : m_force.y = m_k * (CLmach(m_state.m_mach) + CLa(m_state.m_aoa)); //Lift ist so schon gut ;-)
-	m_force.y += m_k * (CLmach(m_state.m_mach) + (CLa(m_state.m_mach) * m_state.m_aoa));
+	m_force.y += m_k * (CLa(m_state.m_mach) * m_state.m_aoa); //+ CLds(m_state.m_mach)); //aktuell nur Lift due to AoA ohne Stab-Lift 
 }
 
 void FlightModel::drag()
@@ -95,6 +99,7 @@ void FlightModel::sideForce()
 {
 	//set side force
 	//m_force.z
+	m_force.z += m_k * ((Cydr(m_state.m_mach) * m_input.m_yaw) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
 }
 
 void FlightModel::thrustForce()

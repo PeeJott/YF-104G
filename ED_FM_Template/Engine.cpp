@@ -72,19 +72,20 @@ double Engine::updateThrust() //Wenn Veränderungen dann hier verändern NICHT obe
 
 	if (corrThrottle <= 0.85)
 	{
-		m_thrust = (corrThrottle * PMax(m_state.m_mach));// *(m_state.m_airDensity / CON_sDay_den);
+		m_thrust = (corrThrottle * PMax(m_state.m_mach) * (m_state.m_airDensity / CON_sDay_den));
 	}
 	else
 	{
-		m_thrust = (corrThrottle * PFor(m_state.m_mach));// *(m_state.m_airDensity / CON_sDay_den);
+		m_thrust = (corrThrottle * PFor(m_state.m_mach) * (m_state.m_airDensity / CON_sDay_den));
 
 	}
 
 	//corrThrottle = -0.55 * m_input.m_throttle + 1.0; //TESTSETTINGS
 	//m_thrust = corrThrottle * PFor(m_state.m_mach); //TESTSETTINGS
 	
-	printf("Throttle %f \n", corrThrottle);
-	printf("Thrust %f \n", m_thrust); //eingefügt zum testen, ob M_thrust ausgegeben wird...
+	//printf("Throttle %f \n", corrThrottle);
+	//printf("Thrust %f \n", m_thrust); //eingefügt zum testen, ob M_thrust ausgegeben wird...
+	//printf("CurrentAirDensity %f \n", m_state.m_airDensity);
 	
 	return m_thrust;
 }

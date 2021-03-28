@@ -73,6 +73,7 @@ private:
 	Table CLmax;
 	Table CLmach;
 	Table CLa;
+	Table CLds;
 	//-------------Roll---------------------------
 	Table Clb;
 	Table Clp;
@@ -83,6 +84,8 @@ private:
 	Table Cnb;
 	Table Cndr;
 	Table Cnr;
+	Table Cyb;
+	Table Cydr;
 	//-------------Thrust------------------------
 	//Table PMax;
 	//Table PFor;
