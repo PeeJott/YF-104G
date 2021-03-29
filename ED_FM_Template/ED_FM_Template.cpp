@@ -344,14 +344,15 @@ void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
 		drawargs[616].f = drawargs[5].f;
 	}
 
-	drawargs[11].f = -s_airframe.getAileron();//left Aileron
-	drawargs[12].f = s_airframe.getAileron();//right aileron
-	drawargs[15].f = s_airframe.getStabilizer(); //left elevator
-	//drawargs[16].f = s_airframe.getStabilizer();//right elevator// erst mal einen testen, weil ist ja nur einer
+	drawargs[12].f = -s_airframe.getAileron();//left Aileron
+	drawargs[11].f = s_airframe.getAileron();//right aileron
+	drawargs[15].f = s_airframe.getStabilizer(); //right elevator ist standard für ein Leitwerk
+	//drawargs[16].f = s_airframe.getStabilizer();//left elevator// erst mal einen testen, weil ist ja nur einer
 	drawargs[17].f = -s_airframe.getRudder(); //rudder
-	drawargs[9].f = s_airframe.getFlapsPosition();//left flap
-	drawargs[10].f = s_airframe.getFlapsPosition();//right flap
-	//drawargs[].f = s_airframe.getSpeedBrakePosition();//airbrake
+	drawargs[9].f = s_airframe.getFlapsPosition();//right flap
+	drawargs[10].f = s_airframe.getFlapsPosition();//left flap
+	drawargs[182].f = s_airframe.getSpeedBrakePosition();//airbrake #1
+	drawargs[184].f = s_airframe.getSpeedBrakePosition();//airbrake #2
 
 
 

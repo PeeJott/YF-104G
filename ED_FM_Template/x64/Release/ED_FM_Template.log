@@ -19,10 +19,12 @@ C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(351,19): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(352,45): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(353,46): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(354,52): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(355,52): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
      Creating library ..\..\bin\YF104G.lib and object ..\..\bin\YF104G.exp
   Generating code
-  42 of 160 functions (26.3%) were compiled, the rest were copied from previous compilation.
-    31 functions were new in current compilation
-    4 functions had inline decision re-evaluated but remain unchanged
+  20 of 158 functions (12.7%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   ED_FM_Template.vcxproj -> C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\bin\YF104G.dll

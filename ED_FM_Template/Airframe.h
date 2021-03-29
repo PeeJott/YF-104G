@@ -100,7 +100,7 @@ private:
 	Actuator m_actuatorRud;
 
 
-	double m_stabilizerZeroForceDeflection = 0.0;
+	//double m_stabilizerZeroForceDeflection = 0.0;
 
 	double m_mass = 1.0;
 };
@@ -111,19 +111,21 @@ double Airframe::setAileron(double dt)
 	return m_actuatorAil.inputUpdate(input, dt);
 }
 
+//Folgend Auskommentierungen zum Testen des Stabilizers, da Aileron und Rudder so funktionieren
 double Airframe::setStabilizer(double dt)
 {
-	double stabilizer = toDegrees(m_stabilizer);
-	double bungeeTrimDeg = (stabilizer + 1.0) / (-13.25) * (-0.65306 - 7.3469) - 0.65306;
-	double bungeeTrimStick = bungeeTrimDeg / 20.0; // transformation from control surface deflection to stick normalized coordinate goes here
-	double speedbrakeTrim = -0.15 * m_speedBrakePosition;
-	m_actuatorStab.setActuatorSpeed(clamp(1.0 - 1.2 * pow(m_state.m_mach, 3.0), 0.1, 1.0));
+	double input = m_input.m_pitch; // +m_stabilizerZeroForceDeflection;
+	return m_actuatorStab.inputUpdate(input, dt);
+	
+	//double stabilizer = toDegrees(m_stabilizer);
+	//double bungeeTrimDeg = (stabilizer + 1.0) / (-13.25) * (-0.65306 - 7.3469) - 0.65306;
+	//double bungeeTrimStick = bungeeTrimDeg / 20.0; // transformation from control surface deflection to stick normalized coordinate goes here
+	//double speedbrakeTrim = -0.15 * m_speedBrakePosition;
+	//m_actuatorStab.setActuatorSpeed(clamp(1.0 - 1.2 * pow(m_state.m_mach, 3.0), 0.1, 1.0));
 	//printf("factor: %lf\n", clamp(1.0 - 1.2 * pow(m_state.getMach(), 3.0), 0.1, 1.0));
 
-	m_stabilizerZeroForceDeflection = bungeeTrimStick + speedbrakeTrim;
+	//m_stabilizerZeroForceDeflection = bungeeTrimStick + speedbrakeTrim;
 
-	double input = m_input.m_pitch + m_stabilizerZeroForceDeflection;
-	return m_actuatorStab.inputUpdate(input, dt);
 }
 
 //den folgenden rausgeworfen, da er wohl einen wie auch immer gearteten Stabilizer bedient
