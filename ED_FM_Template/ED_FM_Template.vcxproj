@@ -140,13 +140,17 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actuators.h" />
     <ClInclude Include="AeroData_1.h" />
+    <ClInclude Include="Airframe.h" />
+    <ClInclude Include="BaseComponent.h" />
     <ClInclude Include="ED_FM_Template.h" />
     <ClInclude Include="ED_FM_TemplateAPI.h" />
     <ClInclude Include="ED_FM_Utility.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="FlightModel.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Maths.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Table.h" />
@@ -154,6 +158,8 @@
     <ClInclude Include="Vec3.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Actuators.cpp" />
+    <ClCompile Include="Airframe.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>

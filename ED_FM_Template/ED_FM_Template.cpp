@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <string>
 #include "Input.h"
+#include "Airframe.h"
+#include "BaseComponent.h"
+#include "Maths.h"
 
 
 //Vec3	common_moment;
@@ -32,6 +35,7 @@ static Input s_input;
 static State s_state;
 static Engine s_engine(s_state, s_input); //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
 static FlightModel s_flightModel(s_state, s_input, s_engine); 
+static Airframe s_airframe(s_state, s_input, s_engine);
 
 //=========================================================================//
 
@@ -66,7 +70,8 @@ void ed_fm_add_local_moment(double& x,double& y,double& z)
 void ed_fm_simulate(double dt)
 {
 	s_flightModel.update(dt);
-	s_engine.update(dt); //neu eingefügt, damit die Engine-Class auch "geupdated" wird, da sie ungleich der Flightmodel-Class ist
+	s_engine.update(dt);
+	s_airframe.airframeUpdate(dt);//neu eingefügt, damit die Engine-Class auch "geupdated" wird, da sie ungleich der Flightmodel-Class ist
 }
 
 void ed_fm_set_atmosphere(double h,//altitude above sea level
@@ -187,6 +192,58 @@ void ed_fm_set_command(int command,
 	case COMMAND_YAW:
 		s_input.m_yaw = value;
 		break;
+	case COMMAND_GEAR_TOGGLE:
+		s_input.m_geartoggle = value;
+		break;
+	case COMMAND_GEAR_UP:
+		s_input.m_gearup = value;
+		break;
+	case COMAND_BRAKE:
+		s_input.m_brake = value;
+		break;
+	case COMMAND_LEFT_BRAKE:
+		s_input.m_leftbrake = value;
+		break;
+	case COMMAND_RIGHT_BRAKE:
+		s_input.m_rightbrake = value;
+		break;
+	case COMMAND_FLAPS_INCREASE:
+		s_input.m_flapsinc = value;
+		break;
+	case COMMAND_FLAPS_DECREASE:
+		s_input.m_flapsdec = value;
+		break;
+	case COMMAND_FLAPS_DOWN:
+		s_input.m_flapsdown = value;
+		break;
+	case COMMAND_FLAPS_UP:
+		s_input.m_flapsup = value;
+		break;
+	case COMMAND_FLAPS_TOGGLE:
+		s_input.m_flapstgl = value;
+		break;
+	case COMMAND_AIRBRAKE_EXTEND:
+		s_input.m_airbrkext = value;
+		break;
+	case COMMAND_AIRBRAKE_RETRACT:
+		s_input.m_airbrkret = value;
+		break;
+	case COMMAND_HOOK_TOGGLE:
+		s_input.m_hooktgl = value;
+		break;
+	case COMMAND_NOSEWHEEL_STEERING_ENGAGE:
+		s_input.m_nswsteeringeng = value;
+		break;
+	case COMMMAND_NOSEWHEEL_STEERING_DISENGAGE:
+		s_input.m_nswsteeringdiseng = value;
+		break;
+	case COMMAND_STARTER_BUTTON:
+		s_input.m_starterbutton = value;
+		break;
+	case COMMAND_THROTTLE_DETEND:
+		s_input.m_starterbutton = value;
+		break;
+	
 	//default:
 		//printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
 	}
@@ -280,12 +337,23 @@ void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
 	//drawargs[28].f   = (float)throttle;
 	//drawargs[29].f   = (float)throttle;
 
-	//if (size > 616)
-	//{	
-	//	drawargs[611].f = drawargs[0].f;
-	//	drawargs[614].f = drawargs[3].f;
-	//	drawargs[616].f = drawargs[5].f;
-	//}
+	if (size > 616)
+	{	
+		drawargs[611].f = drawargs[0].f;
+		drawargs[614].f = drawargs[3].f;
+		drawargs[616].f = drawargs[5].f;
+	}
+
+	drawargs[11].f = -s_airframe.getAileron();//left Aileron
+	drawargs[12].f = s_airframe.getAileron();//right aileron
+	drawargs[15].f = s_airframe.getStabilizer(); //left elevator
+	//drawargs[16].f = s_airframe.getStabilizer();//right elevator// erst mal einen testen, weil ist ja nur einer
+	drawargs[17].f = -s_airframe.getRudder(); //rudder
+	drawargs[9].f = s_airframe.getFlapsPosition();//left flap
+	drawargs[10].f = s_airframe.getFlapsPosition();//right flap
+	//drawargs[].f = s_airframe.getSpeedBrakePosition();//airbrake
+
+
 
 }
 

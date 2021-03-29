@@ -179,13 +179,15 @@
 #define CON_PFormax 3.0 //Mach airspeed at SL
 
 //---------Abmessungen und feststehende Größen F-104---------
-//----thrust-----
+
+//----thrust and engine-----
 #define CON_p_max 44.44 //kN dry thrust
 #define CON_p_for 63.86 //kN AB thrust 
 #define CON_CeMax 0.85 // kg/s voll Millpower SL
 #define CON_CeFor 1.112 // kg/s voll AB-Power SL
 #define CON_ThrotIDL 0.55 //IDLE-RPM
 #define CON_CDeng 0.075 //engine Drag geschätzt (immer dabei, nie aus)
+
 //--------measurements fuselage-------------------
 #define CON_lgt 16.69 // length in m
 #define CON_hgt 4.11 //height in m
@@ -193,6 +195,7 @@
 #define CON_ewe 6.390 // empty weight in kg
 #define CON_gwe 9.980 // normal gross weight in kg
 #define CON_mwe 13.054 // maximal takeoff weight in kg
+
 //---------wing----------------------
 #define CON_b 6.68  //wingspan (incl. fuselage) in m
 #define CON_A 18.22 // wingarea in sqm
@@ -206,18 +209,65 @@
 #define CON_wda 0.81 // a für DELTA-Wave-Drag
 #define CON_wdb 2.59 //b für DELTA-Wave-Drag
 #define CON_Mcrit 0.90 //Mcrit für DELTA-Wave-Drag
+
 //---------h and v stab-------------------
 #define CON_wshs 3.63 // wingspan horizontal stab. in m
 #define CON_wahs 4.48 // wing area horizontal stab. in sqm
 #define CON_wavs 4.06 // wing area vertical stab. in sqm
+#define CON_hstdUP 0.297 //H-Stab deflection BackStick in radians
+#define CON_hstdDN -0.0873 // H-Stab deflection FrontStick in radians
 #define CON_rdar 0.51 // rudder area in sqm
+#define CON_RdDefGUR 0.105 //deflection Rudder in radians GearUP rudder right
+#define CON_RdDefGUL -0.105 //deflection Rudder in radians GearUP rudder left
+#define CON_RdDefGDR 0.349 //deflection Rudder in radians GearDown rudder right
+#define CON_RdDefGDL -0.349 //deflection Rudder in radians GearDown rudder left
+
 //-----------Flap and ailerons----------------- 
+//-----------Flap and ailerons area and travel-----------
+
+//-----------leading edge flaps--------------------------
 #define CON_lefa 0.79 // leading edge flap area per side in sqm
+#define CON_left0 0.00 // travel leading edge flap stage 0 
+#define CON_left1 -0.105 //travel leading edge flap stage 1 in Radians
+#define CON_left2 -0.209 //travel leading edge flap stage 2 in Radians 
+
+//----------trailing edge flaps----------------------------
 #define CON_tefa 1.07 // trailing edge flap area per side in sqm
+#define CON_teft0 0.000 // trailing edge flap travel stage 0 in Radians
+#define CON_teft1 -0.113 //trailing edge flap travel stage 1 in Radians
+#define CON_teft2 -0.227 //trailing edge flap travel stage 2 in Radians
+
+//----------ailerons----------------------------------------
 #define CON_aia 0.88 // aileron area total in sqm
-#define CON_aitn 9.5 // aileron travel normal flight (gear up) in degree
-#define CON_aitg 20 // aileron travel gear down in degree
-//-----------fuel-----------------
+#define CON_aitnu 0.17 // aileron travel normal flight up (gear up) in radians
+#define CON_aitnd -0.17 //aileron travel normal flight down (gear up) in radians
+#define CON_aitgu 0.349 // aileron travel up gear down in radians
+#define CON_aitgd -0.349 // aileron travel down gear down in Radians
+
+//----------Drag and Lift for Flap,Brake and Chute------------------------
+//----------Drag and Lift for Flaps----------------------------------------------------------
+#define CON_FlpD1 0.092 // Drag both Flaps Stage 1
+#define CON_FlpD2 0.184 // Drag both flpas Stage 2
+#define CON_FlpL0 0.000 // Lift both flpas in
+#define CON_FlpL1 0.185 // Lift both flaps Stage 1
+#define CON_FlpL2 0.37  // Lift both Flpas Stage 2
+
+//---------Drag for Speed Brakes-------------------------------------------------------
+#define CON_BrkD  0.25 // Drag Brake
+#define CON_BrkOut 1.0 //speed brake out
+#define CON_BrkIn 0.0 //speed brake in
+
+//----------Drag for Brake Chute--------------------
+#define CON_ChtD 5.55 //Drag Brake-Chute
+#define CON_ChtOut 1.0 //Brake Chute out
+#define CON_ChtIn 0.0 // Brake Chute in
+
+//-----------Gear drag-------------------------------------------------------
+#define CON_GrDD 0.211 //GearDown DRAG
+#define CON_GrDT 0.105 // GearTravel Drag
+#define CON_GrIn 0.000 // GearIn Drag
+
+//-----------fuel-----------------------------------------------------------
 #define CON_fint 3.104 // fuel int. in kg (3.880 l * 0,8)
 //-----------Ende der Abmessungen------------------------
 

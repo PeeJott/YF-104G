@@ -1,15 +1,28 @@
 ﻿E:\Visual Studio c++\Visual Studio main\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(477,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-  Engine.cpp
+  Airframe.cpp
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(25,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(36,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(37,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(70,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(81,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(82,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  ED_FM_Template.cpp
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(25,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(36,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(37,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(70,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(81,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(82,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(347,19): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(348,40): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(349,43): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(351,19): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(352,45): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(353,46): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
      Creating library ..\..\bin\YF104G.lib and object ..\..\bin\YF104G.exp
   Generating code
-  4 of 129 functions ( 3.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  42 of 160 functions (26.3%) were compiled, the rest were copied from previous compilation.
+    31 functions were new in current compilation
+    4 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   ED_FM_Template.vcxproj -> C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\bin\YF104G.dll
