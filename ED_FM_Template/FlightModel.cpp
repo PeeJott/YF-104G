@@ -5,12 +5,14 @@ FlightModel::FlightModel
 (
 	State& state,
 	Input& input, 
-	Engine& engine //NEU 21Feb21
+	Engine& engine, //NEU 21Feb21
+	Airframe& airframe
 	//der letzte Eintrag hier darf kein Komma haben!
 ) :
 	m_state(state),
 	m_input(input),
 	m_engine(engine), //NEU 21Feb21
+	m_airframe(airframe),
 
 	//-----"init" Tables AeroData_1.h + FlightModel.h-----------
 	//-----------------Pitch------------------------------------
@@ -64,8 +66,8 @@ void FlightModel::L_stab()
 void FlightModel::M_stab()
 {
 	//set pitch moment-- "-" vor Cmde eingefügt, da positiver Wert erwartet--
-	m_moment.z += m_k * CON_mac * (Cmalpha(m_state.m_mach) * m_state.m_aoa + -Cmde(m_state.m_mach) * m_input.m_pitch) 
-			+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_mac * CON_mac * ((1.55 * Cmq(m_state.m_mach))*m_state.m_omega.z + Cmadot(m_state.m_mach) * m_aoaDot);
+	m_moment.z += m_k * CON_mac * (Cmalpha(m_state.m_mach) * m_state.m_aoa + (0.90 * -Cmde(m_state.m_mach)) * m_input.m_pitch) 
+			+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_mac * CON_mac * ((1.75 * Cmq(m_state.m_mach))*m_state.m_omega.z + (1.45 * Cmadot(m_state.m_mach)) * m_aoaDot);
 }
 
 void FlightModel::N_stab()
@@ -83,7 +85,7 @@ void FlightModel::lift()
 	//set lift -- eingefügt am 16.02. als "Lift = 0.5 * p * V² * s * CL
 	//approx m_force.y
 	// erster Versuch : m_force.y = m_k * (CLmach(m_state.m_mach) + CLa(m_state.m_aoa)); //Lift ist so schon gut ;-)
-	m_force.y += m_k * (CLa(m_state.m_mach) * m_state.m_aoa); //+ CLds(m_state.m_mach)); //aktuell nur Lift due to AoA ohne Stab-Lift 
+	m_force.y += m_k * ((CLa(m_state.m_mach) * m_state.m_aoa) + CLFlaps); //+ CLds(m_state.m_mach)); //aktuell nur Lift due to AoA ohne Stab-Lift 
 }
 
 void FlightModel::drag()
@@ -92,7 +94,7 @@ void FlightModel::drag()
 	//approx m_force.x negative
 	//erster Versuch: m_force.x = -(m_k * (CDmach(m_state.m_mach) + CDa(m_state.m_aoa)
 		//+ ((CLmach(m_state.m_mach) + CLa(m_state.m_mach)) * (CLmach(m_state.m_mach) + CLa(m_state.m_mach))) / CON_pi * CON_AR * CON_e));
-	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (CDa(m_state.m_mach) * m_state.m_aoa)+ CON_CDeng); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
+	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (CDa(m_state.m_mach) * m_state.m_aoa)+ CON_CDeng + CDGear + CDFlaps + CDBrk); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
 }
 
 void FlightModel::sideForce()
@@ -136,6 +138,11 @@ void FlightModel::update(double dt)
 	CDwave = CON_wda * M_mcrit_b; //neu eingefügt 18.02.2021
 	
 	CDi = ((CLmach(m_state.m_mach) * CLmach(m_state.m_mach)) / CON_pi * CON_A * CON_e );
+
+	CDGear = CON_GrDD * m_airframe.getGearNPosition();
+	CDFlaps = CON_FlpD2 * m_airframe.getFlapsPosition();
+	CLFlaps = CON_FlpL2 * m_airframe.getFlapsPosition();
+	CDBrk = CON_BrkD * m_airframe.getSpeedBrakePosition();
 
 	
 	L_stab();

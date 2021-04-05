@@ -246,25 +246,26 @@
 
 //----------Drag and Lift for Flap,Brake and Chute------------------------
 //----------Drag and Lift for Flaps----------------------------------------------------------
-#define CON_FlpD1 0.092 // Drag both Flaps Stage 1
-#define CON_FlpD2 0.184 // Drag both flpas Stage 2
+#define CON_FlpD1 0.0225 // Drag both Flaps Stage 1
+#define CON_FlpD2 0.045 // Drag both flpas Stage 2
 #define CON_FlpL0 0.000 // Lift both flpas in
 #define CON_FlpL1 0.185 // Lift both flaps Stage 1
 #define CON_FlpL2 0.37  // Lift both Flpas Stage 2
 
 //---------Drag for Speed Brakes-------------------------------------------------------
-#define CON_BrkD  0.25 // Drag Brake
+#define CON_BrkD  0.19 // Drag of SpeedBrake
 #define CON_BrkOut 1.0 //speed brake out
 #define CON_BrkIn 0.0 //speed brake in
+#define CON_BrkAngl 1.39 // 80° in Rad. bzgl. Ausfahrwinkel
 
 //----------Drag for Brake Chute--------------------
-#define CON_ChtD 5.55 //Drag Brake-Chute
+#define CON_ChtD 0.55 //Drag Brake-Chute
 #define CON_ChtOut 1.0 //Brake Chute out
 #define CON_ChtIn 0.0 // Brake Chute in
 
 //-----------Gear drag-------------------------------------------------------
-#define CON_GrDD 0.211 //GearDown DRAG
-#define CON_GrDT 0.105 // GearTravel Drag
+#define CON_GrDD 0.130 //GearDown DRAG
+#define CON_GrDT 0.065 // GearTravel Drag
 #define CON_GrIn 0.000 // GearIn Drag
 
 //-----------fuel-----------------------------------------------------------

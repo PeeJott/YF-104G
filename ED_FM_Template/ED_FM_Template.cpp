@@ -34,8 +34,9 @@
 static Input s_input;
 static State s_state;
 static Engine s_engine(s_state, s_input); //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
-static FlightModel s_flightModel(s_state, s_input, s_engine); 
 static Airframe s_airframe(s_state, s_input, s_engine);
+static FlightModel s_flightModel(s_state, s_input, s_engine, s_airframe); 
+
 
 //=========================================================================//
 
@@ -193,15 +194,26 @@ void ed_fm_set_command(int command,
 		s_input.m_yaw = value;
 		break;
 	case COMMAND_GEAR_TOGGLE:
-		s_input.m_geartoggle = value;
+		s_input.m_gear_toggle;
+		if (s_input.m_gear_toggle == 0)
+		{
+			s_input.m_gear_toggle = 1;
+		}
+		else
+		{
+			s_input.m_gear_toggle = 0;
+		}
 		break;
-	case COMMAND_GEAR_UP:
+	/*case COMMAND_GEAR_UP:
 		s_input.m_gearup = value;
 		break;
-	case COMAND_BRAKE:
+	case COMMAND_GEAR_DOWN: 
+		s_input.m_geardown = value;
+		break;*/
+	case COMMAND_BRAKE:
 		s_input.m_brake = value;
 		break;
-	case COMMAND_LEFT_BRAKE:
+	/*case COMMAND_LEFT_BRAKE:
 		s_input.m_leftbrake = value;
 		break;
 	case COMMAND_RIGHT_BRAKE:
@@ -218,31 +230,58 @@ void ed_fm_set_command(int command,
 		break;
 	case COMMAND_FLAPS_UP:
 		s_input.m_flapsup = value;
-		break;
+		break;*/
 	case COMMAND_FLAPS_TOGGLE:
-		s_input.m_flapstgl = value;
+		s_input.m_flaps_toggle;
+		if (s_input.m_flaps_toggle == 0)
+		{
+			s_input.m_flaps_toggle = 0.5;
+		}
+		else if (s_input.m_flaps_toggle == 0.5)
+		{
+			s_input.m_flaps_toggle = 1;
+		}
+		else
+		{
+			s_input.m_flaps_toggle = 0;
+		}
+		// "= value;" entfernt, weil nur 1 oder 0 TEST!!
 		break;
-	case COMMAND_AIRBRAKE_EXTEND:
+	case COMMAND_AIRBRAKE:
+		s_input.m_airbrk;
+		if (s_input.m_airbrk == 0)
+		{
+			s_input.m_airbrk = 1;
+		}
+		else
+		{
+			s_input.m_airbrk = 0;
+		}
+		break;
+	/*case COMMAND_AIRBRAKE_EXTEND:
 		s_input.m_airbrkext = value;
 		break;
 	case COMMAND_AIRBRAKE_RETRACT:
 		s_input.m_airbrkret = value;
-		break;
-	case COMMAND_HOOK_TOGGLE:
+		break;*/
+	/*case COMMAND_HOOK_TOGGLE:
 		s_input.m_hooktgl = value;
 		break;
+	case COMMAND_NOSEWHEEL_STEERING:
+		s_input.m_nwsteering = value;
+		break;
 	case COMMAND_NOSEWHEEL_STEERING_ENGAGE:
-		s_input.m_nswsteeringeng = value;
+		s_input.m_nwsteeringeng = value;
 		break;
 	case COMMMAND_NOSEWHEEL_STEERING_DISENGAGE:
-		s_input.m_nswsteeringdiseng = value;
+		s_input.m_nwsteeringdiseng = value;
 		break;
 	case COMMAND_STARTER_BUTTON:
 		s_input.m_starterbutton = value;
 		break;
 	case COMMAND_THROTTLE_DETEND:
 		s_input.m_starterbutton = value;
-		break;
+		break;*/
 	
 	//default:
 		//printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
@@ -349,10 +388,13 @@ void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
 	drawargs[15].f = s_airframe.getStabilizer(); //right elevator ist standard für ein Leitwerk
 	//drawargs[16].f = s_airframe.getStabilizer();//left elevator// erst mal einen testen, weil ist ja nur einer
 	drawargs[17].f = -s_airframe.getRudder(); //rudder
-	drawargs[9].f = s_airframe.getFlapsPosition();//right flap
-	drawargs[10].f = s_airframe.getFlapsPosition();//left flap
+	drawargs[9].f = s_airframe.getFlapsPosition();//right flap Versuch
+	drawargs[10].f = s_airframe.getFlapsPosition();//left flap Versuch
 	drawargs[182].f = s_airframe.getSpeedBrakePosition();//airbrake #1
 	drawargs[184].f = s_airframe.getSpeedBrakePosition();//airbrake #2
+	drawargs[0].f = s_airframe.getGearNPosition();//Nosewheel Position
+	drawargs[3].f = s_airframe.getGearRPosition();//Right Gear Position
+	drawargs[5].f = s_airframe.getGearLPosition();//Left Gear Position
 
 
 
@@ -365,6 +407,7 @@ void ed_fm_configure(const char * cfg_path)
 }
 
 double test_gear_state = 0;
+
 double ed_fm_get_param(unsigned index)
 {
 	
@@ -373,18 +416,17 @@ switch (index)
 case ED_FM_SUSPENSION_0_GEAR_POST_STATE:
 case ED_FM_SUSPENSION_0_DOWN_LOCK:
 case ED_FM_SUSPENSION_0_UP_LOCK:
-	return 1.0;
+	return s_airframe.getGearNPosition(); //vorher zum testen bei allen 3 "return 1.0;"
 
 case ED_FM_SUSPENSION_1_GEAR_POST_STATE:
 case ED_FM_SUSPENSION_1_DOWN_LOCK:
 case ED_FM_SUSPENSION_1_UP_LOCK:
-	return 1.0;
+	return s_airframe.getGearLPosition();
 
 case ED_FM_SUSPENSION_2_GEAR_POST_STATE:
 case ED_FM_SUSPENSION_2_DOWN_LOCK:
 case ED_FM_SUSPENSION_2_UP_LOCK:
-	
-return 1.0;
+	return s_airframe.getGearRPosition();
 }
 
 	return 0;

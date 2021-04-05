@@ -6,11 +6,12 @@
 #include "Input.h"
 #include "AeroData_1.h"
 #include "Engine.h"
+#include "Airframe.h"
 
 class FlightModel
 {
 public:
-	FlightModel(State& state, Input& input, Engine& engine); //Engine& engine NEU 21FEb21
+	FlightModel(State& state, Input& input, Engine& engine, Airframe& airframe); //Engine& engine NEU 21FEb21
 
 
 	void update(double dt);
@@ -34,6 +35,7 @@ private:
 	State& m_state;
 	Input& m_input;
 	Engine& m_engine; //neu 21Feb21 // wieder rausgenommen
+	Airframe& m_airframe;
 
 	//--------------Aerodynamic Values--------------------------------
 	double m_scalarVelocity = 0.0;
@@ -57,6 +59,10 @@ private:
 	double M_mcrit = 0.0; // Mach/Mcrit // neu 18.02.2021
 	double M_mcrit_b = 0.0; //(Mach/Mcrit)^CON_wdb // neu 18.02.2021
 	double CDi = 0.0; //(CL^2/pi * AR * e) neu 18.02.2021
+	double CDGear = 0.0; //NEU 05April21 Gear-Down-Drag
+	double CDFlaps = 0.0; //NEU 05April21 Flaps-Down-Drag
+	double CLFlaps = 0.0;//NEU 05April21 Flaps-Down-Lift
+	double CDBrk = 0.0;// NEU 05April21 Brk-Out-Drag
 
 	//--------------Tables from AeroData_1.h------------------------
 	//--------------PITCH--------------------------

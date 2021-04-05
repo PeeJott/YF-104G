@@ -11,7 +11,12 @@ Airframe::Airframe
 ) :
 	m_state(state),
 	m_input(input),
-	m_engine(engine)
+	m_engine(engine),
+	m_actuatorFlap(1.75),
+	m_actuatorAirbrk(1.3),
+	m_actuatorGearL(0.9),
+	m_actuatorGearN(0.9),
+	m_actuatorGearR(0.9)
 
 {
 	//huhu!!
@@ -27,6 +32,7 @@ void Airframe::zeroInit()
 	//------aerodynamic surfaces-------
 	m_flapsPosition = 0.0;
 	m_speedBrakePosition = 0.0;
+	
 	m_aileronLeft = 0.0;
 	m_aileronRight = 0.0;
 	m_stabilizer = 0.0;
@@ -78,5 +84,45 @@ void Airframe::airframeUpdate(double dt)
 	m_aileronLeft = setAileron(dt);
 	m_aileronRight = -m_aileronLeft;
 	m_rudder = setRudder(dt);
-
+	
+	m_flapsPosition = setFlapsPosition(dt);
+	m_speedBrakePosition = setAirbrakePosition(dt);
+	
+	m_gearLPosition = setGearLPosition(dt);
+	m_gearRPosition = setGearRPosition(dt);
+	m_gearNPosition = setGearNPosition(dt);
+	//Neuer Test, falls der KeyBind nur beim Drücke "1" ist
+	//m_flapsPosition = getFlapsPosition();
+	
+	//printf("Flp-Down-Value %f \n", m_input.m_flapsdown);
+	//printf("Flp-Up-Value %f \n", m_input.m_flapsup);
+	//printf("YAW_Value %f \n", m_input.m_flapstgl);
+	//printf("Flp-Tgl-Value %f \n", m_input.m_flapstgl);
 }
+
+
+//!!!!funktionierende Update-Funktion OHNE Acutators!!!
+/*double Airframe::updateFlaps()
+{
+	m_flapsPosition = 0.0;
+
+	//Dieser Abschnitt funktioniert mit der Public-Function in der Airframe.h, aber ohne actuators
+	if (m_input.m_flaps_toggle == 0.5)
+	{
+		m_flapsPosition = 0.5;
+	}
+	else if (m_input.m_flaps_toggle == 1)
+	{
+		m_flapsPosition = 1;
+	}
+	else
+	{
+		m_flapsPosition = 0;
+	}
+	
+
+	//printf("Flp_Toggle-Value %f \n", m_input.m_flaps_toggle);
+	//printf("Flp-Position-Value %f \n", m_flapsPosition);
+
+	return m_flapsPosition;
+}*/

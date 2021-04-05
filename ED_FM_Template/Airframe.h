@@ -24,15 +24,19 @@ public:
 
 	//---------Setting positions-------------------------------------------------
 	//Gear
-	inline void setGearLPosition(double position); //for airstart or ground start
-	inline void setGearRPosition(double position); //for airstart or ground start
-	inline void setGearNPosition(double position); //for airstart or ground start
-	
+	//inline void setGearLPosition(double position); //for airstart or ground start-OLD
+	//inline void setGearRPosition(double position); //for airstart or ground start-OLD
+	//inline void setGearNPosition(double position); //for airstart or ground start-OLD
+	inline double setGearLPosition(double dt);
+	inline double setGearRPosition(double dt);
+	inline double setGearNPosition(double dt);
 	//Flaps
-	inline void setFlapsPosition(double position);
-	
+	//inline void setFlapsPosition(double position); //Ursprünglich funktioniert insges.-OLD
+	//inline double setFlapsPosition(double dt); //Neu und ein Versuch-OLD
+													 
 	//Airbrake
-	inline void setAirbrakePosition(double position);
+	//inline void setAirbrakePosition(double position);//OLD
+	inline double setAirbrakePosition(double dt);
 	
 	//Fuel
 	//void addFuel(double fuel); //fuel Funktion fehlt aktuell noch
@@ -41,6 +45,9 @@ public:
 	inline double setAileron(double dt);
 	inline double setRudder(double dt);
 	inline double setStabilizer(double dt);
+	
+	//NEW Flaps and Airbrake
+	inline double setFlapsPosition(double dt);
 
 	//Steering
 	inline void setNoseWheelAngle(double angle);
@@ -53,7 +60,6 @@ public:
 	inline double getGearRPosition() const; //returns gear pos
 	inline double getGearNPosition() const; //returns gear pos
 
-	inline double getFlapsPosition() const;
 	inline double getSpeedBrakePosition() const;
 	
 	inline double getHookPosition() const;
@@ -61,14 +67,28 @@ public:
 	inline double getAileron() const;
 	inline double getRudder() const;
 	inline double getStabilizer() const;
+	inline double getFlapsPosition() const;
 
+	//--------Setting/Getting Angles-------------------------
 	inline double getNoseWheelAngle() const;
 
 	inline double aileronAngle();
 	inline double stabilizerAngle();
 	inline double rudderAngle();
 	
+	inline double flapsAngle();
+	
+	inline double gearLAngle();
+	inline double gearRAngle();
+	inline double gearNAngle();
+
+	inline double airbrakeAngle();
+	
+	
 	void airframeUpdate(double dt);
+
+	//!!! die update Funktion funktioniert, allerdings OHNE Actuators!!!!
+	//double updateFlaps();
 
 
 private:
@@ -98,6 +118,11 @@ private:
 	Actuator m_actuatorStab; //scheint nur zur optischen "Verschönerung" zu sein, aber egal
 	Actuator m_actuatorAil;
 	Actuator m_actuatorRud;
+	Actuator m_actuatorFlap;
+	Actuator m_actuatorGearL;
+	Actuator m_actuatorGearR;
+	Actuator m_actuatorGearN;
+	Actuator m_actuatorAirbrk;
 
 
 	//double m_stabilizerZeroForceDeflection = 0.0;
@@ -141,30 +166,48 @@ double Airframe::setRudder(double dt)
 	return m_actuatorRud.inputUpdate(input, dt);
 }
 
+double Airframe::setFlapsPosition(double dt)
+{
+	double input = m_input.m_flaps_toggle;
+	return m_actuatorFlap.inputUpdate(input, dt);
+}
 
-void Airframe::setFlapsPosition(double position)
+
+/*void Airframe::setFlapsPosition(double position) //ALT aber insges. funktionstüchtig
 {
 	m_flapsPosition = position;
+}*/
+
+//Jetzt mal ganz anders
+/*double Airframe::updateFlaps() 
+{
+	return m_flapsPosition;
+
+	printf("Flp_Position %f \n", m_flapsPosition);
+}*/
+
+double Airframe::setGearLPosition(double dt)
+{
+	double input = m_input.m_gear_toggle;
+	return m_actuatorGearL.inputUpdate(input, dt);
 }
 
-void Airframe::setGearLPosition(double position)
+double Airframe::setGearRPosition(double dt)
 {
-	m_gearLPosition = position;
+	double input = m_input.m_gear_toggle;
+	return m_actuatorGearR.inputUpdate(input, dt);
 }
 
-void Airframe::setGearRPosition(double position)
+double Airframe::setGearNPosition(double dt)
 {
-	m_gearRPosition = position;
+	double input = m_input.m_gear_toggle;
+	return m_actuatorGearN.inputUpdate(input, dt);
 }
 
-void Airframe::setGearNPosition(double position)
+double Airframe::setAirbrakePosition(double dt)
 {
-	m_gearNPosition = position;
-}
-
-void Airframe::setAirbrakePosition(double position)
-{
-	m_speedBrakePosition = position;
+	double input = m_input.m_airbrk;
+	return m_actuatorAirbrk.inputUpdate(input, dt);
 }
 
 void Airframe::setMass(double mass)
@@ -197,10 +240,6 @@ double Airframe::getGearNPosition() const
 	return m_gearNPosition;
 }
 
-double Airframe::getFlapsPosition() const
-{
-	return m_flapsPosition;
-}
 
 double Airframe::getSpeedBrakePosition() const
 {
@@ -227,6 +266,12 @@ double Airframe::getRudder() const
 	return m_rudder;
 }
 
+double Airframe::getFlapsPosition() const
+{
+	return m_flapsPosition;
+}
+
+
 double Airframe::aileronAngle()
 {
 	return 	m_aileronLeft > 0.0 ? CON_aitnu * m_aileronLeft : -CON_aitnd * m_aileronLeft;
@@ -240,6 +285,32 @@ double Airframe::stabilizerAngle()
 double Airframe::rudderAngle()
 {
 	return m_rudder > 0.0 ? CON_RdDefGUR * m_rudder : -CON_RdDefGUL * m_rudder;
+}
+
+//FlapsAngle scheint egal zu sein, da fester Ausschlag 0-50%-100%
+double Airframe::flapsAngle()
+{
+	return m_flapsPosition > 0.0 ? -CON_teft2 * m_flapsPosition : 0.001 * m_flapsPosition;
+}
+
+double Airframe::gearLAngle()
+{
+	return m_gearLPosition > 0.0 ? 1 * m_gearLPosition : 0.0001 * m_gearLPosition;
+}
+
+double Airframe::gearRAngle()
+{
+	return m_gearRPosition > 0.0 ? 1 * m_gearRPosition : 0.0001 * m_gearRPosition;
+}
+
+double Airframe::gearNAngle()
+{
+	return m_gearNPosition > 0.0 ? 1 * m_gearNPosition : 0.0001 * m_gearNPosition;
+}
+
+double Airframe::airbrakeAngle()
+{
+	return m_speedBrakePosition > 0.0 ? CON_BrkAngl * m_speedBrakePosition : 0.0001 * m_speedBrakePosition;
 }
 
 double Airframe::getMass() const
