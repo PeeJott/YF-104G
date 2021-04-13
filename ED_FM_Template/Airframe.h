@@ -30,10 +30,7 @@ public:
 	inline double setGearLPosition(double dt);
 	inline double setGearRPosition(double dt);
 	inline double setGearNPosition(double dt);
-	//Flaps
-	//inline void setFlapsPosition(double position); //Ursprünglich funktioniert insges.-OLD
-	//inline double setFlapsPosition(double dt); //Neu und ein Versuch-OLD
-													 
+	
 	//Airbrake
 	//inline void setAirbrakePosition(double position);//OLD
 	inline double setAirbrakePosition(double dt);
@@ -46,11 +43,17 @@ public:
 	inline double setRudder(double dt);
 	inline double setStabilizer(double dt);
 	
-	//NEW Flaps and Airbrake
+	//Flaps
 	inline double setFlapsPosition(double dt);
 
+	//Hook
+	inline double setHookPosition(double dt);
+
+	//Engine Nozzle
+	inline double setNozzlePosition(double dt);
+
 	//Steering
-	inline void setNoseWheelAngle(double angle);
+	inline double setNoseWheelAngle(double dt);
 
 	//---Masses-----
 	inline void setMass(double angle);
@@ -69,6 +72,10 @@ public:
 	inline double getStabilizer() const;
 	inline double getFlapsPosition() const;
 
+	inline double getNozzlePosition() const;
+
+	inline double NWSstate();
+
 	//--------Setting/Getting Angles-------------------------
 	inline double getNoseWheelAngle() const;
 
@@ -83,6 +90,7 @@ public:
 	inline double gearNAngle();
 
 	inline double airbrakeAngle();
+	inline double noseWheelAngle();
 	
 	
 	void airframeUpdate(double dt);
@@ -90,6 +98,12 @@ public:
 	//!!! die update Funktion funktioniert, allerdings OHNE Actuators!!!!
 	//double updateFlaps();
 
+	//NEU UpdateBrake-Funktion
+	double updateBrake();
+	inline double brkChutePosition(); //WARUM ging diese funktion OHNE inline nicht???
+
+	//NEU UpdateGear for Startup Funktion (VERSUCH-1)
+	double updateStartGearGO();
 
 private:
 	Vec3 m_moment;
@@ -103,6 +117,10 @@ private:
 	double m_gearRPosition = 0.0;
 	double m_gearNPosition = 0.0;
 
+	//modification variable for Ground-Start
+	double m_gearStart = 0.0;
+	double m_gearStartDown = 0.0;
+
 	//aerodynamic surfaces
 	double m_flapsPosition = 0.0;
 	double m_speedBrakePosition = 0.0;
@@ -115,6 +133,13 @@ private:
 
 	double m_noseWheelAngle = 0.0;
 
+	double m_nozzlePosition = 0.0;
+
+	double m_brakeMoment = 0.0;
+	double m_chuteState = 0.0;
+	double m_nwsEngage = 0.0;
+	//double m_speedPrevious = 0.0;
+
 	Actuator m_actuatorStab; //scheint nur zur optischen "Verschönerung" zu sein, aber egal
 	Actuator m_actuatorAil;
 	Actuator m_actuatorRud;
@@ -123,6 +148,9 @@ private:
 	Actuator m_actuatorGearR;
 	Actuator m_actuatorGearN;
 	Actuator m_actuatorAirbrk;
+	Actuator m_actuatorHook;
+	Actuator m_actuatorNozzle;
+	Actuator m_actuatorNosewheel;
 
 
 	//double m_stabilizerZeroForceDeflection = 0.0;
@@ -178,28 +206,25 @@ double Airframe::setFlapsPosition(double dt)
 	m_flapsPosition = position;
 }*/
 
-//Jetzt mal ganz anders
-/*double Airframe::updateFlaps() 
-{
-	return m_flapsPosition;
-
-	printf("Flp_Position %f \n", m_flapsPosition);
-}*/
-
 double Airframe::setGearLPosition(double dt)
 {
-	double input = m_input.m_gear_toggle;
+	
+	double input = m_input.m_gear_toggle; 
+	printf("GearToggle-Value %f \n", m_input.m_gear_toggle);
 	return m_actuatorGearL.inputUpdate(input, dt);
+
 }
 
 double Airframe::setGearRPosition(double dt)
 {
+
 	double input = m_input.m_gear_toggle;
 	return m_actuatorGearR.inputUpdate(input, dt);
 }
 
 double Airframe::setGearNPosition(double dt)
 {
+	
 	double input = m_input.m_gear_toggle;
 	return m_actuatorGearN.inputUpdate(input, dt);
 }
@@ -210,19 +235,57 @@ double Airframe::setAirbrakePosition(double dt)
 	return m_actuatorAirbrk.inputUpdate(input, dt);
 }
 
+double Airframe::setHookPosition(double dt)
+{
+	double input = m_input.m_hooktgl;
+	return m_actuatorHook.inputUpdate(input, dt);
+}
+
+double Airframe::setNozzlePosition(double dt) //Nozzle-Position 0-10% Thrust open, 11-84% Thrust closed, 85-100% Thrust open
+{
+	double NozzlePos = 0.0;
+	double corrThrottle = 0.0;
+
+	if (m_input.m_throttle >= 0.0)
+	{
+		corrThrottle = (1 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+	}
+	else
+	{
+		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
+	}
+
+	if (corrThrottle <= 0.10)
+	{
+		NozzlePos = 0.4;
+	}
+	else if (corrThrottle >= 0.85)
+	{
+		NozzlePos = 0.90;
+	}
+	else
+	{
+		NozzlePos = 0.2;
+	}
+	
+	double input = NozzlePos;
+	return m_actuatorNozzle.inputUpdate(input, dt);
+}
+
 void Airframe::setMass(double mass)
 {
 	m_mass = mass;
 }
 
-void Airframe::setNoseWheelAngle(double angle)
+double Airframe::setNoseWheelAngle(double dt)
 {
-	m_noseWheelAngle = angle;
+	double input = m_input.m_yaw;
+	return m_actuatorNosewheel.inputUpdate(input, dt);
 }
 
 double Airframe::getNoseWheelAngle() const
 {
-	return m_noseWheelAngle;
+	return -m_noseWheelAngle;
 }
 
 double Airframe::getGearLPosition() const
@@ -271,6 +334,10 @@ double Airframe::getFlapsPosition() const
 	return m_flapsPosition;
 }
 
+double Airframe::getNozzlePosition() const
+{
+	return m_nozzlePosition;
+}
 
 double Airframe::aileronAngle()
 {
@@ -313,8 +380,37 @@ double Airframe::airbrakeAngle()
 	return m_speedBrakePosition > 0.0 ? CON_BrkAngl * m_speedBrakePosition : 0.0001 * m_speedBrakePosition;
 }
 
+double Airframe::noseWheelAngle()
+{
+	return m_noseWheelAngle > 0.0 ? CON_NSWL * m_noseWheelAngle : -CON_NSWR * m_noseWheelAngle;
+}
 double Airframe::getMass() const
 {
 	return m_mass;
 }
 
+double Airframe::NWSstate()
+{
+	if (m_input.m_nwsteering == 1)
+	{
+		m_nwsEngage = 1;
+	}
+	else
+	{
+		m_nwsEngage = 0;
+	}
+	return m_nwsEngage;
+}
+
+double Airframe::brkChutePosition()
+{
+	if (m_input.m_brkchute == 1)
+	{
+		m_chuteState = 1;
+	}
+	else
+	{
+		m_chuteState = 0;
+	}
+	return m_chuteState;
+}

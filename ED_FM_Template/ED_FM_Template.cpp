@@ -72,7 +72,7 @@ void ed_fm_simulate(double dt)
 {
 	s_flightModel.update(dt);
 	s_engine.update(dt);
-	s_airframe.airframeUpdate(dt);//neu eingefügt, damit die Engine-Class auch "geupdated" wird, da sie ungleich der Flightmodel-Class ist
+	s_airframe.airframeUpdate(dt);
 }
 
 void ed_fm_set_atmosphere(double h,//altitude above sea level
@@ -204,33 +204,73 @@ void ed_fm_set_command(int command,
 			s_input.m_gear_toggle = 0;
 		}
 		break;
-	/*case COMMAND_GEAR_UP:
-		s_input.m_gearup = value;
+	case COMMAND_GEAR_UP:
+		s_input.m_gearup;
+		if (s_input.m_gearup == 0)
+		{
+			s_input.m_gear_toggle = 0;
+		}
+		else
+		{
+			s_input.m_gearup = 0;
+		}
 		break;
 	case COMMAND_GEAR_DOWN: 
-		s_input.m_geardown = value;
-		break;*/
-	case COMMAND_BRAKE:
-		s_input.m_brake = value;
+		s_input.m_geardown;
+		if (s_input.m_geardown == 0)
+		{
+			s_input.m_gear_toggle = 1;
+		}
+		else
+		{
+			s_input.m_geardown = 0;
+		}
 		break;
-	/*case COMMAND_LEFT_BRAKE:
+	case COMMAND_BRAKE: //aktuell Wheel-Brake Press=An; Press=Aus
+		s_input.m_brake;
+		if (s_input.m_brake == 0)
+		{
+			s_input.m_brake = 1;
+		}
+		else
+		{
+			s_input.m_brake = 0;
+		}
+		break;
+	case COMMAND_LEFT_BRAKE:
 		s_input.m_leftbrake = value;
 		break;
 	case COMMAND_RIGHT_BRAKE:
 		s_input.m_rightbrake = value;
 		break;
-	case COMMAND_FLAPS_INCREASE:
-		s_input.m_flapsinc = value;
+	/*case COMMAND_FLAPS_INCREASE:
+		s_input.m_flapsinc;
 		break;
 	case COMMAND_FLAPS_DECREASE:
-		s_input.m_flapsdec = value;
-		break;
+		s_input.m_flapsdec;
+		break;*/
 	case COMMAND_FLAPS_DOWN:
-		s_input.m_flapsdown = value;
+		s_input.m_flapsdown;
+		if (s_input.m_flapsdown == 0)
+		{
+			s_input.m_flaps_toggle = 1;
+		}
+		else
+		{
+			s_input.m_flapsdown = 0;
+		}
 		break;
 	case COMMAND_FLAPS_UP:
-		s_input.m_flapsup = value;
-		break;*/
+		s_input.m_flapsup;
+		if (s_input.m_flapsup == 0)
+		{
+			s_input.m_flaps_toggle = 0;
+		}
+		else
+		{
+			s_input.m_flapsup = 0;
+		}
+		break;
 	case COMMAND_FLAPS_TOGGLE:
 		s_input.m_flaps_toggle;
 		if (s_input.m_flaps_toggle == 0)
@@ -258,19 +298,62 @@ void ed_fm_set_command(int command,
 			s_input.m_airbrk = 0;
 		}
 		break;
-	/*case COMMAND_AIRBRAKE_EXTEND:
-		s_input.m_airbrkext = value;
+	case COMMAND_AIRBRAKE_EXTEND:
+		s_input.m_airbrkext;
+		if (s_input.m_airbrkext == 0)
+		{
+			s_input.m_airbrk = 1;
+		}
+		else
+		{
+			s_input.m_airbrkext = 0;
+		}
 		break;
 	case COMMAND_AIRBRAKE_RETRACT:
-		s_input.m_airbrkret = value;
-		break;*/
-	/*case COMMAND_HOOK_TOGGLE:
-		s_input.m_hooktgl = value;
+		s_input.m_airbrkret;
+		if (s_input.m_airbrkret == 0)
+		{
+			s_input.m_airbrk = 0;
+		}
+		else
+		{
+			s_input.m_airbrkret = 0;
+		}
+		break;
+	case COMMAND_HOOK_TOGGLE:
+		s_input.m_hooktgl;
+		if (s_input.m_hooktgl == 0)
+		{
+			s_input.m_hooktgl = 1;
+		}
+		else
+		{
+			s_input.m_hooktgl = 0;
+		}
 		break;
 	case COMMAND_NOSEWHEEL_STEERING:
-		s_input.m_nwsteering = value;
+		s_input.m_nwsteering;
+		if (s_input.m_nwsteering == 0)
+		{
+			s_input.m_nwsteering = 1;
+		}
+		else
+		{
+			s_input.m_nwsteering = 0;
+		}
 		break;
-	case COMMAND_NOSEWHEEL_STEERING_ENGAGE:
+	case COMMAND_BRAKE_CHUTE:
+		s_input.m_brkchute;
+		if (s_input.m_brkchute == 0)
+		{
+			s_input.m_brkchute = 1;
+		}
+		else
+		{
+			s_input.m_brkchute = 0;
+		}
+		break;
+	/*case COMMAND_NOSEWHEEL_STEERING_ENGAGE:
 		s_input.m_nwsteeringeng = value;
 		break;
 	case COMMMAND_NOSEWHEEL_STEERING_DISENGAGE:
@@ -283,8 +366,8 @@ void ed_fm_set_command(int command,
 		s_input.m_starterbutton = value;
 		break;*/
 	
-	//default:
-		//printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
+	default:
+		printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
 	}
 }
 /*
@@ -395,8 +478,11 @@ void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
 	drawargs[0].f = s_airframe.getGearNPosition();//Nosewheel Position
 	drawargs[3].f = s_airframe.getGearRPosition();//Right Gear Position
 	drawargs[5].f = s_airframe.getGearLPosition();//Left Gear Position
-
-
+	drawargs[25].f = s_airframe.getHookPosition();//Hook Position
+	drawargs[28].f = s_engine.updateBurner();//Burner Stage 1 and 0
+	drawargs[89].f = s_airframe.getNozzlePosition();//Engine Nozzle Stage 1 - 0 - 1
+	drawargs[2].f = s_airframe.getNoseWheelAngle();//Nosewheel Angle +/- 60°
+	drawargs[35].f = s_airframe.brkChutePosition();
 
 }
 
@@ -427,6 +513,20 @@ case ED_FM_SUSPENSION_2_GEAR_POST_STATE:
 case ED_FM_SUSPENSION_2_DOWN_LOCK:
 case ED_FM_SUSPENSION_2_UP_LOCK:
 	return s_airframe.getGearRPosition();
+
+case ED_FM_SUSPENSION_1_RELATIVE_BRAKE_MOMENT:
+	return s_airframe.updateBrake();
+case ED_FM_SUSPENSION_2_RELATIVE_BRAKE_MOMENT:
+	return s_airframe.updateBrake();
+
+case ED_FM_ANTI_SKID_ENABLE:
+	return 1.0;
+
+case ED_FM_SUSPENSION_0_WHEEL_SELF_ATTITUDE:
+	return s_airframe.NWSstate() > 0.5 ? 0.0 : 1.0;
+case ED_FM_SUSPENSION_0_WHEEL_YAW:
+	return s_airframe.getNoseWheelAngle(); //> 0.5 ? -s_input.m_yaw * 0.5 : 0.0; //rotation to 45 degrees, half 90 (range of the wheel)
+
 }
 
 	return 0;
@@ -436,17 +536,17 @@ case ED_FM_SUSPENSION_2_UP_LOCK:
 
 void ed_fm_cold_start()
 {
-
+	s_airframe.coldInit();
 }
 
 void ed_fm_hot_start()
 {
-
+	s_airframe.hotInit();
 }
 
 void ed_fm_hot_start_in_air()
 {
-
+	s_airframe.airborneInit();
 }
 
 bool ed_fm_add_local_force_component( double & x,double &y,double &z,double & pos_x,double & pos_y,double & pos_z )

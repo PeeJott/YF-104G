@@ -13,7 +13,6 @@ public:
 	virtual void Actuator::hotInit();
 	virtual void Actuator::airborneInit();
 
-
 	double inputUpdate(double targetPosition, double dt);
 	void physicsUpdate(double dt);
 	double getPosition();

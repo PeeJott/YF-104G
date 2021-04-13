@@ -16,8 +16,10 @@ Airframe::Airframe
 	m_actuatorAirbrk(1.3),
 	m_actuatorGearL(0.9),
 	m_actuatorGearN(0.9),
-	m_actuatorGearR(0.9)
-
+	m_actuatorGearR(0.6),
+	m_actuatorHook(0.6),
+	m_actuatorNozzle(1.75),
+	m_actuatorNosewheel(2.0)
 {
 	//huhu!!
 }
@@ -28,6 +30,8 @@ void Airframe::zeroInit()
 	m_gearLPosition = 0.0;
 	m_gearRPosition = 0.0;
 	m_gearNPosition = 0.0;
+
+	m_gearStart = 0.0;
 
 	//------aerodynamic surfaces-------
 	m_flapsPosition = 0.0;
@@ -42,22 +46,107 @@ void Airframe::zeroInit()
 
 	m_noseWheelAngle = 0.0;
 
+	m_nozzlePosition = 0.0;
+
+	//set to "0" after each init
+	m_input.m_brake = 0.0;
+
+	m_nwsEngage = 0.0;
+	m_chuteState = 0.0;
 	m_mass = 1.0;
 }
 
 void Airframe::coldInit()
 {
-	zeroInit();
+	//---Gear position--------
+	m_gearLPosition = 0.0;
+	m_gearRPosition = 0.0;
+	m_gearNPosition = 0.0;
+
+	//-----gear position for ground start
+	m_gearStart = 1;
+	//m_actuatorGearL = 0.0;
+	//m_actuatorGearN = 0.0;
+	//m_actuatorGearR = 0.0;
+
+	//------aerodynamic surfaces-------
+	m_flapsPosition = 0.0;
+	m_speedBrakePosition = 0.0;
+
+	m_aileronLeft = 0.0;
+	m_aileronRight = 0.0;
+	m_stabilizer = 0.0;
+	m_rudder = 0.0;
+
+	m_hookPosition = 0.0;
+
+	m_noseWheelAngle = 0.0;
+
+	m_nozzlePosition = 0.0;
+
+	m_input.m_brake = 0;
+
+	m_nwsEngage = 0.0;
+	m_chuteState = 0.0;
+	m_mass = 1.0;
 }
 
 void Airframe::hotInit()
 {
-	zeroInit();
+	//---Gear position--------
+	m_gearLPosition = 0.0;
+	m_gearRPosition = 0.0;
+	m_gearNPosition = 0.0;
+
+	//---Gear position for ground start----------
+	m_gearStart = 1;
+	//m_actuatorGearL = 0.0;
+	//m_actuatorGearN = 0.0;
+	//m_actuatorGearR = 0.0;
+
+	//------aerodynamic surfaces-------
+	m_flapsPosition = 0.0;
+	m_speedBrakePosition = 0.0;
+
+	m_aileronLeft = 0.0;
+	m_aileronRight = 0.0;
+	m_stabilizer = 0.0;
+	m_rudder = 0.0;
+
+	m_hookPosition = 0.0;
+
+	m_noseWheelAngle = 0.0;
+
+	m_nozzlePosition = 0.0;
+
+	m_input.m_brake = 0;
+	
+	m_nwsEngage = 0.0;
+	m_chuteState = 0.0;
+	m_mass = 1.0;
 }
 
 void Airframe::airborneInit()
 {
 	zeroInit();
+}
+
+double Airframe::updateStartGearGO()
+{
+	if (m_state.m_mach < 0.25)
+	{
+		if (m_gearStart == 1)
+		{
+			m_gearStartDown = 1;
+		}
+	}
+	else
+	{
+		m_gearStartDown = 2;
+	}
+	printf("m_gearStartDown-Value %f \n", m_gearStartDown);
+	
+	return m_gearStartDown;
 }
 
 void Airframe::airframeUpdate(double dt)
@@ -88,9 +177,38 @@ void Airframe::airframeUpdate(double dt)
 	m_flapsPosition = setFlapsPosition(dt);
 	m_speedBrakePosition = setAirbrakePosition(dt);
 	
-	m_gearLPosition = setGearLPosition(dt);
-	m_gearRPosition = setGearRPosition(dt);
-	m_gearNPosition = setGearNPosition(dt);
+	if (updateStartGearGO() == 1)
+	{
+		m_gearLPosition = 1;
+	}
+	else //if (updateStartGearGO() == 2)
+	{
+		m_gearLPosition = setGearLPosition(dt);
+	}
+	
+	if (updateStartGearGO() == 1)
+	{
+		m_gearRPosition = 1;
+	}
+	else //if (updateStartGearGO() == 2)
+	{
+		m_gearRPosition = setGearRPosition(dt);
+	}
+	if (updateStartGearGO() == 1)
+	{
+		m_gearNPosition = 1;
+	}
+	else //if (updateStartGearGO() == 2)
+	{
+		m_gearNPosition = setGearNPosition(dt);
+	}
+	
+	m_hookPosition = setHookPosition(dt);
+
+	m_nozzlePosition = setNozzlePosition(dt);
+
+	m_noseWheelAngle = setNoseWheelAngle(dt);
+
 	//Neuer Test, falls der KeyBind nur beim Drücke "1" ist
 	//m_flapsPosition = getFlapsPosition();
 	
@@ -126,3 +244,17 @@ void Airframe::airframeUpdate(double dt)
 
 	return m_flapsPosition;
 }*/
+double Airframe::updateBrake()
+{
+	m_brakeMoment = 0.0;
+
+	if (m_input.m_brake == 1)
+	{
+		m_brakeMoment = 1;
+	}
+	else if (m_input.m_brake != 1)
+	{
+		m_brakeMoment = 0;
+	}
+	return m_brakeMoment;
+}

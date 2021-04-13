@@ -5,6 +5,7 @@
 #include "State.h"
 #include "Input.h"
 #include "AeroData_1.h"
+#include "BaseComponent.h"
 //#include "FlightModel.h" war doppelt in flightmodel (Ringabhängigkeit)
 
 class Engine
@@ -12,8 +13,16 @@ class Engine
 public:
 	Engine(State& state, Input& input);
 
+	//Initialization
+	virtual void zeroInit();
+	virtual void coldInit();
+	virtual void hotInit();
+	virtual void airborneInit();
+
 	void update(double dt); //in der () "double dt" eingefügt, war vorher ohne
 	double updateThrust(); 
+	double updateBurner();
+
 	//void updateThrust(double dt);
 	inline const Vec3& getForce() const;
 
@@ -32,7 +41,8 @@ private:
 	double m_scalarVelocitySquared = 0.0;
 	//-------------Engine Values/Commands----------------------------
 	double m_thrust = 0.0;
-	double m_throttle = 0.0; //neu 28.02.2021
+	double m_throttle = 0.0;
+	double m_burner = 0.0;
 	//-------------Thrust Tables init------------------------
 	Table PMax;
 	Table PFor;

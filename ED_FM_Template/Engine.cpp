@@ -16,6 +16,30 @@ Engine::Engine
 	//huhu!!
 }
 
+void Engine::zeroInit()
+{
+	m_scalarVelocity = 0.0;
+	m_scalarVelocitySquared = 0.0;
+	//-------------Engine Values/Commands----------------------------
+	m_thrust = 0.0;
+	m_throttle = 0.0;
+	m_burner = 0.0;
+}
+
+void Engine::coldInit()
+{
+	zeroInit();
+}
+
+void Engine::hotInit()
+{
+	zeroInit();
+}
+
+void Engine::airborneInit()
+{
+	zeroInit();
+}
 void Engine::update(double dt) //möglicherweise die ganze Funktion DEAD...dann aber auch im Header entfernen!!!!!
 {
 	//m_force = Vec3(); //braucht man hier vielleicht nicht, trotzdem wieder eingesetzt zum testen
@@ -88,4 +112,29 @@ double Engine::updateThrust() //Wenn Veränderungen dann hier verändern NICHT obe
 	//printf("CurrentAirDensity %f \n", m_state.m_airDensity);
 	
 	return m_thrust;
+}
+
+double Engine::updateBurner()
+{
+	m_burner = 0.0;
+	double corrThrottle = 0.0;
+
+	if (m_input.m_throttle >= 0.0)
+	{
+		corrThrottle = (1 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+	}
+	else
+	{
+		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
+	}
+
+	if (corrThrottle >= 0.85)
+	{
+		m_burner = 1;
+	}
+	else
+	{
+		m_burner = 0;
+	}
+	return m_burner;
 }

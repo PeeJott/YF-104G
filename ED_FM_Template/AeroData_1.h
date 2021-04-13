@@ -186,7 +186,7 @@
 #define CON_CeMax 0.85 // kg/s voll Millpower SL
 #define CON_CeFor 1.112 // kg/s voll AB-Power SL
 #define CON_ThrotIDL 0.55 //IDLE-RPM
-#define CON_CDeng 0.075 //engine Drag geschätzt (immer dabei, nie aus)
+#define CON_CDeng 0.015 //engine Drag geschätzt (immer dabei, nie aus)
 
 //--------measurements fuselage-------------------
 #define CON_lgt 16.69 // length in m
@@ -246,14 +246,14 @@
 
 //----------Drag and Lift for Flap,Brake and Chute------------------------
 //----------Drag and Lift for Flaps----------------------------------------------------------
-#define CON_FlpD1 0.0225 // Drag both Flaps Stage 1
-#define CON_FlpD2 0.045 // Drag both flpas Stage 2
+#define CON_FlpD1 0.0125 // Drag both Flaps Stage 1
+#define CON_FlpD2 0.025 // Drag both flpas Stage 2
 #define CON_FlpL0 0.000 // Lift both flpas in
 #define CON_FlpL1 0.185 // Lift both flaps Stage 1
 #define CON_FlpL2 0.37  // Lift both Flpas Stage 2
 
 //---------Drag for Speed Brakes-------------------------------------------------------
-#define CON_BrkD  0.19 // Drag of SpeedBrake
+#define CON_BrkD  0.075 // Drag of SpeedBrake
 #define CON_BrkOut 1.0 //speed brake out
 #define CON_BrkIn 0.0 //speed brake in
 #define CON_BrkAngl 1.39 // 80° in Rad. bzgl. Ausfahrwinkel
@@ -264,10 +264,13 @@
 #define CON_ChtIn 0.0 // Brake Chute in
 
 //-----------Gear drag-------------------------------------------------------
-#define CON_GrDD 0.130 //GearDown DRAG
-#define CON_GrDT 0.065 // GearTravel Drag
+#define CON_GrDD 0.065 //GearDown DRAG
+#define CON_GrDT 0.033 // GearTravel Drag
 #define CON_GrIn 0.000 // GearIn Drag
 
+//-----------NSW Angle----------------------------------------------------
+#define CON_NSWL 1.047 //60° in Rad + is left
+#define CON_NSWR -1.047//60° in Rad - is right
 //-----------fuel-----------------------------------------------------------
 #define CON_fint 3.104 // fuel int. in kg (3.880 l * 0,8)
 //-----------Ende der Abmessungen------------------------
