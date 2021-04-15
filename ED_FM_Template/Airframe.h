@@ -50,7 +50,7 @@ public:
 	inline double setHookPosition(double dt);
 
 	//Engine Nozzle
-	inline double setNozzlePosition(double dt);
+	double setNozzlePosition(double dt); //verschoben nach Airframe CPP wegen der Größe
 
 	//Steering
 	inline double setNoseWheelAngle(double dt);
@@ -74,7 +74,7 @@ public:
 
 	inline double getNozzlePosition() const;
 
-	inline double NWSstate();
+	double NWSstate();//verschoben nach Airframe CPP
 
 	//--------Setting/Getting Angles-------------------------
 	inline double getNoseWheelAngle() const;
@@ -100,10 +100,7 @@ public:
 
 	//NEU UpdateBrake-Funktion
 	double updateBrake();
-	inline double brkChutePosition(); //WARUM ging diese funktion OHNE inline nicht???
-
-	//NEU UpdateGear for Startup Funktion (VERSUCH-1)
-	double updateStartGearGO();
+	double brkChutePosition(); //verschoben nach CPP, daher inline gespart
 
 private:
 	Vec3 m_moment;
@@ -208,23 +205,18 @@ double Airframe::setFlapsPosition(double dt)
 
 double Airframe::setGearLPosition(double dt)
 {
-	
 	double input = m_input.m_gear_toggle; 
-	printf("GearToggle-Value %f \n", m_input.m_gear_toggle);
 	return m_actuatorGearL.inputUpdate(input, dt);
-
 }
 
 double Airframe::setGearRPosition(double dt)
 {
-
 	double input = m_input.m_gear_toggle;
 	return m_actuatorGearR.inputUpdate(input, dt);
 }
 
 double Airframe::setGearNPosition(double dt)
-{
-	
+{	
 	double input = m_input.m_gear_toggle;
 	return m_actuatorGearN.inputUpdate(input, dt);
 }
@@ -239,37 +231,6 @@ double Airframe::setHookPosition(double dt)
 {
 	double input = m_input.m_hooktgl;
 	return m_actuatorHook.inputUpdate(input, dt);
-}
-
-double Airframe::setNozzlePosition(double dt) //Nozzle-Position 0-10% Thrust open, 11-84% Thrust closed, 85-100% Thrust open
-{
-	double NozzlePos = 0.0;
-	double corrThrottle = 0.0;
-
-	if (m_input.m_throttle >= 0.0)
-	{
-		corrThrottle = (1 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
-	}
-	else
-	{
-		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
-	}
-
-	if (corrThrottle <= 0.10)
-	{
-		NozzlePos = 0.4;
-	}
-	else if (corrThrottle >= 0.85)
-	{
-		NozzlePos = 0.90;
-	}
-	else
-	{
-		NozzlePos = 0.2;
-	}
-	
-	double input = NozzlePos;
-	return m_actuatorNozzle.inputUpdate(input, dt);
 }
 
 void Airframe::setMass(double mass)
@@ -384,33 +345,10 @@ double Airframe::noseWheelAngle()
 {
 	return m_noseWheelAngle > 0.0 ? CON_NSWL * m_noseWheelAngle : -CON_NSWR * m_noseWheelAngle;
 }
+
 double Airframe::getMass() const
 {
 	return m_mass;
 }
 
-double Airframe::NWSstate()
-{
-	if (m_input.m_nwsteering == 1)
-	{
-		m_nwsEngage = 1;
-	}
-	else
-	{
-		m_nwsEngage = 0;
-	}
-	return m_nwsEngage;
-}
 
-double Airframe::brkChutePosition()
-{
-	if (m_input.m_brkchute == 1)
-	{
-		m_chuteState = 1;
-	}
-	else
-	{
-		m_chuteState = 0;
-	}
-	return m_chuteState;
-}

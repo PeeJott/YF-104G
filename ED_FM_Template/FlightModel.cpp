@@ -59,14 +59,14 @@ void FlightModel::L_stab()
 {
 	//set roll moment -- Neu eingefügt am 14.02.2021 PJ-- "-" vor Clr eingefügt, da Clr Daten positiv waren und negativ sein müssten da Dämpfung
 	//m_moment.x-- "2 *" vor Clda eingefügt für stärkere Ailerons = schon besser-- "2*" vor Clp eingefügt -- "0,5 *" vor Clb eingefügt
-	m_moment.x += m_q * (Clb(m_state.m_mach) * m_state.m_beta + Clda(m_state.m_mach) * m_input.m_roll + (0.55 * Cldr(m_state.m_mach)) * m_input.m_yaw)
+	m_moment.x += m_q * (Clb(m_state.m_mach) * m_state.m_beta + Clda(m_state.m_mach) * (m_input.m_roll + m_input.m_trimm_ail_r - m_input.m_trimm_ail_l) + (0.55 * Cldr(m_state.m_mach)) * m_input.m_yaw)
 		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * (2 * Clp(m_state.m_mach) * m_state.m_omega.x + (1.5 * -Clr(m_state.m_mach)) * m_state.m_omega.y);
 }
 
 void FlightModel::M_stab()
 {
 	//set pitch moment-- "-" vor Cmde eingefügt, da positiver Wert erwartet--
-	m_moment.z += m_k * CON_mac * (Cmalpha(m_state.m_mach) * m_state.m_aoa + (0.90 * -Cmde(m_state.m_mach)) * m_input.m_pitch) 
+	m_moment.z += m_k * CON_mac * (Cmalpha(m_state.m_mach) * m_state.m_aoa + (0.90 * -Cmde(m_state.m_mach)) * (m_input.m_pitch + m_input.m_trimm_up - m_input.m_trimm_down)) 
 			+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_mac * CON_mac * ((1.75 * Cmq(m_state.m_mach))*m_state.m_omega.z + (1.45 * Cmadot(m_state.m_mach)) * m_aoaDot);
 }
 
@@ -94,7 +94,7 @@ void FlightModel::drag()
 	//approx m_force.x negative
 	//erster Versuch: m_force.x = -(m_k * (CDmach(m_state.m_mach) + CDa(m_state.m_aoa)
 		//+ ((CLmach(m_state.m_mach) + CLa(m_state.m_mach)) * (CLmach(m_state.m_mach) + CLa(m_state.m_mach))) / CON_pi * CON_AR * CON_e));
-	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (CDa(m_state.m_mach) * m_state.m_aoa)+ CON_CDeng + CDGear + CDFlaps + CDBrk); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
+	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (CDa(m_state.m_mach) * m_state.m_aoa)+ CON_CDeng + CDGear + CDFlaps + CDBrk + CDBrkCht); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
 }
 
 void FlightModel::sideForce()
@@ -143,7 +143,7 @@ void FlightModel::update(double dt)
 	CDFlaps = CON_FlpD2 * m_airframe.getFlapsPosition();
 	CLFlaps = CON_FlpL2 * m_airframe.getFlapsPosition();
 	CDBrk = CON_BrkD * m_airframe.getSpeedBrakePosition();
-
+	CDBrkCht = CON_ChtD * m_airframe.brkChutePosition();
 	
 	L_stab();
 	M_stab();
@@ -154,4 +154,6 @@ void FlightModel::update(double dt)
 	thrustForce();
 	//printf("vector %f \n", m_force.x); //--Der Test für die gesamte (Thrust abzgl. Drag) resultierende m_force.x
 }
+
+
 

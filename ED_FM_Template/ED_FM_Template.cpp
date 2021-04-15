@@ -193,6 +193,51 @@ void ed_fm_set_command(int command,
 	case COMMAND_YAW:
 		s_input.m_yaw = value;
 		break;
+	case COMMAND_TRIMM_UP:
+		s_input.m_trimm_up;
+		if (s_input.m_trimm_up == 0)
+		{
+			s_input.m_trimm_up = 0.0002;
+		}
+		else if (s_input.m_trimm_up != 0)
+		{
+			s_input.m_trimm_up += 0.0002;
+		}
+		printf("TrimmUp %f \n", s_input.m_trimm_up);
+		break;
+	case COMMAND_TRIMM_DOWN:
+		s_input.m_trimm_down;
+		if (s_input.m_trimm_down == 0)
+		{
+			s_input.m_trimm_down = 0.0002;
+		}
+		else if (s_input.m_trimm_down != 0)
+		{
+			s_input.m_trimm_down += 0.0002;
+		}
+		break;
+	case COMMAND_TRIMM_AIL_L:
+		s_input.m_trimm_ail_l;
+		if (s_input.m_trimm_ail_l == 0)
+		{
+			s_input.m_trimm_ail_l = 0.0002;
+		}
+		else if (s_input.m_trimm_ail_l != 0)
+		{
+			s_input.m_trimm_ail_l += 0.0002;
+		}
+		break;
+	case COMMAND_TRIMM_AIL_R:
+		s_input.m_trimm_ail_r;
+		if (s_input.m_trimm_ail_r == 0)
+		{
+			s_input.m_trimm_ail_r = 0.0002;
+		}
+		else if (s_input.m_trimm_ail_r != 0)
+		{
+			s_input.m_trimm_ail_r += 0.0002;
+		}
+		break;
 	case COMMAND_GEAR_TOGGLE:
 		s_input.m_gear_toggle;
 		if (s_input.m_gear_toggle == 0)
@@ -235,6 +280,17 @@ void ed_fm_set_command(int command,
 		else
 		{
 			s_input.m_brake = 0;
+		}
+		break;
+	case COMMAND_RELEASE_BRAKE:
+		s_input.m_release_brake;
+		if (s_input.m_release_brake == 0)
+		{
+			s_input.m_release_brake = 1;
+		}
+		else
+		{
+			s_input.m_release_brake = 0;
 		}
 		break;
 	case COMMAND_LEFT_BRAKE:

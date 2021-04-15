@@ -6,11 +6,16 @@ enum Command
 	COMMAND_ROLL = 2002,
 	COMMAND_THROTTLE = 2004,
 	COMMAND_YAW = 2003, //eingefügt 16.02. PJ
+	COMMAND_TRIMM_UP = 95,
+	COMMAND_TRIMM_DOWN = 96,
+	COMMAND_TRIMM_AIL_L = 93,
+	COMMAND_TRIMM_AIL_R = 94,
 	COMMAND_FLAPS_TOGGLE = 72,
 	COMMAND_GEAR_TOGGLE = 68, //68
 	COMMAND_GEAR_UP = 430, //
 	COMMAND_GEAR_DOWN = 431, //
 	COMMAND_BRAKE = 74,//war 2111// Konsole gab 74 und 75 aus bei "W"
+	COMMAND_RELEASE_BRAKE = 75, //NEU eingefügt und ein versuch wegen oben
 	COMMAND_LEFT_BRAKE = 3162,
 	COMMAND_RIGHT_BRAKE = 3163,
 	//COMMAND_FLAPS_INCREASE = 10001,
@@ -41,11 +46,16 @@ struct Input
 	double m_roll;
 	double m_yaw;
 	double m_throttle;
+	double m_trimm_up;
+	double m_trimm_down;
+	double m_trimm_ail_l;
+	double m_trimm_ail_r;
 	double m_flaps_toggle;
 	double m_gear_toggle;
 	double m_gearup;
 	double m_geardown;
 	double m_brake;
+	double m_release_brake;
 	double m_brakeDuration;
 	double m_leftbrake;
 	double m_rightbrake;

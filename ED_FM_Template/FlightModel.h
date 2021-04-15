@@ -63,6 +63,7 @@ private:
 	double CDFlaps = 0.0; //NEU 05April21 Flaps-Down-Drag
 	double CLFlaps = 0.0;//NEU 05April21 Flaps-Down-Lift
 	double CDBrk = 0.0;// NEU 05April21 Brk-Out-Drag
+	double CDBrkCht = 0.0;//NEU und Drag Brake-Chute
 
 	//--------------Tables from AeroData_1.h------------------------
 	//--------------PITCH--------------------------

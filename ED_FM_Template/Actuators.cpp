@@ -21,10 +21,14 @@ void Actuator::zeroInit()
 {
 
 }
-void Actuator::coldInit()
-{
 
+//NEU eingefügt um die Actuator-Position bei GroundStart setzen zu können
+void Actuator::groundInit(double pos, double targetpos)
+{
+	m_actuatorPos = pos;
+	m_actuatorTargetPos = targetpos;
 }
+
 void Actuator::hotInit()
 {
 

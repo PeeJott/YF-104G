@@ -58,17 +58,21 @@ void Airframe::zeroInit()
 
 void Airframe::coldInit()
 {
+	//--Ground Init SET Actuator---------
+	m_actuatorGearL.groundInit(1.0, 1.0);
+	m_actuatorGearN.groundInit(1.0, 1.0);
+	m_actuatorGearR.groundInit(1.0, 1.0);
 	//---Gear position--------
 	m_gearLPosition = 0.0;
 	m_gearRPosition = 0.0;
 	m_gearNPosition = 0.0;
 
 	//-----gear position for ground start
-	m_gearStart = 1;
+	m_gearStart = 0;
 	//m_actuatorGearL = 0.0;
 	//m_actuatorGearN = 0.0;
 	//m_actuatorGearR = 0.0;
-
+	m_input.m_gear_toggle = 1;
 	//------aerodynamic surfaces-------
 	m_flapsPosition = 0.0;
 	m_speedBrakePosition = 0.0;
@@ -93,16 +97,21 @@ void Airframe::coldInit()
 
 void Airframe::hotInit()
 {
+	//--Ground Init SET Actuator---------
+	m_actuatorGearL.groundInit(1.0, 1.0);
+	m_actuatorGearN.groundInit(1.0, 1.0);
+	m_actuatorGearR.groundInit(1.0, 1.0);
 	//---Gear position--------
 	m_gearLPosition = 0.0;
 	m_gearRPosition = 0.0;
 	m_gearNPosition = 0.0;
 
 	//---Gear position for ground start----------
-	m_gearStart = 1;
+	m_gearStart = 0;
 	//m_actuatorGearL = 0.0;
 	//m_actuatorGearN = 0.0;
 	//m_actuatorGearR = 0.0;
+	m_input.m_gear_toggle = 1;
 
 	//------aerodynamic surfaces-------
 	m_flapsPosition = 0.0;
@@ -131,23 +140,6 @@ void Airframe::airborneInit()
 	zeroInit();
 }
 
-double Airframe::updateStartGearGO()
-{
-	if (m_state.m_mach < 0.25)
-	{
-		if (m_gearStart == 1)
-		{
-			m_gearStartDown = 1;
-		}
-	}
-	else
-	{
-		m_gearStartDown = 2;
-	}
-	printf("m_gearStartDown-Value %f \n", m_gearStartDown);
-	
-	return m_gearStartDown;
-}
 
 void Airframe::airframeUpdate(double dt)
 {
@@ -177,31 +169,10 @@ void Airframe::airframeUpdate(double dt)
 	m_flapsPosition = setFlapsPosition(dt);
 	m_speedBrakePosition = setAirbrakePosition(dt);
 	
-	if (updateStartGearGO() == 1)
-	{
-		m_gearLPosition = 1;
-	}
-	else //if (updateStartGearGO() == 2)
-	{
-		m_gearLPosition = setGearLPosition(dt);
-	}
-	
-	if (updateStartGearGO() == 1)
-	{
-		m_gearRPosition = 1;
-	}
-	else //if (updateStartGearGO() == 2)
-	{
-		m_gearRPosition = setGearRPosition(dt);
-	}
-	if (updateStartGearGO() == 1)
-	{
-		m_gearNPosition = 1;
-	}
-	else //if (updateStartGearGO() == 2)
-	{
-		m_gearNPosition = setGearNPosition(dt);
-	}
+	m_gearLPosition = setGearLPosition(dt);
+	m_gearRPosition = setGearRPosition(dt);
+	m_gearNPosition = setGearNPosition(dt);
+
 	
 	m_hookPosition = setHookPosition(dt);
 
@@ -218,43 +189,84 @@ void Airframe::airframeUpdate(double dt)
 	//printf("Flp-Tgl-Value %f \n", m_input.m_flapstgl);
 }
 
-
-//!!!!funktionierende Update-Funktion OHNE Acutators!!!
-/*double Airframe::updateFlaps()
-{
-	m_flapsPosition = 0.0;
-
-	//Dieser Abschnitt funktioniert mit der Public-Function in der Airframe.h, aber ohne actuators
-	if (m_input.m_flaps_toggle == 0.5)
-	{
-		m_flapsPosition = 0.5;
-	}
-	else if (m_input.m_flaps_toggle == 1)
-	{
-		m_flapsPosition = 1;
-	}
-	else
-	{
-		m_flapsPosition = 0;
-	}
-	
-
-	//printf("Flp_Toggle-Value %f \n", m_input.m_flaps_toggle);
-	//printf("Flp-Position-Value %f \n", m_flapsPosition);
-
-	return m_flapsPosition;
-}*/
 double Airframe::updateBrake()
 {
 	m_brakeMoment = 0.0;
-
+	
+	if (m_input.m_release_brake == 1)
+	{
+		if (m_input.m_brake == 1)
+		{
+			m_input.m_brake = 0;
+			m_input.m_release_brake = 0;
+		}
+	}
+	
 	if (m_input.m_brake == 1)
 	{
 		m_brakeMoment = 1;
 	}
-	else if (m_input.m_brake != 1)
+	else
 	{
 		m_brakeMoment = 0;
 	}
+	
 	return m_brakeMoment;
+}
+
+double Airframe::setNozzlePosition(double dt) //Nozzle-Position 0-10% Thrust open, 11-84% Thrust closed, 85-100% Thrust open
+{
+	double NozzlePos = 0.0;
+	double corrThrottle = 0.0;
+
+	if (m_input.m_throttle >= 0.0)
+	{
+		corrThrottle = (1 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+	}
+	else
+	{
+		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
+	}
+
+	if (corrThrottle <= 0.10)
+	{
+		NozzlePos = 0.4;
+	}
+	else if (corrThrottle >= 0.85)
+	{
+		NozzlePos = 0.90;
+	}
+	else
+	{
+		NozzlePos = 0.2;
+	}
+
+	double input = NozzlePos;
+	return m_actuatorNozzle.inputUpdate(input, dt);
+}
+
+double Airframe::NWSstate()
+{
+	if (m_input.m_nwsteering == 1)
+	{
+		m_nwsEngage = 1;
+	}
+	else
+	{
+		m_nwsEngage = 0;
+	}
+	return m_nwsEngage;
+}
+
+double Airframe::brkChutePosition()
+{
+	if (m_input.m_brkchute == 1)
+	{
+		m_chuteState = 1;
+	}
+	else
+	{
+		m_chuteState = 0;
+	}
+	return m_chuteState;
 }

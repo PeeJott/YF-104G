@@ -9,7 +9,7 @@ public:
 	~Actuator();
 
 	virtual void Actuator::zeroInit();
-	virtual void Actuator::coldInit();
+	void Actuator::groundInit(double pos, double targetpos); //neu eingefügt für GroundInits
 	virtual void Actuator::hotInit();
 	virtual void Actuator::airborneInit();
 
