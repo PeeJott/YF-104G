@@ -7,6 +7,8 @@
 #include "AeroData_1.h"
 #include "Engine.h"
 #include "Airframe.h"
+#include "Fuel_System.h"
+#include "BaseComponent.h"
 
 class FlightModel
 {

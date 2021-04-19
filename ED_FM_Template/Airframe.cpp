@@ -1,5 +1,6 @@
 #include "Airframe.h"
 #include <algorithm>
+#include <random>
 
 
 Airframe::Airframe
@@ -204,7 +205,7 @@ double Airframe::updateBrake()
 	
 	if (m_input.m_brake == 1)
 	{
-		m_brakeMoment = 1;
+		m_brakeMoment = 0.66;
 	}
 	else
 	{
@@ -260,13 +261,282 @@ double Airframe::NWSstate()
 
 double Airframe::brkChutePosition()
 {
+	m_chuteState = 0;
+
 	if (m_input.m_brkchute == 1)
 	{
-		m_chuteState = 1;
+		m_chuteState = 0.5;
+	}
+	if (m_chuteState == 0.5)
+	{
+		if (brkChuteStay() != 10)
+		{
+			m_chuteState = 0.5;
+		}
+		if (brkChuteStay() == 10)
+		{
+			m_chuteState = 1;
+			m_timeGo = 0;
+
+		}
 	}
 	else
 	{
 		m_chuteState = 0;
 	}
 	return m_chuteState;
+}
+
+int Airframe::brkChuteStay()
+{
+	m_timeGo = 0;
+
+	if (m_chuteState == 0.5)
+	{
+		m_timeGo += 1;
+	}
+
+	return m_timeGo;
+}
+
+double Airframe::brkChuteSlewY()
+{
+	m_chuteSlewY = 0.0;
+	double m_chuteDiceRoll = 0.0;
+	
+	if (m_chuteState != 0)
+	{
+		if (m_chuteState <= 1)
+		{
+			if (m_state.m_mach >= 0.12)
+			{
+				std::default_random_engine generator;
+				std::uniform_int_distribution<int> distribution(1, 19);
+				int dice_roll = distribution(generator);  // generates number in the range -0.75....0.75 
+
+				if (dice_roll <= 2)
+				{
+					m_chuteDiceRoll = -0.75;
+				}
+				if ((dice_roll >= 3) && (dice_roll <=4 ))
+				{
+					m_chuteDiceRoll = -0.55;
+				}
+				if ((dice_roll >= 5) && (dice_roll <= 6))
+				{
+					m_chuteDiceRoll = -0.40;
+				}
+				if ((dice_roll >= 7) && (dice_roll <= 8))
+				{
+					m_chuteDiceRoll = -0.19;
+				}
+				if ((dice_roll >= 9) && (dice_roll <= 10))
+				{
+					m_chuteDiceRoll = 0;
+				}
+				if ((dice_roll >= 11) && (dice_roll <= 12))
+				{
+					m_chuteDiceRoll = 0.19;
+				}
+				if ((dice_roll >= 13) && (dice_roll <= 14))
+				{
+					m_chuteDiceRoll = 0.40;
+				}
+				if ((dice_roll >= 15) && (dice_roll <= 16))
+				{
+					m_chuteDiceRoll = 0.55;
+				}
+				if (dice_roll >= 17)
+				{
+					m_chuteDiceRoll = 0.75;
+				}
+				m_chuteSlewY = m_chuteDiceRoll;
+				return m_chuteSlewY;
+			}
+			else if ((m_state.m_mach >= 0.05) && (m_state.m_mach < 0.11))
+			{
+				std::default_random_engine generator;
+				std::uniform_int_distribution<int> distribution(1, 11);
+				int dice_roll1 = distribution(generator);  // generates number in the range -0.20....0.20 
+				
+				if (dice_roll1 <= 2)
+				{
+					m_chuteDiceRoll = -0.35;
+				}
+				if ((dice_roll1 >= 3) && (dice_roll1 <= 4))
+				{
+					m_chuteDiceRoll = -0.15;
+				}
+				if ((dice_roll1 >= 5) && (dice_roll1 <= 6))
+				{
+					m_chuteDiceRoll = -0.05;
+				}
+				if ((dice_roll1 >= 7) && (dice_roll1 <= 8))
+				{
+					m_chuteDiceRoll = 0.10;
+				}
+				if (dice_roll1 >= 9)
+				{
+					m_chuteDiceRoll = 0.19;
+				}
+				m_chuteSlewY = m_chuteDiceRoll;
+				return m_chuteSlewY;
+			}
+			else if ((m_state.m_mach < 0.05) && (m_state.m_mach > 0.00))
+			{
+				std::default_random_engine generator;
+				std::uniform_int_distribution<int> distribution(1, 11);
+				int dice_roll2 = distribution(generator);  // generates number in the range -0.20....0.20 
+				
+				if (dice_roll2 <= 2)
+				{
+					m_chuteDiceRoll = -0.99;
+				}
+				if ((dice_roll2 >= 3) && (dice_roll2 <= 4))
+				{
+					m_chuteDiceRoll = -0.92;
+				}
+				if ((dice_roll2 >= 5) && (dice_roll2 <= 6))
+				{
+					m_chuteDiceRoll = -0.90;
+				}
+				if ((dice_roll2 >= 7) && (dice_roll2 <= 8))
+				{
+					m_chuteDiceRoll = -0.89;
+				}
+				if (dice_roll2 >= 9)
+				{
+					m_chuteDiceRoll = -0.87;
+				}
+				m_chuteSlewY = m_chuteDiceRoll;
+				return m_chuteSlewY;
+			}
+			else
+			{
+			m_chuteSlewY = -1.00;
+			return m_chuteSlewY;
+			}
+		}
+	}
+}
+
+double Airframe::brkChuteSlewZ()
+{
+	m_chuteSlewZ = 0.0;
+	double m_chuteDiceRoll = 0.0;
+
+	if (m_chuteState != 0)
+	{
+		if (m_chuteState <= 1)
+		{
+			if (m_state.m_mach >= 0.12)
+			{
+				std::default_random_engine generator;
+				std::uniform_int_distribution<int> distribution(1, 19);
+				int dice_roll = distribution(generator);  // generates number in the range -0.75....0.75 
+
+				if (dice_roll <= 3)
+				{
+					m_chuteDiceRoll = -0.75;
+				}
+				if ((dice_roll >= 4) && (dice_roll <= 5))
+				{
+					m_chuteDiceRoll = -0.55;
+				}
+				if ((dice_roll >= 6) && (dice_roll <= 7))
+				{
+					m_chuteDiceRoll = -0.40;
+				}
+				if ((dice_roll >= 8) && (dice_roll <= 9))
+				{
+					m_chuteDiceRoll = -0.19;
+				}
+				if ((dice_roll >= 10) && (dice_roll <= 11))
+				{
+					m_chuteDiceRoll = 0;
+				}
+				if ((dice_roll >= 12) && (dice_roll <= 13))
+				{
+					m_chuteDiceRoll = 0.19;
+				}
+				if ((dice_roll >= 14) && (dice_roll <= 15))
+				{
+					m_chuteDiceRoll = 0.40;
+				}
+				if ((dice_roll >= 16) && (dice_roll <= 17))
+				{
+					m_chuteDiceRoll = 0.55;
+				}
+				if (dice_roll >= 18)
+				{
+					m_chuteDiceRoll = 0.75;
+				}
+				m_chuteSlewZ = m_chuteDiceRoll;
+				return m_chuteSlewZ;
+			}
+			else if ((m_state.m_mach >= 0.05) && (m_state.m_mach <= 0.11))
+			{
+				std::default_random_engine generator;
+				std::uniform_int_distribution<int> distribution(1, 11);
+				int dice_roll1 = distribution(generator);  // generates number in the range -0.20....0.20 
+
+				if (dice_roll1 <= 2)
+				{
+					m_chuteDiceRoll = -0.25;
+				}
+				if ((dice_roll1 >= 3) && (dice_roll1 <= 4))
+				{
+					m_chuteDiceRoll = -0.15;
+				}
+				if ((dice_roll1 >= 5) && (dice_roll1 <= 6))
+				{
+					m_chuteDiceRoll = -0.00;
+				}
+				if ((dice_roll1 >= 7) && (dice_roll1 <= 8))
+				{
+					m_chuteDiceRoll = 0.15;
+				}
+				if (dice_roll1 >= 9)
+				{
+					m_chuteDiceRoll = 0.25;
+				}
+				m_chuteSlewZ = m_chuteDiceRoll;
+				return m_chuteSlewZ;
+			}
+			else if ((m_state.m_mach < 0.05) && (m_state.m_mach > 0.00))
+			{
+				std::default_random_engine generator;
+				std::uniform_int_distribution<int> distribution(1, 11);
+				int dice_roll2 = distribution(generator);  // generates number in the range -0.20....0.20 
+
+				if (dice_roll2 <= 2)
+				{
+					m_chuteDiceRoll = -0.15;
+				}
+				if ((dice_roll2 >= 3) && (dice_roll2 <= 4))
+				{
+					m_chuteDiceRoll = -0.07;
+				}
+				if ((dice_roll2 >= 5) && (dice_roll2 <= 6))
+				{
+					m_chuteDiceRoll = 0.00;
+				}
+				if ((dice_roll2 >= 7) && (dice_roll2 <= 8))
+				{
+					m_chuteDiceRoll = 0.07;
+				}
+				if (dice_roll2 >= 9)
+				{
+					m_chuteDiceRoll = 0.15;
+				}
+				m_chuteSlewZ = m_chuteDiceRoll;
+				return m_chuteSlewZ;
+			}
+			else
+			{
+			m_chuteSlewZ = 0;
+			return m_chuteSlewZ;
+			}
+		}
+	}
 }

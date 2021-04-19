@@ -1,0 +1,266 @@
+#pragma once
+#include "Maths.h"
+#include "AeroData_1.h"
+#include "State.h"
+#include "Input.h"
+#include "Vec3.h"
+#include "Engine.h"
+
+
+class Fuelsystem
+{
+public:
+	Fuelsystem(State& state, Input& input, Engine& engine);
+
+	virtual void zeroInit();
+	virtual void coldInit();
+	virtual void hotInit();
+	virtual void airborneInit();
+
+	enum Tank
+	{
+		INTERNAL,
+		LEFT_TIP,
+		LEFT_WING,
+		RIGHT_WING,
+		RIGHT_TIP,
+		NUMBER_OF_TANKS,
+		UNUSED,
+	};
+
+	void addFuel(double dm);
+	void drawFuel(double dm);
+	void update(double dt);
+
+	inline bool hasFuel() const;
+
+	inline double transferFuel(Tank from, Tank to, double dm);
+	inline double addFuelToTank(Tank tank, double dm, double min = 0.0);
+	//inline double transferRateFactor();//brauchen wir nicht, da der fest ist
+	inline bool externalFull() const;
+
+	inline double getFuelQty(Tank tank) const;
+	inline double getFuelQtyExternal() const;
+	inline double getFuelQtyInternal() const;
+	inline double getFuelQtyDelta(Tank tank) const;
+	inline const Vec3& getFuelPos(Tank tank) const;
+	inline Tank getSelectedTank() const;
+
+	inline Tank stationToTank(int station)
+	{
+		return m_stationToTank[station];
+	}
+
+	//inline Tank getSelectedTank() const; //unter Umständen überflüssig
+	inline double getTotalCapacity() const;
+	
+	
+	inline void setFuelQty(Tank tank, const Vec3& position, double value);
+	inline void setInternal(double value);
+	inline void setFuelCapacity(double lt, double lw, double rw, double rt);
+	inline void setFuelPrevious(Tank tank);
+	inline void setSelectedTank(Tank tank);
+
+private:
+
+	Vec3 m_force;
+	State& m_state;
+	Input& m_input;
+	Engine& m_engine;
+
+	Tank m_stationToTank[7] =
+	{
+		LEFT_TIP,
+		LEFT_WING,
+		UNUSED,
+		UNUSED,
+		UNUSED,
+		RIGHT_WING,
+		RIGHT_TIP,
+	};
+
+	double m_fuel[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+	double m_fuelPrevious[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+	bool m_fuelEmpty[NUMBER_OF_TANKS] = { false, false, false, false, false };
+
+	bool m_fuelSet[NUMBER_OF_TANKS] = { false, false, false, false, false }; //Has the fuel been loaded on. This is to check for empty tanks.
+
+	//										fuselage    TIP_L  WING_L  WING_R  TIP_R
+	double m_fuelCapacity[NUMBER_OF_TANKS] = { 2641.0, 1018.0, 1018.0, 1018.0, 1018.0 }; //values from F104g.lua.
+
+	Vec3 m_fuelPos[NUMBER_OF_TANKS] = { Vec3(), Vec3(), Vec3(), Vec3(), Vec3() };
+
+	bool m_hasFuel = true; //this is false if the fuel cannot be delivered or all fuel is burned.
+
+	Tank m_selectedTank = INTERNAL;
+};
+
+void Fuelsystem::setFuelQty(Tank tank, const Vec3& position, double value)
+{
+	m_fuelSet[tank] = true; //This tank has just been added.
+	m_fuel[tank] = value;
+	m_fuelPos[tank] = position;
+}
+
+void Fuelsystem::setFuelPrevious(Tank tank)
+{
+	m_fuelPrevious[tank] = m_fuel[tank];
+}
+
+void Fuelsystem::setInternal(double value)
+{
+	if (value <= m_fuelCapacity[INTERNAL])
+	{
+		m_fuel[INTERNAL] = value;
+	}
+	
+	m_fuelPos[INTERNAL] = Vec3();
+}
+
+void Fuelsystem::setFuelCapacity(double lt, double lw, double rw, double rt)
+{
+	m_fuelEmpty[LEFT_TIP] = lt < 0.0;
+	m_fuelEmpty[LEFT_WING] = lw < 0.0;
+	m_fuelEmpty[RIGHT_WING] = rw < 0.0;
+	m_fuelEmpty[RIGHT_TIP] = rt < 0.0;
+
+	// Check each of the external tanks for negative fuel capacity.
+	// This means it is an empty tank.
+	// Empty tanks need to have their fuel removed. They don't start empty so DCS
+	// knows how much fuel the aircraft should have when fully fueled (taking fuel from tanker).
+	// If the fuel has just been set then we need to jump into action to remove the fuel from the
+	// tank if it is an empty tank. We then need to make sure this doesn't happen again so set the fuelSet
+	// to false for this specific tank.
+	if (m_fuelSet[LEFT_TIP] && lt < 0.0)
+	{
+		m_fuel[LEFT_TIP] = 0.0;
+		m_fuelSet[LEFT_TIP] = false;
+	}
+
+	if (m_fuelSet[LEFT_WING] && lw < 0.0)
+	{
+		m_fuel[LEFT_WING] = 0.0;
+		m_fuelSet[LEFT_WING] = false;
+	}
+
+	if (m_fuelSet[RIGHT_WING] && rw < 0.0)
+	{
+		m_fuel[RIGHT_WING] = 0.0;
+		m_fuelSet[RIGHT_WING] = false;
+	}
+	
+	if (m_fuelSet[RIGHT_TIP] && rt < 0.0)
+	{
+		m_fuel[RIGHT_TIP] = 0.0;
+		m_fuelSet[RIGHT_TIP] = false;
+	}
+
+	m_fuelCapacity[LEFT_TIP] = abs(lt);
+	m_fuelCapacity[LEFT_WING] = abs(lw);
+	m_fuelCapacity[RIGHT_WING] = abs(rw);
+	m_fuelCapacity[RIGHT_TIP] = abs(rt);
+}
+
+
+void Fuelsystem::setSelectedTank(Tank tank)
+{
+	m_selectedTank = tank;
+}
+
+double Fuelsystem::getFuelQtyDelta(Tank tank) const
+{
+	return m_fuel[tank] - m_fuelPrevious[tank];
+}
+
+double Fuelsystem::getFuelQty(Tank tank) const
+{
+	return m_fuel[tank];
+}
+
+double Fuelsystem::getFuelQtyExternal() const
+{
+	return m_fuel[LEFT_TIP] + m_fuel[LEFT_WING] + m_fuel[RIGHT_WING] + m_fuel[RIGHT_TIP];
+}
+
+double Fuelsystem::getFuelQtyInternal() const
+{
+	return m_fuel[INTERNAL];
+}
+
+const Vec3& Fuelsystem::getFuelPos(Tank tank) const
+{
+	return m_fuelPos[tank];
+}
+
+Fuelsystem::Tank Fuelsystem::getSelectedTank() const
+{
+	return m_selectedTank;
+}
+
+double Fuelsystem::getTotalCapacity() const
+{
+	double total = 0.0;
+	for (int i = 0; i < NUMBER_OF_TANKS; i++)
+	{
+		total += m_fuelCapacity[i];
+	}
+
+	total += 1.0;
+
+	return total;
+}
+
+bool Fuelsystem::hasFuel() const
+{
+	return m_hasFuel;
+}
+
+bool Fuelsystem::externalFull() const
+{
+	return m_fuel[LEFT_TIP] == m_fuelCapacity[LEFT_TIP] &&
+		m_fuel[LEFT_WING] == m_fuelCapacity[LEFT_WING] &&
+		m_fuel[RIGHT_WING] == m_fuelCapacity[RIGHT_WING] &&
+		m_fuel[RIGHT_TIP] == m_fuelCapacity[RIGHT_TIP];
+}
+
+double Fuelsystem::transferFuel(Tank from, Tank to, double dm)
+{
+	double desiredTransfer = dm;
+
+	//15 kg minimum usable should be tank specific but it's not that different.
+	double remainingFrom = m_fuel[from] - 15.0;
+	//Check there is enough fuel to take.
+	if (remainingFrom < dm)
+		dm = std::max(remainingFrom, 0.0);
+
+	//Check there is enough room in the to tank.
+	double spaceInTo = m_fuelCapacity[to] - m_fuel[to];
+	if (spaceInTo < dm)
+		dm = std::max(spaceInTo, 0.0);
+
+	//Actually transfer the fuel
+	m_fuel[from] -= dm;
+	m_fuel[to] += dm;
+
+	return desiredTransfer - dm;
+}
+
+double Fuelsystem::addFuelToTank(Tank tank, double dm, double min)
+{
+	double desiredTransfer = dm;
+
+	double remainingFuel = m_fuel[tank] - min;
+	double remainingSpace = m_fuelCapacity[tank] - m_fuel[tank];
+
+	if (dm < 0.0 && remainingFuel + dm < 0.0)
+		dm = std::min(-remainingFuel, 0.0);
+
+	if (dm > 0.0 && remainingSpace < dm)
+		dm = std::max(remainingSpace, 0.0);
+
+	m_fuel[tank] += dm;
+
+	return desiredTransfer - dm;
+}

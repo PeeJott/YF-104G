@@ -101,6 +101,9 @@ public:
 	//NEU UpdateBrake-Funktion
 	double updateBrake();
 	double brkChutePosition(); //verschoben nach CPP, daher inline gespart
+	double brkChuteSlewZ();
+	double brkChuteSlewY();
+	int brkChuteStay();
 
 private:
 	Vec3 m_moment;
@@ -135,6 +138,9 @@ private:
 	double m_brakeMoment = 0.0;
 	double m_chuteState = 0.0;
 	double m_nwsEngage = 0.0;
+	double m_chuteSlewY = 0.0;
+	double m_chuteSlewZ = 0.0;
+	int m_timeGo = 0;
 	//double m_speedPrevious = 0.0;
 
 	Actuator m_actuatorStab; //scheint nur zur optischen "Verschönerung" zu sein, aber egal

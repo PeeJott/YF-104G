@@ -6,6 +6,7 @@
 #include "FlightModel.h"
 #include "State.h"
 #include "Engine.h"
+#include "Fuel_System.h"
 #include <Math.h>
 #include <stdio.h>
 #include <string>
@@ -34,6 +35,7 @@
 static Input s_input;
 static State s_state;
 static Engine s_engine(s_state, s_input); //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
+static Fuelsystem s_fuelsystem(s_state, s_input, s_engine);
 static Airframe s_airframe(s_state, s_input, s_engine);
 static FlightModel s_flightModel(s_state, s_input, s_engine, s_airframe); 
 
@@ -203,7 +205,7 @@ void ed_fm_set_command(int command,
 		{
 			s_input.m_trimm_up += 0.0002;
 		}
-		printf("TrimmUp %f \n", s_input.m_trimm_up);
+		//printf("TrimmUp %f \n", s_input.m_trimm_up);
 		break;
 	case COMMAND_TRIMM_DOWN:
 		s_input.m_trimm_down;
@@ -271,7 +273,7 @@ void ed_fm_set_command(int command,
 			s_input.m_geardown = 0;
 		}
 		break;
-	case COMMAND_BRAKE: //aktuell Wheel-Brake Press=An; Press=Aus
+	case COMMAND_BRAKE: 
 		s_input.m_brake;
 		if (s_input.m_brake == 0)
 		{
@@ -455,7 +457,30 @@ bool ed_fm_change_mass  (double & delta_mass,
 						double & delta_mass_moment_of_inertia_z
 						)
 {
-	return false;
+	Fuelsystem::Tank tank = s_fuelsystem.getSelectedTank();
+	if (tank == Fuelsystem::NUMBER_OF_TANKS)
+	{
+		s_fuelsystem.setSelectedTank(Fuelsystem::INTERNAL);
+		return false;
+	}
+
+	Vec3 pos = s_fuelsystem.getFuelPos(tank);
+	//Vec3 r = pos - s_state->getCOM();
+
+	delta_mass = s_fuelsystem.getFuelQtyDelta(tank);
+	s_fuelsystem.setFuelPrevious(tank);
+
+	//printf( "Tank %d, Pos: %lf, %lf, %lf, dm: %lf\n", tank, pos.x, pos.y, pos.z, delta_mass );
+
+	delta_mass_pos_x = pos.x;
+	delta_mass_pos_y = pos.y;
+	delta_mass_pos_z = pos.z;
+
+	s_fuelsystem.setSelectedTank((Fuelsystem::Tank)((int)tank + 1));
+	return true;
+	//return false;
+
+
 	//if (fuel_consumption_since_last_time > 0)
 	//{
 	//	delta_mass		 = fuel_consumption_since_last_time;
@@ -482,6 +507,7 @@ bool ed_fm_change_mass  (double & delta_mass,
 */
 void   ed_fm_set_internal_fuel(double fuel)
 {
+	s_fuelsystem.setInternal(fuel);
 	//internal_fuel = fuel;
 }
 /*
@@ -489,7 +515,8 @@ void   ed_fm_set_internal_fuel(double fuel)
 */
 double ed_fm_get_internal_fuel()
 {
-	return 1.0;
+	//return 1.0;
+	return s_fuelsystem.getFuelQtyInternal();
 }
 /*
 	set external fuel volume for each payload station , called for weapon init and on reload
@@ -500,14 +527,15 @@ void  ed_fm_set_external_fuel (int	 station,
 								double y,
 								double z)
 {
-
+	s_fuelsystem.setFuelQty((Fuelsystem::Tank)(station + 1), Vec3(x, y, z), fuel);
 }
 /*
 	get external fuel volume 
 */
 double ed_fm_get_external_fuel ()
 {
-	return 0;
+	//return 0;
+	return s_fuelsystem.getFuelQtyExternal();
 }
 
 void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
@@ -539,6 +567,8 @@ void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
 	drawargs[89].f = s_airframe.getNozzlePosition();//Engine Nozzle Stage 1 - 0 - 1
 	drawargs[2].f = s_airframe.getNoseWheelAngle();//Nosewheel Angle +/- 60°
 	drawargs[35].f = s_airframe.brkChutePosition();
+	drawargs[36].f = s_airframe.brkChuteSlewY();//slew chute in Y-Axis (-1 to +1)
+	drawargs[37].f = s_airframe.brkChuteSlewZ();//slew chute in Z-Axis (-1 to +1)
 
 }
 
@@ -583,6 +613,8 @@ case ED_FM_SUSPENSION_0_WHEEL_SELF_ATTITUDE:
 case ED_FM_SUSPENSION_0_WHEEL_YAW:
 	return s_airframe.getNoseWheelAngle(); //> 0.5 ? -s_input.m_yaw * 0.5 : 0.0; //rotation to 45 degrees, half 90 (range of the wheel)
 
+
+
 }
 
 	return 0;
@@ -593,16 +625,23 @@ case ED_FM_SUSPENSION_0_WHEEL_YAW:
 void ed_fm_cold_start()
 {
 	s_airframe.coldInit();
+	s_engine.coldInit();
+	s_fuelsystem.coldInit();
+	
 }
 
 void ed_fm_hot_start()
 {
 	s_airframe.hotInit();
+	s_engine.hotInit();
+	s_fuelsystem.hotInit();
 }
 
 void ed_fm_hot_start_in_air()
 {
 	s_airframe.airborneInit();
+	s_engine.airborneInit();
+	s_engine.airborneInit();
 }
 
 bool ed_fm_add_local_force_component( double & x,double &y,double &z,double & pos_x,double & pos_y,double & pos_z )

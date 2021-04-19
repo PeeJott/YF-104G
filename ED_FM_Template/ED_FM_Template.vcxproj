@@ -149,6 +149,7 @@
     <ClInclude Include="ED_FM_Utility.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="FlightModel.h" />
+    <ClInclude Include="Fuel_System.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="State.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="ED_FM_Template.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FlightModel.cpp" />
+    <ClCompile Include="Fuel_System.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

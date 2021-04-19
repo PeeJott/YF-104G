@@ -185,7 +185,8 @@
 #define CON_p_for 63.86 //kN AB thrust 
 #define CON_CeMax 0.85 // kg/s voll Millpower SL
 #define CON_CeFor 1.112 // kg/s voll AB-Power SL
-#define CON_ThrotIDL 0.55 //IDLE-RPM
+#define CON_ThrotIDL 0.55 //correction-factor for Throttle
+#define CON_ThrToRPM 0.70// Throttle to RPM modifier 
 #define CON_CDeng 0.015 //engine Drag geschätzt (immer dabei, nie aus)
 
 //--------measurements fuselage-------------------
@@ -271,8 +272,12 @@
 //-----------NSW Angle----------------------------------------------------
 #define CON_NSWL 1.047 //60° in Rad + is left
 #define CON_NSWR -1.047//60° in Rad - is right
+
 //-----------fuel-----------------------------------------------------------
 #define CON_fint 3.104 // fuel int. in kg (3.880 l * 0,8)
+#define CON_fext 1.018 //fuel in ext. tank per Tank in kg
+#define CON_fexch 0.70//fuel exchange in kg/s ext-tank to fuselage-tank
+#define CON_fuelmin 15.0//min_fuel in tank
 //-----------Ende der Abmessungen------------------------
 
 //---------moments of inertia (Traegheitsmomente nach NASA standard)----------
