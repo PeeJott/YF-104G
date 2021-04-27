@@ -75,6 +75,7 @@ void ed_fm_simulate(double dt)
 	s_flightModel.update(dt);
 	s_engine.update(dt);
 	s_airframe.airframeUpdate(dt);
+	s_fuelsystem.update(dt);
 }
 
 void ed_fm_set_atmosphere(double h,//altitude above sea level
@@ -411,6 +412,20 @@ void ed_fm_set_command(int command,
 			s_input.m_brkchute = 0;
 		}
 		break;
+	case COMMAND_ENGINE_START:
+		s_input.m_engine_start;
+		if (s_input.m_engine_start == 0)
+		{
+			s_input.m_engine_start = 1;
+		}
+		break;
+	case COMMAND_ENGINE_STOP:
+		s_input.m_engine_stop;
+		if (s_input.m_engine_stop == 0)
+		{
+			s_input.m_engine_stop = 1;
+		}
+		break;
 	/*case COMMAND_NOSEWHEEL_STEERING_ENGAGE:
 		s_input.m_nwsteeringeng = value;
 		break;
@@ -457,7 +472,7 @@ bool ed_fm_change_mass  (double & delta_mass,
 						double & delta_mass_moment_of_inertia_z
 						)
 {
-	Fuelsystem::Tank tank = s_fuelsystem.getSelectedTank();
+	/*Fuelsystem::Tank tank = s_fuelsystem.getSelectedTank();//AB HIER GEHT ES EIGENTLICH LOS
 	if (tank == Fuelsystem::NUMBER_OF_TANKS)
 	{
 		s_fuelsystem.setSelectedTank(Fuelsystem::INTERNAL);
@@ -477,8 +492,8 @@ bool ed_fm_change_mass  (double & delta_mass,
 	delta_mass_pos_z = pos.z;
 
 	s_fuelsystem.setSelectedTank((Fuelsystem::Tank)((int)tank + 1));
-	return true;
-	//return false;
+	return true;*/
+	return false;
 
 
 	//if (fuel_consumption_since_last_time > 0)
@@ -608,10 +623,59 @@ case ED_FM_SUSPENSION_2_RELATIVE_BRAKE_MOMENT:
 case ED_FM_ANTI_SKID_ENABLE:
 	return 1.0;
 
+//NWS-Stuff
 case ED_FM_SUSPENSION_0_WHEEL_SELF_ATTITUDE:
 	return s_airframe.NWSstate() > 0.5 ? 0.0 : 1.0;
 case ED_FM_SUSPENSION_0_WHEEL_YAW:
 	return s_airframe.getNoseWheelAngle(); //> 0.5 ? -s_input.m_yaw * 0.5 : 0.0; //rotation to 45 degrees, half 90 (range of the wheel)
+
+//Engine-Stuff
+case ED_FM_ENGINE_1_CORE_RPM:
+case ED_FM_ENGINE_1_RPM:
+	return s_engine.getRPMNorm();
+case ED_FM_ENGINE_1_TEMPERATURE:
+	return 23.0;
+case ED_FM_ENGINE_1_OIL_PRESSURE:
+	return 600.0;
+case ED_FM_ENGINE_1_FUEL_FLOW:
+	return s_engine.FuelFlowUpdate();
+case ED_FM_ENGINE_1_CORE_RELATED_THRUST:
+case ED_FM_ENGINE_1_RELATED_THRUST:
+case ED_FM_ENGINE_1_RELATED_RPM:
+case ED_FM_ENGINE_1_CORE_RELATED_RPM:
+	return s_engine.getRPMNorm();
+
+case ED_FM_ENGINE_1_COMBUSTION:
+	return s_engine.FuelFlowUpdate();
+
+case ED_FM_FUEL_INTERNAL_FUEL:
+	return s_fuelsystem.getFuelQtyInternal();
+
+case ED_FM_FUEL_TOTAL_FUEL:
+	return (s_fuelsystem.getFuelQtyExternal() + s_fuelsystem.getFuelQtyInternal());
+
+case ED_FM_FUEL_FUEL_TANK_GROUP_0_LEFT:
+	return s_fuelsystem.getFuelQtyExternalLeft();
+
+case ED_FM_FUEL_FUEL_TANK_GROUP_0_RIGHT:
+	return s_fuelsystem.getFuelQtyExternalRight();
+
+case ED_FM_FC3_STICK_PITCH:
+	return s_input.m_pitch;
+case ED_FM_FC3_STICK_ROLL:
+	return s_input.m_roll;
+case ED_FM_FC3_RUDDER_PEDALS:
+	return s_input.m_yaw;
+
+case ED_FM_FC3_THROTTLE_LEFT:
+	return s_airframe.getIntThrottlePosition();
+case ED_FM_FC3_THROTTLE_RIGHT:
+	return s_airframe.getIntThrottlePosition();
+
+case ED_FM_FC3_GEAR_HANDLE_POS:
+	return s_input.m_gear_toggle;
+
+
 
 
 
@@ -627,6 +691,7 @@ void ed_fm_cold_start()
 	s_airframe.coldInit();
 	s_engine.coldInit();
 	s_fuelsystem.coldInit();
+	s_flightModel.coldInit();
 	
 }
 
@@ -635,6 +700,7 @@ void ed_fm_hot_start()
 	s_airframe.hotInit();
 	s_engine.hotInit();
 	s_fuelsystem.hotInit();
+	s_flightModel.hotInit();
 }
 
 void ed_fm_hot_start_in_air()
@@ -642,6 +708,7 @@ void ed_fm_hot_start_in_air()
 	s_airframe.airborneInit();
 	s_engine.airborneInit();
 	s_engine.airborneInit();
+	s_flightModel.airborneInit();
 }
 
 bool ed_fm_add_local_force_component( double & x,double &y,double &z,double & pos_x,double & pos_y,double & pos_z )

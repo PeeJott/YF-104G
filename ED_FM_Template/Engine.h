@@ -21,10 +21,11 @@ public:
 	virtual void airborneInit();
 
 	void update(double dt); //in der () "double dt" eingefügt, war vorher ohne
+	double FuelFlowUpdate();
 	double updateThrust(); 
 	double updateBurner();
 	
-	inline double getFuelFlow();
+	//inline double getFuelFlow();//zum testen auskommentiert
 	inline void setHasFuel(bool hasFuel);
 	//inline void setAirspeed(double airspeed);
 	inline void setIgnitors(bool ignitors);
@@ -94,10 +95,12 @@ void Engine::setHasFuel(bool hasFuel)
 	m_hasFuel = hasFuel;
 }
 
-double Engine::getFuelFlow()
+//zum Testen verändert
+/*double Engine::getFuelFlow()
 {
+	m_fuelFlow = FuelFlowUpdate();
 	return m_fuelFlow;
-}
+}*/
 
 void Engine::setIgnitors(bool ignitors)
 {
@@ -118,28 +121,22 @@ double Engine::getRPMNorm()
 	{
 		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
 	}
-
-	if (corrThrottle <= 0.85)
-	{
-		m_thrust = (corrThrottle * PMax(m_state.m_mach) * (m_state.m_airDensity / CON_sDay_den));
-	}
-	else
-	{
-		m_thrust = (corrThrottle * PFor(m_state.m_mach) * (m_state.m_airDensity / CON_sDay_den));
-
-	}
 	
 	if ((m_hasFuel == true) && (m_ignitors == true))
 	{
 		if (corrThrottle < 0.01)
 		{
-			RPM_Normal = 70;
+			RPM_Normal = 0.70;
 		}
 		if (corrThrottle >= 0.01)
 		{
-			RPM_Normal = 70 + (corrThrottle * 40);
+			RPM_Normal = 0.70 + (corrThrottle * 0.40);
 		}
 		m_rpmNormal = RPM_Normal;
+	}
+	else
+	{
+		m_rpmNormal = 0.0;
 	}
 		
 	return m_rpmNormal; //erstmal um was hier drin zu haben
@@ -147,6 +144,8 @@ double Engine::getRPMNorm()
 
 double Engine::getRPM()
 {
+	
+	return 1;
 	//return CON_ThrToRPM * updateThrust(); //erstmal um was zu haben
 }
 

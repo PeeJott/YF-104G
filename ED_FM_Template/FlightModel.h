@@ -15,7 +15,11 @@ class FlightModel
 public:
 	FlightModel(State& state, Input& input, Engine& engine, Airframe& airframe); //Engine& engine NEU 21FEb21
 
-
+	virtual void zeroInit();
+	virtual void coldInit();
+	virtual void hotInit();
+	virtual void airborneInit();
+	
 	void update(double dt);
 
 

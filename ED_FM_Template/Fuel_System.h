@@ -41,17 +41,19 @@ public:
 
 	inline double getFuelQty(Tank tank) const;
 	inline double getFuelQtyExternal() const;
+	inline double getFuelQtyExternalLeft() const;
+	inline double getFuelQtyExternalRight() const;
 	inline double getFuelQtyInternal() const;
 	inline double getFuelQtyDelta(Tank tank) const;
 	inline const Vec3& getFuelPos(Tank tank) const;
 	inline Tank getSelectedTank() const;
 
-	inline Tank stationToTank(int station)
-	{
+	inline Tank stationToTank(int station);//das folgende Auskommentiert, da es als Inline-Funktion ja auf eine separate Funktion verweist
+										//daher die Funktion unten nochmals aufgerufen.
+	/*{
 		return m_stationToTank[station];
-	}
+	}*/
 
-	//inline Tank getSelectedTank() const; //unter Umständen überflüssig
 	inline double getTotalCapacity() const;
 	
 	
@@ -68,15 +70,19 @@ private:
 	Input& m_input;
 	Engine& m_engine;
 
-	Tank m_stationToTank[7] =
+	Tank m_stationToTank[11] =
 	{
+		UNUSED,
 		LEFT_TIP,
+		UNUSED,
 		LEFT_WING,
 		UNUSED,
 		UNUSED,
 		UNUSED,
 		RIGHT_WING,
+		UNUSED,
 		RIGHT_TIP,
+		UNUSED,
 	};
 
 	double m_fuel[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -87,7 +93,7 @@ private:
 
 	bool m_fuelSet[NUMBER_OF_TANKS] = { false, false, false, false, false }; //Has the fuel been loaded on. This is to check for empty tanks.
 
-	//										fuselage    TIP_L  WING_L  WING_R  TIP_R
+	//										 INTERNAL  TIP_L   WING_L  WING_R  TIP_R
 	double m_fuelCapacity[NUMBER_OF_TANKS] = { 2641.0, 1018.0, 1018.0, 1018.0, 1018.0 }; //values from F104g.lua.
 
 	Vec3 m_fuelPos[NUMBER_OF_TANKS] = { Vec3(), Vec3(), Vec3(), Vec3(), Vec3() };
@@ -99,7 +105,7 @@ private:
 
 void Fuelsystem::setFuelQty(Tank tank, const Vec3& position, double value)
 {
-	m_fuelSet[tank] = true; //This tank has just been added.
+	m_fuelSet[tank] = true; //To check if there is an external tank, if yes = true
 	m_fuel[tank] = value;
 	m_fuelPos[tank] = position;
 }
@@ -111,20 +117,17 @@ void Fuelsystem::setFuelPrevious(Tank tank)
 
 void Fuelsystem::setInternal(double value)
 {
-	if (value <= m_fuelCapacity[INTERNAL])
-	{
-		m_fuel[INTERNAL] = value;
-	}
+	m_fuel[INTERNAL] = value;
 	
 	m_fuelPos[INTERNAL] = Vec3();
 }
 
-void Fuelsystem::setFuelCapacity(double lt, double lw, double rw, double rt)
+void Fuelsystem::setFuelCapacity(double t, double w, double x, double y)
 {
-	m_fuelEmpty[LEFT_TIP] = lt < 0.0;
-	m_fuelEmpty[LEFT_WING] = lw < 0.0;
-	m_fuelEmpty[RIGHT_WING] = rw < 0.0;
-	m_fuelEmpty[RIGHT_TIP] = rt < 0.0;
+	m_fuelEmpty[LEFT_TIP] = t < 0.0;
+	m_fuelEmpty[LEFT_WING] = w < 0.0;
+	m_fuelEmpty[RIGHT_WING] = x < 0.0;
+	m_fuelEmpty[RIGHT_TIP] = y < 0.0;
 
 	// Check each of the external tanks for negative fuel capacity.
 	// This means it is an empty tank.
@@ -133,34 +136,34 @@ void Fuelsystem::setFuelCapacity(double lt, double lw, double rw, double rt)
 	// If the fuel has just been set then we need to jump into action to remove the fuel from the
 	// tank if it is an empty tank. We then need to make sure this doesn't happen again so set the fuelSet
 	// to false for this specific tank.
-	if (m_fuelSet[LEFT_TIP] && lt < 0.0)
+	if (m_fuelSet[LEFT_TIP] && t < 0.0)
 	{
 		m_fuel[LEFT_TIP] = 0.0;
 		m_fuelSet[LEFT_TIP] = false;
 	}
 
-	if (m_fuelSet[LEFT_WING] && lw < 0.0)
+	if (m_fuelSet[LEFT_WING] && w < 0.0)
 	{
 		m_fuel[LEFT_WING] = 0.0;
 		m_fuelSet[LEFT_WING] = false;
 	}
 
-	if (m_fuelSet[RIGHT_WING] && rw < 0.0)
+	if (m_fuelSet[RIGHT_WING] && x < 0.0)
 	{
 		m_fuel[RIGHT_WING] = 0.0;
 		m_fuelSet[RIGHT_WING] = false;
 	}
 	
-	if (m_fuelSet[RIGHT_TIP] && rt < 0.0)
+	if (m_fuelSet[RIGHT_TIP] && y < 0.0)
 	{
 		m_fuel[RIGHT_TIP] = 0.0;
 		m_fuelSet[RIGHT_TIP] = false;
 	}
 
-	m_fuelCapacity[LEFT_TIP] = abs(lt);
-	m_fuelCapacity[LEFT_WING] = abs(lw);
-	m_fuelCapacity[RIGHT_WING] = abs(rw);
-	m_fuelCapacity[RIGHT_TIP] = abs(rt);
+	m_fuelCapacity[LEFT_TIP] = abs(t);
+	m_fuelCapacity[LEFT_WING] = abs(w);
+	m_fuelCapacity[RIGHT_WING] = abs(x);
+	m_fuelCapacity[RIGHT_TIP] = abs(y);
 }
 
 
@@ -184,6 +187,16 @@ double Fuelsystem::getFuelQtyExternal() const
 	return m_fuel[LEFT_TIP] + m_fuel[LEFT_WING] + m_fuel[RIGHT_WING] + m_fuel[RIGHT_TIP];
 }
 
+double Fuelsystem::getFuelQtyExternalLeft() const
+{
+	return m_fuel[LEFT_TIP] + m_fuel[LEFT_WING];
+}
+
+double Fuelsystem::getFuelQtyExternalRight() const
+{
+	return m_fuel[RIGHT_WING] + m_fuel[RIGHT_TIP];
+}
+
 double Fuelsystem::getFuelQtyInternal() const
 {
 	return m_fuel[INTERNAL];
@@ -197,6 +210,11 @@ const Vec3& Fuelsystem::getFuelPos(Tank tank) const
 Fuelsystem::Tank Fuelsystem::getSelectedTank() const
 {
 	return m_selectedTank;
+}
+
+Fuelsystem::Tank Fuelsystem::stationToTank(int station)
+{
+	return m_stationToTank[station];
 }
 
 double Fuelsystem::getTotalCapacity() const

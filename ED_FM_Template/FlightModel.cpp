@@ -55,6 +55,39 @@ FlightModel::FlightModel
 	//printf("Hello\n");
 }
 
+void FlightModel::zeroInit()
+{
+	m_q = 0.0;
+	m_p = 0.0;
+	m_k = 0.0;
+
+	m_scalarVelocitySquared = 0.0;
+	m_scalarVelocity = 0.0;
+	m_aoaPrevious = 0.0;
+	m_aoaPrevious = 0.0;
+	m_aoaDot = 0.0;
+	m_state.m_mach = 0.0;
+
+	m_moment = Vec3();
+	m_force = Vec3();
+
+}
+
+void FlightModel::coldInit()
+{
+	zeroInit();
+}
+
+void FlightModel::hotInit()
+{
+	zeroInit();
+}
+
+void FlightModel::airborneInit()
+{
+	zeroInit();
+}
+
 void FlightModel::L_stab()
 {
 	//set roll moment -- Neu eingefügt am 14.02.2021 PJ-- "-" vor Clr eingefügt, da Clr Daten positiv waren und negativ sein müssten da Dämpfung

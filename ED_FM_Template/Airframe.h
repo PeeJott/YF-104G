@@ -52,6 +52,9 @@ public:
 	//Engine Nozzle
 	double setNozzlePosition(double dt); //verschoben nach Airframe CPP wegen der Größe
 
+	//intern FC3 Cockpit-Stuff
+	double getIntThrottlePosition();
+
 	//Steering
 	inline double setNoseWheelAngle(double dt);
 
@@ -103,7 +106,6 @@ public:
 	double brkChutePosition(); //verschoben nach CPP, daher inline gespart
 	double brkChuteSlewZ();
 	double brkChuteSlewY();
-	int brkChuteStay();
 
 private:
 	Vec3 m_moment;
@@ -135,12 +137,14 @@ private:
 
 	double m_nozzlePosition = 0.0;
 
+	double m_int_throttlePos = 0.0;
+
 	double m_brakeMoment = 0.0;
 	double m_chuteState = 0.0;
 	double m_nwsEngage = 0.0;
 	double m_chuteSlewY = 0.0;
 	double m_chuteSlewZ = 0.0;
-	int m_timeGo = 0;
+	int m_timePassed = 0;
 	//double m_speedPrevious = 0.0;
 
 	Actuator m_actuatorStab; //scheint nur zur optischen "Verschönerung" zu sein, aber egal

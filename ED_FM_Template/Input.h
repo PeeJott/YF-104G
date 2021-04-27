@@ -33,6 +33,8 @@ enum Command
 	//COMMAND_STARTER_BUTTON = 3013,
 	//COMMAND_THROTTLE_DETEND = 3087,
 	COMMAND_BRAKE_CHUTE = 76, //aus der Konsole abgelesen
+	COMMAND_ENGINE_START = 309,
+	COMMAND_ENGINE_STOP = 310,
 
 						//--------------------------------------
 
@@ -73,4 +75,6 @@ struct Input
 	//double m_starterbutton;
 	//double m_trhottledet;
 	double m_brkchute;
+	double m_engine_start;
+	double m_engine_stop;
 };

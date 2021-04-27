@@ -51,7 +51,7 @@ void Fuelsystem::addFuel(double dm)
 	if (dm > 0.0 )
 		dm = addFuelToTank(INTERNAL, dm);
 
-	//If removing fuel remove it from the internal tanks.
+	//If removing fuel remove it from the internal tank.
 	if (dm < 0.0)
 		dm = addFuelToTank(INTERNAL, dm);
 }
@@ -62,7 +62,7 @@ void Fuelsystem::update(double dt)
 	//either directly to pressurise the tank or to spin a turbopump.
 	double rateFactor = CON_fexch;
 
-	double dm = m_engine.getFuelFlow() * dt;
+	double dm = (m_engine.FuelFlowUpdate() * 0.454 * 0.00028) * dt; //FuelFlowUpdate ist in lbs/h, hier aber kg/s gebraucht
 
 	double enginePower = m_engine.getRPMNorm() > 0.40;
 
@@ -78,7 +78,37 @@ void Fuelsystem::update(double dt)
 	{
 		m_hasFuel = false;
 	}
+
+	m_engine.setHasFuel(m_hasFuel);
+
+	double wingTransferRate = CON_fexch;
+	wingTransferRate *= dt;
+
+
+	double externTipRRate = rateFactor * dt;
+	double externWingRRate = rateFactor * dt;
+	double externWingLRate = rateFactor * dt;
+	double externTipLRate = rateFactor * dt;
+
+	double transferAmount = 0.0;
+	transferAmount += m_fuelCapacity[LEFT_TIP] > 15.0 ? externTipLRate : 0.0;
+	transferAmount += m_fuelCapacity[LEFT_WING] > 15.0 ? externWingLRate : 0.0;
+	transferAmount += m_fuelCapacity[RIGHT_WING] > 15.0 ? externWingRRate : 0.0;
+	transferAmount += m_fuelCapacity[RIGHT_TIP] > 15.0 ? externTipRRate : 0.0;
+
+		if (transferAmount <= m_fuelCapacity[INTERNAL] - m_fuel[INTERNAL])
+		{
+			transferFuel(LEFT_TIP, INTERNAL, externTipLRate);
+			transferFuel(LEFT_WING, INTERNAL, externWingLRate);
+			transferFuel(RIGHT_WING, INTERNAL, externWingRRate);
+			transferFuel(RIGHT_TIP, INTERNAL, externTipRRate);
+		}
+		else
+		{
+			//Probably should transfer some fuel here but we can just avoid the problem by waiting for the next frame.
+		}
 }
+
 
 
 	
