@@ -122,12 +122,12 @@ void Fuelsystem::setInternal(double value)
 	m_fuelPos[INTERNAL] = Vec3();
 }
 
-void Fuelsystem::setFuelCapacity(double t, double w, double x, double y)
+void Fuelsystem::setFuelCapacity(double lt, double lw, double rw, double rt)
 {
-	m_fuelEmpty[LEFT_TIP] = t < 0.0;
-	m_fuelEmpty[LEFT_WING] = w < 0.0;
-	m_fuelEmpty[RIGHT_WING] = x < 0.0;
-	m_fuelEmpty[RIGHT_TIP] = y < 0.0;
+	m_fuelEmpty[LEFT_TIP] = lt < 0.0;
+	m_fuelEmpty[LEFT_WING] = lw < 0.0;
+	m_fuelEmpty[RIGHT_WING] = rw < 0.0;
+	m_fuelEmpty[RIGHT_TIP] = rt < 0.0;
 
 	// Check each of the external tanks for negative fuel capacity.
 	// This means it is an empty tank.
@@ -136,34 +136,34 @@ void Fuelsystem::setFuelCapacity(double t, double w, double x, double y)
 	// If the fuel has just been set then we need to jump into action to remove the fuel from the
 	// tank if it is an empty tank. We then need to make sure this doesn't happen again so set the fuelSet
 	// to false for this specific tank.
-	if (m_fuelSet[LEFT_TIP] && t < 0.0)
+	if (m_fuelSet[LEFT_TIP] && lt < 0.0)
 	{
 		m_fuel[LEFT_TIP] = 0.0;
 		m_fuelSet[LEFT_TIP] = false;
 	}
 
-	if (m_fuelSet[LEFT_WING] && w < 0.0)
+	if (m_fuelSet[LEFT_WING] && lw < 0.0)
 	{
 		m_fuel[LEFT_WING] = 0.0;
 		m_fuelSet[LEFT_WING] = false;
 	}
 
-	if (m_fuelSet[RIGHT_WING] && x < 0.0)
+	if (m_fuelSet[RIGHT_WING] && rw < 0.0)
 	{
 		m_fuel[RIGHT_WING] = 0.0;
 		m_fuelSet[RIGHT_WING] = false;
 	}
 	
-	if (m_fuelSet[RIGHT_TIP] && y < 0.0)
+	if (m_fuelSet[RIGHT_TIP] && rt < 0.0)
 	{
 		m_fuel[RIGHT_TIP] = 0.0;
 		m_fuelSet[RIGHT_TIP] = false;
 	}
 
-	m_fuelCapacity[LEFT_TIP] = abs(t);
-	m_fuelCapacity[LEFT_WING] = abs(w);
-	m_fuelCapacity[RIGHT_WING] = abs(x);
-	m_fuelCapacity[RIGHT_TIP] = abs(y);
+	m_fuelCapacity[LEFT_TIP] = abs(lt);
+	m_fuelCapacity[LEFT_WING] = abs(lw);
+	m_fuelCapacity[RIGHT_WING] = abs(rw);
+	m_fuelCapacity[RIGHT_TIP] = abs(rt);
 }
 
 

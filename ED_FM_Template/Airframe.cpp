@@ -1,7 +1,16 @@
 #include "Airframe.h"
 #include <algorithm>
 #include <random>
+#include <cstdlib>
+#include <ctime>
+#include <chrono>
 
+//-----------Neu eingefügt wegen Chrono und Millisekunden---------
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using std::chrono::seconds;
+using std::chrono::system_clock;
+//-----------------------------------------------------------------
 
 Airframe::Airframe
 (
@@ -315,7 +324,7 @@ double Airframe::brkChutePosition()
 double Airframe::brkChuteSlewY()
 {
 	m_chuteSlewY = 0.0;
-	double m_chuteDiceRoll = 0.0;
+	float m_chuteDiceRoll = 0.0;
 	int dice_roll = 0;
 	int dice_roll1 = 0;
 	int dice_roll2 = 0;
@@ -326,64 +335,68 @@ double Airframe::brkChuteSlewY()
 	{
 		if (m_mach_speed >= 0.12)
 		{
-			std::default_random_engine generator;
+			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 19);
-			dice_roll = distribution(generator);  // generates number in the range -0.75....0.75 
+			dice_roll = distribution(generator);  // generates number in the range 1-19 */
+			
+			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
-			if (dice_roll == 2)
+			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
+
+			dice_roll = (rand() % 19) + 1;
+
+			if ((dice_roll == 2) || (dice_roll == 1))
 			{
-				m_chuteDiceRoll = -0.75;
-				
+				m_chuteDiceRoll = -0.65;	
 			}
 			if ((dice_roll == 3) || (dice_roll ==4 ))
 			{
-				m_chuteDiceRoll = -0.55;
-				
+				m_chuteDiceRoll = -0.55;	
 			}
 			if ((dice_roll == 5) || (dice_roll == 6))
 			{
-				m_chuteDiceRoll = -0.40;
-				
+				m_chuteDiceRoll = -0.40;	
 			}
 			if ((dice_roll == 7) || (dice_roll == 8))
 			{
 				m_chuteDiceRoll = -0.19;
-				
 			}
 			if ((dice_roll == 9) || (dice_roll == 10))
 			{
-				m_chuteDiceRoll = 0;
-				
+				m_chuteDiceRoll = 0;	
 			}
 			if ((dice_roll == 11) || (dice_roll == 12))
 			{
-				m_chuteDiceRoll = 0.19;
-				
+				m_chuteDiceRoll = 0.19;	
 			}
 			if ((dice_roll == 13) || (dice_roll == 14))
 			{
-				m_chuteDiceRoll = 0.40;
-				
+				m_chuteDiceRoll = 0.40;	
 			}
 			if ((dice_roll == 15) || (dice_roll == 16))
 			{
-				m_chuteDiceRoll = 0.55;
-				
+				m_chuteDiceRoll = 0.55;	
 			}
 			if (dice_roll >= 17)
 			{
-				m_chuteDiceRoll = 0.75;
-				
+				m_chuteDiceRoll = 0.65;	
 			}
+			
 			m_chuteSlewY = m_chuteDiceRoll;
 			return m_chuteSlewY;
 		}
 		if ((m_mach_speed >= 0.05) && (m_mach_speed < 0.11))
 		{
-			std::default_random_engine generator;
+			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 11);
-			dice_roll1 = distribution(generator);  // generates number in the range -0.20....0.20 
+			dice_roll1 = distribution(generator);  // generates number in the range -0.20....0.20*/ 
 			
+			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+
+			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
+
+			dice_roll1 = (rand() % 11) + 1;
+
 			if (dice_roll1 <= 2)
 			{
 				m_chuteDiceRoll = -0.35;
@@ -409,10 +422,17 @@ double Airframe::brkChuteSlewY()
 		}
 		if ((m_mach_speed < 0.05) && (m_mach_speed > 0.00))
 		{
-			std::default_random_engine generator;
+			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 11);
-			dice_roll2 = distribution(generator);  // generates number in the range -0.20....0.20 
-				
+			dice_roll2 = distribution(generator);  // generates number in the range -0.20....0.20*/
+			
+			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+
+			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
+
+
+			dice_roll2 = (rand() % 11) + 1;
+
 			if (dice_roll2 <= 2)
 			{
 				m_chuteDiceRoll = -0.99;
@@ -436,7 +456,7 @@ double Airframe::brkChuteSlewY()
 			m_chuteSlewY = m_chuteDiceRoll;
 			return m_chuteSlewY;
 		}
-		else
+		if (m_mach_speed == 0.00)
 		{
 		m_chuteSlewY = -1.00;
 		return m_chuteSlewY;
@@ -459,12 +479,19 @@ double Airframe::brkChuteSlewZ()
 	
 		if (m_mach_speed >= 0.12)
 		{
-			std::default_random_engine generator;
+			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 19);
 			dice_roll = distribution(generator);  // generates number in the range -0.75....0.75 
+			*/
+			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+
+			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
+
+			dice_roll = (rand() % 19) + 1;
+
 			if (dice_roll <= 3)
 			{
-				m_chuteDiceRoll = -0.75;
+				m_chuteDiceRoll = -0.65;
 				dice_roll = 0;
 			}
 			if ((dice_roll == 4) || (dice_roll == 5))
@@ -497,16 +524,23 @@ double Airframe::brkChuteSlewZ()
 			}
 			if (dice_roll >= 18)
 			{
-				m_chuteDiceRoll = 0.75;
+				m_chuteDiceRoll = 0.65;
 			}
 			m_chuteSlewZ = m_chuteDiceRoll;
 			return m_chuteSlewZ;
 			}
 		if ((m_mach_speed >= 0.05) && (m_mach_speed <= 0.11))
 			{
-			std::default_random_engine generator;
+			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 11);
 			dice_roll1 = distribution(generator);  // generates number in the range -0.20....0.20 
+			*/
+
+			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+
+			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
+
+			dice_roll1 = (rand() % 11) + 1;
 
 			if (dice_roll1 <= 2)
 			{
@@ -533,17 +567,23 @@ double Airframe::brkChuteSlewZ()
 			}
 		if ((m_mach_speed < 0.05) && (m_mach_speed > 0.00))
 			{
-			std::default_random_engine generator;
+			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 11);
 			dice_roll2 = distribution(generator);  // generates number in the range -0.20....0.20 
+			*/
+			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(); //NEU wegen Chrono
+
+			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
+
+			dice_roll2 = (rand() % 11) + 1;
 
 			if (dice_roll2 <= 2)
 			{
-				m_chuteDiceRoll = -0.15;
+				m_chuteDiceRoll = -0.09;
 			}
 			if ((dice_roll2 == 3) || (dice_roll2 == 4))
 			{
-				m_chuteDiceRoll = -0.07;
+				m_chuteDiceRoll = -0.05;
 			}
 			if ((dice_roll2 == 5) || (dice_roll2 == 6))
 			{
@@ -551,18 +591,18 @@ double Airframe::brkChuteSlewZ()
 			}
 			if ((dice_roll2 == 7) || (dice_roll2 == 8))
 			{
-				m_chuteDiceRoll = 0.07;
+				m_chuteDiceRoll = 0.05;
 			}
 			if (dice_roll2 >= 9)
 			{
-				m_chuteDiceRoll = 0.15;
+				m_chuteDiceRoll = 0.09;
 			}
 			m_chuteSlewZ = m_chuteDiceRoll;
 			return m_chuteSlewZ;
 		}
-		else
+		if (m_mach_speed == 0.00)
 		{
-		m_chuteSlewZ = 0;
+		m_chuteSlewZ = 0.0;
 		return m_chuteSlewZ;
 		}
 
