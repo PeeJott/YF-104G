@@ -60,6 +60,7 @@ void FlightModel::zeroInit()
 	m_q = 0.0;
 	m_p = 0.0;
 	m_k = 0.0;
+	CLblc = 0.0;
 
 	m_scalarVelocitySquared = 0.0;
 	m_scalarVelocity = 0.0;
@@ -118,7 +119,7 @@ void FlightModel::lift()
 	//set lift -- eingefügt am 16.02. als "Lift = 0.5 * p * V² * s * CL
 	//approx m_force.y
 	// erster Versuch : m_force.y = m_k * (CLmach(m_state.m_mach) + CLa(m_state.m_aoa)); //Lift ist so schon gut ;-)
-	m_force.y += m_k * ((CLa(m_state.m_mach) * m_state.m_aoa) + CLFlaps); //+ CLds(m_state.m_mach)); //aktuell nur Lift due to AoA ohne Stab-Lift 
+	m_force.y += m_k * ((CLa(m_state.m_mach) * m_state.m_aoa) + CLFlaps + CLblc); //+ CLds(m_state.m_mach)); //aktuell nur Lift due to AoA ohne Stab-Lift 
 }
 
 void FlightModel::drag()
@@ -177,6 +178,7 @@ void FlightModel::update(double dt)
 	CLFlaps = CON_FlpL2 * m_airframe.getFlapsPosition();
 	CDBrk = CON_BrkD * m_airframe.getSpeedBrakePosition();
 	CDBrkCht = CON_ChtD * m_airframe.brkChutePosition();
+	CLblc = m_airframe.BLCsystem();
 	
 	L_stab();
 	M_stab();

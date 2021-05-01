@@ -70,6 +70,7 @@ private:
 	double CLFlaps = 0.0;//NEU 05April21 Flaps-Down-Lift
 	double CDBrk = 0.0;// NEU 05April21 Brk-Out-Drag
 	double CDBrkCht = 0.0;//NEU und Drag Brake-Chute
+	double CLblc = 0.0; //NEU BLC Lift-System für die angeströmten Landeklappen
 
 	//--------------Tables from AeroData_1.h------------------------
 	//--------------PITCH--------------------------

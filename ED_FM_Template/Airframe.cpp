@@ -608,3 +608,19 @@ double Airframe::brkChuteSlewZ()
 
 	}
 }
+
+double Airframe::BLCsystem()
+{
+	m_blcLift = 0.0;
+
+	if ((getFlapsPosition() == 1) && (m_engine.getRPMNorm() >= 0.85))
+	{
+		m_blcLift = (0.35 * m_engine.getRPMNorm()) * CON_FlpL2;
+	}
+
+	else
+	{
+		m_blcLift = 0;
+	}
+	return m_blcLift;
+}

@@ -58,12 +58,54 @@ C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_
           [
               _Rep=__int64
           ]
+  ED_FM_Template.cpp
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(25,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(36,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(37,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(70,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(81,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(82,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(443,10): warning C4476: 'printf' : unknown type field character ' ' in format specifier
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(443,40): warning C4474: 'printf' : too many arguments passed for format string
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(443,40): message : placeholders and their parameters expect 1 variadic arguments, but 2 were provided
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(575,19): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(576,40): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(577,43): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(579,19): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(580,45): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(581,46): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(582,52): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(583,52): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(584,45): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(585,45): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(586,45): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(587,45): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(588,40): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(589,47): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(590,46): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(591,46): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(592,43): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\ED_FM_Template.cpp(593,43): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  FlightModel.cpp
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(25,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(36,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(37,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(70,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(81,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(82,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  Fuel_System.cpp
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(25,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(36,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(37,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(70,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(81,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(82,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
      Creating library ..\..\bin\YF104G.lib and object ..\..\bin\YF104G.exp
   Generating code
-C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(465): warning C4715: 'Airframe::brkChuteSlewY': not all control paths return a value
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(610): warning C4715: 'Airframe::brkChuteSlewZ': not all control paths return a value
-  3 of 216 functions ( 1.4%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(465): warning C4715: 'Airframe::brkChuteSlewY': not all control paths return a value
+  62 of 222 functions (27.9%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
+    2 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   ED_FM_Template.vcxproj -> C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\bin\YF104G.dll

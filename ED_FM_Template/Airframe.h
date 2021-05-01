@@ -79,6 +79,8 @@ public:
 
 	double NWSstate();//verschoben nach Airframe CPP
 
+	double BLCsystem();
+
 	//--------Setting/Getting Angles-------------------------
 	inline double getNoseWheelAngle() const;
 
@@ -146,6 +148,8 @@ private:
 	double m_chuteSlewZ = 0.0;
 	int m_timePassed = 0;
 	//double m_speedPrevious = 0.0;
+
+	double m_blcLift = 0.0;
 
 	Actuator m_actuatorStab; //scheint nur zur optischen "Verschönerung" zu sein, aber egal
 	Actuator m_actuatorAil;

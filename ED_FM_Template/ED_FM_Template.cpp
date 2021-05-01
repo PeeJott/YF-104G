@@ -472,7 +472,7 @@ bool ed_fm_change_mass  (double & delta_mass,
 						double & delta_mass_moment_of_inertia_z
 						)
 {
-	/*Fuelsystem::Tank tank = s_fuelsystem.getSelectedTank();//AB HIER GEHT ES EIGENTLICH LOS
+	Fuelsystem::Tank tank = s_fuelsystem.getSelectedTank();//AB HIER GEHT ES EIGENTLICH LOS
 	if (tank == Fuelsystem::NUMBER_OF_TANKS)
 	{
 		s_fuelsystem.setSelectedTank(Fuelsystem::INTERNAL);
@@ -492,8 +492,9 @@ bool ed_fm_change_mass  (double & delta_mass,
 	delta_mass_pos_z = pos.z;
 
 	s_fuelsystem.setSelectedTank((Fuelsystem::Tank)((int)tank + 1));
-	return true;*/
-	return false;
+	return true;
+	
+	//return false;
 
 
 	//if (fuel_consumption_since_last_time > 0)
@@ -536,14 +537,20 @@ double ed_fm_get_internal_fuel()
 /*
 	set external fuel volume for each payload station , called for weapon init and on reload
 */
-void  ed_fm_set_external_fuel (int	 station,
-								double fuel,
-								double x,
-								double y,
-								double z)
+void  ed_fm_set_external_fuel(int	 station,
+	double fuel,
+	double x,
+	double y,
+	double z)
 {
 	s_fuelsystem.setFuelQty((Fuelsystem::Tank)(station + 1), Vec3(x, y, z), fuel);
 }
+
+	//Das folgende ist das Original, davor ist meine schlechte Fälschung
+/*{
+	s_fuelsystem.setFuelQty((Fuelsystem::Tank)(station + 1), Vec3(x, y, z), fuel);
+}*/
+
 /*
 	get external fuel volume 
 */

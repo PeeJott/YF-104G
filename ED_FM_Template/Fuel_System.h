@@ -17,7 +17,8 @@ public:
 	virtual void hotInit();
 	virtual void airborneInit();
 
-	enum Tank
+	//---------funktionierte gut mit den 5----------
+	/*enum Tank
 	{
 		INTERNAL,
 		LEFT_TIP,
@@ -26,7 +27,26 @@ public:
 		RIGHT_TIP,
 		NUMBER_OF_TANKS,
 		UNUSED,
+	};*/
+	//-------neuer scheiﬂ mit 11ven-----------------
+
+	enum Tank
+	{
+		INTERNAL,
+		UNUSED_ONE,
+		LEFT_TIP,
+		UNUSED_TWO,
+		LEFT_WING,
+		UNUSED_THREE,
+		UNUSED_FOUR,
+		UNUSED_FIVE,
+		RIGHT_WING,
+		UNUSED_SIX,
+		RIGHT_TIP,
+		UNUSED_SEVEN,
+		NUMBER_OF_TANKS,
 	};
+
 
 	void addFuel(double dm);
 	void drawFuel(double dm);
@@ -48,7 +68,7 @@ public:
 	inline const Vec3& getFuelPos(Tank tank) const;
 	inline Tank getSelectedTank() const;
 
-	inline Tank stationToTank(int station);//das folgende Auskommentiert, da es als Inline-Funktion ja auf eine separate Funktion verweist
+	/*inline Tank stationToTank(int station);//das folgende Auskommentiert, da es als Inline-Funktion ja auf eine separate Funktion verweist
 										//daher die Funktion unten nochmals aufgerufen.
 	/*{
 		return m_stationToTank[station];
@@ -70,7 +90,7 @@ private:
 	Input& m_input;
 	Engine& m_engine;
 
-	Tank m_stationToTank[11] =
+	/*Tank m_stationToTank[11] =
 	{
 		UNUSED,
 		LEFT_TIP,
@@ -83,20 +103,20 @@ private:
 		UNUSED,
 		RIGHT_TIP,
 		UNUSED,
-	};
+	};*/
 
-	double m_fuel[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+	double m_fuel[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; //vorher waren es 5
 
-	double m_fuelPrevious[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+	double m_fuelPrevious[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-	bool m_fuelEmpty[NUMBER_OF_TANKS] = { false, false, false, false, false };
+	bool m_fuelEmpty[NUMBER_OF_TANKS] = { false, false, false, false, false, false, false, false, false, false, false, false };
 
-	bool m_fuelSet[NUMBER_OF_TANKS] = { false, false, false, false, false }; //Has the fuel been loaded on. This is to check for empty tanks.
+	bool m_fuelSet[NUMBER_OF_TANKS] = { false, false, false, false, false, false, false, false, false, false, false, false }; //Check, if tank is empty or full
 
-	//										 INTERNAL  TIP_L   WING_L  WING_R  TIP_R
-	double m_fuelCapacity[NUMBER_OF_TANKS] = { 2641.0, 1018.0, 1018.0, 1018.0, 1018.0 }; //values from F104g.lua.
+	//										 INTERNAL   U   TIP_L    U   WING_L   U    U    U   WING_R   U   TIP_R    U
+	double m_fuelCapacity[NUMBER_OF_TANKS] = { 2641.0, 0.0, 1018.0, 0.0, 1018.0, 0.0, 0.0, 0.0, 1018.0, 0.0, 1018.0, 0.0 }; //values from F104g.lua.
 
-	Vec3 m_fuelPos[NUMBER_OF_TANKS] = { Vec3(), Vec3(), Vec3(), Vec3(), Vec3() };
+	Vec3 m_fuelPos[NUMBER_OF_TANKS] = { Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3() };
 
 	bool m_hasFuel = true; //this is false if the fuel cannot be delivered or all fuel is burned.
 
@@ -108,6 +128,7 @@ void Fuelsystem::setFuelQty(Tank tank, const Vec3& position, double value)
 	m_fuelSet[tank] = true; //To check if there is an external tank, if yes = true
 	m_fuel[tank] = value;
 	m_fuelPos[tank] = position;
+	//m_stationToTank[tank] = tank; //das ist neu, ggf. einfach wieder weg
 }
 
 void Fuelsystem::setFuelPrevious(Tank tank)
@@ -212,10 +233,10 @@ Fuelsystem::Tank Fuelsystem::getSelectedTank() const
 	return m_selectedTank;
 }
 
-Fuelsystem::Tank Fuelsystem::stationToTank(int station)
+/*Fuelsystem::Tank Fuelsystem::stationToTank(int station)
 {
 	return m_stationToTank[station];
-}
+}*/
 
 double Fuelsystem::getTotalCapacity() const
 {
