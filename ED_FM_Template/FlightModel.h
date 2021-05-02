@@ -83,6 +83,7 @@ private:
 	Table CDmin;
 	Table CDmach;
 	Table CDa;
+	Table CDeng;
 	//-------------LIFT----------------------------
 	Table CLmax;
 	Table CLmach;

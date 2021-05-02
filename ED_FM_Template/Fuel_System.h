@@ -79,7 +79,7 @@ public:
 	
 	inline void setFuelQty(Tank tank, const Vec3& position, double value);
 	inline void setInternal(double value);
-	inline void setFuelCapacity(double lt, double lw, double rw, double rt);
+	inline void setFuelCapacity(double u1, double lt, double u2, double lw, double u3, double u4, double u5, double rw, double u6, double rt, double u7);
 	inline void setFuelPrevious(Tank tank);
 	inline void setSelectedTank(Tank tank);
 
@@ -143,12 +143,20 @@ void Fuelsystem::setInternal(double value)
 	m_fuelPos[INTERNAL] = Vec3();
 }
 
-void Fuelsystem::setFuelCapacity(double lt, double lw, double rw, double rt)
+void Fuelsystem::setFuelCapacity(double u1,  double lt, double u2, double lw, double u3, double u4, double u5, double rw, double u6, double rt, double u7)
 {
 	m_fuelEmpty[LEFT_TIP] = lt < 0.0;
 	m_fuelEmpty[LEFT_WING] = lw < 0.0;
 	m_fuelEmpty[RIGHT_WING] = rw < 0.0;
 	m_fuelEmpty[RIGHT_TIP] = rt < 0.0;
+	//------------Neue Idee wegen ChangeMass------------
+	m_fuelEmpty[UNUSED_ONE] = u1 < 0.0;
+	m_fuelEmpty[UNUSED_TWO] = u2 < 0.0;
+	m_fuelEmpty[UNUSED_THREE] = u3 < 0.0;
+	m_fuelEmpty[UNUSED_FOUR] = u4 < 0.0;
+	m_fuelEmpty[UNUSED_FIVE] = u5 < 0.0;
+	m_fuelEmpty[UNUSED_SIX] = u6 < 0.0;
+	m_fuelEmpty[UNUSED_SEVEN] = u7 < 0.0;
 
 	// Check each of the external tanks for negative fuel capacity.
 	// This means it is an empty tank.
@@ -185,6 +193,28 @@ void Fuelsystem::setFuelCapacity(double lt, double lw, double rw, double rt)
 	m_fuelCapacity[LEFT_WING] = abs(lw);
 	m_fuelCapacity[RIGHT_WING] = abs(rw);
 	m_fuelCapacity[RIGHT_TIP] = abs(rt);
+
+	//-----Idee um Problemen bei ChangeMass vorzubeugen---------------------
+	m_fuel[UNUSED_ONE] = 0.0;
+	m_fuelSet[UNUSED_ONE] = false;
+
+	m_fuel[UNUSED_TWO] = 0.0;
+	m_fuelSet[UNUSED_TWO] = false;
+
+	m_fuel[UNUSED_THREE] = 0.0;
+	m_fuelSet[UNUSED_THREE] = false;
+
+	m_fuel[UNUSED_FOUR] = 0.0;
+	m_fuelSet[UNUSED_FOUR] = false;
+
+	m_fuel[UNUSED_FIVE] = 0.0;
+	m_fuelSet[UNUSED_FIVE] = false;
+
+	m_fuel[UNUSED_SIX] = 0.0;
+	m_fuelSet[UNUSED_SIX] = false;
+
+	m_fuel[UNUSED_SEVEN] = 0.0;
+	m_fuelSet[UNUSED_SEVEN] = false;
 }
 
 

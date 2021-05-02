@@ -4,7 +4,7 @@
 FlightModel::FlightModel
 (
 	State& state,
-	Input& input, 
+	Input& input,
 	Engine& engine, //NEU 21Feb21
 	Airframe& airframe
 	//der letzte Eintrag hier darf kein Komma haben!
@@ -25,6 +25,7 @@ FlightModel::FlightModel
 	CDmin(DAT_CDmin, CON_CDminmin, CON_CDminmax),
 	CDmach(DAT_CDmach_SL, CON_CDmach_SLmin, CON_CDmach_SLmax),
 	CDa(DAT_CDa_SL, CON_CDa_SLmin, CON_CDa_SLmax),
+	CDeng(DAT_CDeng, CON_CDengmin, CON_CDengmax),
 	//---------------LIFT----------------------------------------
 	CLmax(DAT_CLmax, CON_CLmaxmin, CON_CLmaxmax),
 	CLmach(DAT_CLmach_SL, CON_CLmach_SLmin, CON_CLmach_SLmax),
@@ -128,7 +129,7 @@ void FlightModel::drag()
 	//approx m_force.x negative
 	//erster Versuch: m_force.x = -(m_k * (CDmach(m_state.m_mach) + CDa(m_state.m_aoa)
 		//+ ((CLmach(m_state.m_mach) + CLa(m_state.m_mach)) * (CLmach(m_state.m_mach) + CLa(m_state.m_mach))) / CON_pi * CON_AR * CON_e));
-	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (CDa(m_state.m_mach) * m_state.m_aoa)+ CON_CDeng + CDGear + CDFlaps + CDBrk + CDBrkCht); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
+	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (CDa(m_state.m_mach) * m_state.m_aoa)+ (CDeng(m_state.m_mach)) + CDGear + CDFlaps + CDBrk + CDBrkCht); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
 }
 
 void FlightModel::sideForce()

@@ -56,6 +56,7 @@ private:
 	double m_thrust = 0.0;
 	double m_throttle = 0.0;
 	double m_burner = 0.0;
+	double m_corrAirDensity = 0.0;
 	
 	double m_correctedFuelFlow = 0.0;
 	double m_fuelFlow = 0.0;

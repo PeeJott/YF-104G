@@ -26,6 +26,7 @@ void Engine::zeroInit()
 	m_burner = 0.0;
 	m_fuelFlow = 0.0;
 	m_correctedFuelFlow = 0.0;
+	m_corrAirDensity = 0.0;
 	m_hasFuel = true;
 	m_ignitors = false;
 }
@@ -67,6 +68,18 @@ void Engine::update(double dt)
 		m_input.m_engine_stop = 0;
 	}
 
+	if ((m_state.m_airDensity < 0.74) && (m_state.m_airDensity > 0.4))
+	{
+		m_corrAirDensity = m_state.m_airDensity * 0.30;
+	}
+	else if (m_state.m_airDensity <= 0.4)
+	{
+		m_corrAirDensity = m_state.m_airDensity * 0.45;
+	}
+	else
+	{
+		m_corrAirDensity = 0.0;
+	}
 }
 
 double Engine::updateThrust() //Wenn Veränderungen dann hier verändern NICHT oben!!!!! //dt in die Klammer eingefügt//double zu void mit double dt verändert
@@ -97,7 +110,7 @@ double Engine::updateThrust() //Wenn Veränderungen dann hier verändern NICHT obe
 	}
 	else if ((corrThrottle > 0.85) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_thrust = (corrThrottle * PFor(m_state.m_mach) * (m_state.m_airDensity / CON_sDay_den));
+		m_thrust = (corrThrottle * PFor(m_state.m_mach) * ((m_state.m_airDensity + m_corrAirDensity) / CON_sDay_den));
 
 	}
 	else
@@ -152,18 +165,18 @@ double Engine::FuelFlowUpdate()
 		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
 	}
 	
-	if ((getRPMNorm() == 0.70) && (getRPMNorm() < 0.95) && (m_ignitors == true) && (m_hasFuel == true))
+	if ((corrThrottle < 0.01 ) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_fuelFlow = 1500.0 * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * (0.50 * corrThrottle * CON_CeMax * 3600 * 2.205));
+		m_fuelFlow = 1500.0 * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * (0.60 * corrThrottle * CON_CeMax * 3600 * 2.205));
 	}
 	
-	else if ((getRPMNorm() > 0.70) && (getRPMNorm() < 0.95) && (m_ignitors == true) && (m_hasFuel == true))
+	else if ((corrThrottle >= 0.01) && (corrThrottle < 0.85) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_fuelFlow = (corrThrottle * (CON_CeMax * 3600 * 2.205) + 1500) * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * ( 0.50 * corrThrottle * CON_CeMax * 3600 * 2.205));
+		m_fuelFlow = (corrThrottle * (CON_CeMax * 3600 * 2.205) + 1500) * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * ( 0.60 * corrThrottle * CON_CeMax * 3600 * 2.205));
 	}
-	else if ((getRPMNorm() >= 0.95) && (m_ignitors == true) && (m_hasFuel == true))
+	else if ((corrThrottle >= 0.85) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_fuelFlow = (corrThrottle * (CON_CeFor * 3600 * 2.205) + 1500) * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * (0.50 * corrThrottle * CON_CeFor * 3600 * 2.205));
+		m_fuelFlow = (corrThrottle * (CON_CeFor * 3600 * 2.205) + 1500) * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * (0.60 * corrThrottle * CON_CeFor * 3600 * 2.205));
 	}
 	else
 	{

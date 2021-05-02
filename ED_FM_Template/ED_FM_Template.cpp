@@ -480,12 +480,12 @@ bool ed_fm_change_mass  (double & delta_mass,
 	}
 
 	Vec3 pos = s_fuelsystem.getFuelPos(tank);
-	//Vec3 r = pos - s_state->getCOM();
+	//-------Vec3 r = pos - s_state->getCOM();---------------------------
 
 	delta_mass = s_fuelsystem.getFuelQtyDelta(tank);
 	s_fuelsystem.setFuelPrevious(tank);
 
-	//printf( "Tank %d, Pos: %lf, %lf, %lf, dm: %lf\n", tank, pos.x, pos.y, pos.z, delta_mass );
+	//-----------printf( "Tank %d, Pos: %lf, %lf, %lf, dm: %lf\n", tank, pos.x, pos.y, pos.z, delta_mass );---------------
 
 	delta_mass_pos_x = pos.x;
 	delta_mass_pos_y = pos.y;
