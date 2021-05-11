@@ -105,7 +105,7 @@ void Fuelsystem::update(double dt)
 		}
 		else
 		{
-			//Probably should transfer some fuel here but we can just avoid the problem by waiting for the next frame.
+			//No Transfer here...just wait for the next frame...
 		}
 }
 

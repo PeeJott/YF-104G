@@ -31,7 +31,7 @@
 //double  aoa = 0;
 //double  speed_of_sound = 320;
 
-//============================= Statics ===================================//
+//============================= OLD Statics ===================================//
 static Input s_input;
 static State s_state;
 static Engine s_engine(s_state, s_input); //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
@@ -41,6 +41,49 @@ static FlightModel s_flightModel(s_state, s_input, s_engine, s_airframe);
 
 
 //=========================================================================//
+
+//--------------------------NEW Statics-------------------------------------//
+
+/*static Input* s_input = NULL;
+static State* s_state = NULL;
+static Engine* s_engine = NULL; //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
+static Fuelsystem* s_fuelsystem = NULL;
+static Airframe* s_airframe = NULL;
+static FlightModel* s_flightModel = NULL;
+
+//------------------------NEW static functions-------------------------------//
+static void init(const char* config);
+static void cleanup();
+//---------------------------------------------------------------------------//
+
+void init(const char* config)
+{
+	s_input = new Input;
+	s_state = new State;
+	s_engine = new Engine(*s_state, *s_input);
+	s_fuelsystem = new Fuelsystem(*s_state, *s_input, *s_engine);
+	s_airframe = new Airframe(*s_state, *s_input, *s_engine);
+	s_flightModel = new FlightModel(*s_state, *s_input, *s_engine, *s_airframe);
+
+}
+
+void cleanup()
+{
+	delete s_input;
+	delete s_state;
+	delete s_engine;
+	delete s_fuelsystem;
+	delete s_airframe;
+	delete s_flightModel;
+
+	s_input = NULL;
+	s_state = NULL;
+	s_engine = NULL;
+	s_fuelsystem = NULL;
+	s_airframe = NULL;
+	s_flightModel = NULL;
+
+}*/
 
 void ed_fm_add_local_force(double & x,double &y,double &z,double & pos_x,double & pos_y,double & pos_z)
 {

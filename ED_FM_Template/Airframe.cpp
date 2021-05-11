@@ -615,7 +615,7 @@ double Airframe::BLCsystem()
 
 	if ((getFlapsPosition() == 1) && (m_engine.getRPMNorm() >= 0.85))
 	{
-		m_blcLift = (0.35 * m_engine.getRPMNorm()) * CON_FlpL2;
+		m_blcLift = (0.50 * m_engine.getRPMNorm()) * CON_FlpL2;
 	}
 
 	else

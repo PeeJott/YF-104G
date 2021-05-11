@@ -24,6 +24,8 @@ public:
 	double FuelFlowUpdate();
 	double updateThrust(); 
 	double updateBurner();
+	double updateSpool();
+	double updateSpoolCold();
 	
 	//inline double getFuelFlow();//zum testen auskommentiert
 	inline void setHasFuel(bool hasFuel);
@@ -61,14 +63,27 @@ private:
 	double m_correctedFuelFlow = 0.0;
 	double m_fuelFlow = 0.0;
 	double m_rpmNormal = 0.0;
+	double m_spoolFactor = 0.0;
+	double m_spoolFactorPrevious = 0.0;
+	double m_deltaSpool = 0.0;
+	double m_throttleNEW = 0.0;
+	double m_newThrottle = 0.0;
+	double m_oldThrottle = 0.0;
+	double m_deltaSpoolABS = 0.0;
+	double m_newSpoolStep = 0.0;
+	double m_desiredThrottle = 0.0;
+	double m_spoolColdStart = 0.0;
 	bool m_hasFuel = true;
 	bool m_ignitors = true;
 	bool m_started = false;
 
 
+
 	//-------------Thrust Tables init------------------------
 	Table PMax;
 	Table PFor;
+	Table CADen;
+	Table EngDel;
 };
 
 const Vec3& Engine::getForce() const
@@ -112,7 +127,9 @@ void Engine::setIgnitors(bool ignitors)
 double Engine::getRPMNorm()
 {
 	double RPM_Normal = 0.0;
-	double corrThrottle = 0.0;
+
+	//--------------------Alte RPM-Funktion die funktioniert----------------------
+	/*double corrThrottle = 0.0;
 
 	if (m_input.m_throttle >= 0.0)
 	{
@@ -138,8 +155,43 @@ double Engine::getRPMNorm()
 	else
 	{
 		m_rpmNormal = 0.0;
-	}
+	}*/
+	//------------------ENDE alte Funktion-------------------------------------------
+	
+	
+	
+	if ((m_hasFuel == true) && (m_ignitors == true))
+	{
+		if (m_spoolColdStart < 1)
+		{
+			RPM_Normal = 0.70 * m_spoolColdStart;
+			m_rpmNormal = RPM_Normal;
+		}
 		
+		if (m_spoolColdStart == 1)
+		{
+			if (updateSpool() < 0.01)
+			{
+				RPM_Normal = 0.70;
+			}
+			if (updateSpool() >= 0.01)
+			{
+				RPM_Normal = 0.70 + (updateSpool() * 0.40);
+			}
+			
+			m_rpmNormal = RPM_Normal;
+		}
+	}
+	else if (((m_hasFuel == false) || (m_ignitors == false)) && (m_spoolColdStart > 0.0))
+	{
+		RPM_Normal = 0.70 * m_spoolColdStart;
+		m_rpmNormal = RPM_Normal;
+	}
+	else
+	{
+		m_rpmNormal = 0.0;
+	}
+	
 	return m_rpmNormal; //erstmal um was hier drin zu haben
 }
 
