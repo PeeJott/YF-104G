@@ -66,6 +66,10 @@ public:
 	inline double getGearRPosition() const; //returns gear pos
 	inline double getGearNPosition() const; //returns gear pos
 
+	inline double getGearLLamp(); //Gear-Lamp-Left
+	inline double getGearRLamp(); //Gear-Lamp-right
+	inline double getGearFLamp(); //Gear-Lamp-front
+
 	inline double getSpeedBrakePosition() const;
 	
 	inline double getHookPosition() const;
@@ -80,6 +84,7 @@ public:
 	double NWSstate();//verschoben nach Airframe CPP
 
 	double BLCsystem();
+
 
 	//--------Setting/Getting Angles-------------------------
 	inline double getNoseWheelAngle() const;
@@ -120,6 +125,10 @@ private:
 	double m_gearLPosition = 0.0; //0 -> 1
 	double m_gearRPosition = 0.0;
 	double m_gearNPosition = 0.0;
+
+	double m_gearLLamp = 0.0;
+	double m_gearRLamp = 0.0;
+	double m_gearFLamp = 0.0;
 
 	//modification variable for Ground-Start
 	double m_gearStart = 0.0;
@@ -276,6 +285,49 @@ double Airframe::getGearRPosition() const
 double Airframe::getGearNPosition() const
 {
 	return m_gearNPosition;
+}
+
+// Neu eingefügt den Lampen-Kram zur directen Steuerung der FC-3 Cockpit-Args
+double Airframe::getGearLLamp()
+{
+	if (getGearLPosition() == 1)
+	{
+		m_gearLLamp = 1.0;
+	}
+	else
+	{
+		m_gearLLamp = 0.0;
+	}
+
+	return m_gearLLamp;
+}
+
+double Airframe::getGearRLamp()
+{
+	if (getGearRPosition() == 1)
+	{
+		m_gearRLamp = 1.0;
+	}
+	else
+	{
+		m_gearRLamp = 0.0;
+	}
+
+	return m_gearRLamp;
+}
+
+double Airframe::getGearFLamp()
+{
+	if (getGearNPosition() == 1)
+	{
+		m_gearFLamp = 1.0;
+	}
+	else
+	{
+		m_gearFLamp = 0.0;
+	}
+
+	return m_gearFLamp;
 }
 
 

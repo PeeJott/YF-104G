@@ -29,22 +29,16 @@ public:
 		UNUSED,
 	};*/
 	//-------neuer scheiﬂ mit 11ven-----------------
-
+	//-------ge‰ndert auf 5 Tanks + NumberOfTanks + Unused aufgrund StationToTank-----------------
 	enum Tank
 	{
 		INTERNAL,
-		UNUSED_ONE,
 		LEFT_TIP,
-		UNUSED_TWO,
 		LEFT_WING,
-		UNUSED_THREE,
-		UNUSED_FOUR,
-		UNUSED_FIVE,
 		RIGHT_WING,
-		UNUSED_SIX,
 		RIGHT_TIP,
-		UNUSED_SEVEN,
 		NUMBER_OF_TANKS,
+		UNUSED
 	};
 
 
@@ -68,18 +62,17 @@ public:
 	inline const Vec3& getFuelPos(Tank tank) const;
 	inline Tank getSelectedTank() const;
 
-	/*inline Tank stationToTank(int station);//das folgende Auskommentiert, da es als Inline-Funktion ja auf eine separate Funktion verweist
-										//daher die Funktion unten nochmals aufgerufen.
-	/*{
+	inline Tank stationToTank(int station) //StationToTank funktion im Public-Bereich gelassen								      
+	{									  
 		return m_stationToTank[station];
-	}*/
+	}
 
 	inline double getTotalCapacity() const;
 	
 	
 	inline void setFuelQty(Tank tank, const Vec3& position, double value);
 	inline void setInternal(double value);
-	inline void setFuelCapacity(double u1, double lt, double u2, double lw, double u3, double u4, double u5, double rw, double u6, double rt, double u7);
+	inline void setFuelCapacity(double lt, double lw, double rw, double rt);
 	inline void setFuelPrevious(Tank tank);
 	inline void setSelectedTank(Tank tank);
 
@@ -89,8 +82,9 @@ private:
 	State& m_state;
 	Input& m_input;
 	Engine& m_engine;
-
-	/*Tank m_stationToTank[11] =
+	
+	//11 Stations mit einer Nummerzuordnung zu den tats‰chlichen Tanks
+	Tank m_stationToTank[11] =
 	{
 		UNUSED,
 		LEFT_TIP,
@@ -103,20 +97,20 @@ private:
 		UNUSED,
 		RIGHT_TIP,
 		UNUSED,
-	};*/
+	};
 
-	double m_fuel[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; //vorher waren es 5
+	double m_fuel[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0 }; //vorher waren es 5
 
-	double m_fuelPrevious[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	double m_fuelPrevious[NUMBER_OF_TANKS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-	bool m_fuelEmpty[NUMBER_OF_TANKS] = { false, false, false, false, false, false, false, false, false, false, false, false };
+	bool m_fuelEmpty[NUMBER_OF_TANKS] = { false, false, false, false, false};
 
-	bool m_fuelSet[NUMBER_OF_TANKS] = { false, false, false, false, false, false, false, false, false, false, false, false }; //Check, if tank is empty or full
+	bool m_fuelSet[NUMBER_OF_TANKS] = { false, false, false, false, false}; //Check, if tank is empty or full
 
-	//										 INTERNAL   U   TIP_L    U   WING_L   U    U    U   WING_R   U   TIP_R    U
-	double m_fuelCapacity[NUMBER_OF_TANKS] = { 2641.0, 0.0, 1018.0, 0.0, 1018.0, 0.0, 0.0, 0.0, 1018.0, 0.0, 1018.0, 0.0 }; //values from F104g.lua.
+	//										 INTERNAL   TIP_L   WING_L  WING_R  TIP_R 
+	double m_fuelCapacity[NUMBER_OF_TANKS] = { 2641.0, 1018.0, 1018.0, 1018.0, 1018.0 }; //values from F104g.lua.
 
-	Vec3 m_fuelPos[NUMBER_OF_TANKS] = { Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3(), Vec3() };
+	Vec3 m_fuelPos[NUMBER_OF_TANKS] = { Vec3(), Vec3(), Vec3(), Vec3(), Vec3() };
 
 	bool m_hasFuel = true; //this is false if the fuel cannot be delivered or all fuel is burned.
 
@@ -143,20 +137,12 @@ void Fuelsystem::setInternal(double value)
 	m_fuelPos[INTERNAL] = Vec3();
 }
 
-void Fuelsystem::setFuelCapacity(double u1,  double lt, double u2, double lw, double u3, double u4, double u5, double rw, double u6, double rt, double u7)
+void Fuelsystem::setFuelCapacity(double lt, double lw, double rw, double rt)
 {
 	m_fuelEmpty[LEFT_TIP] = lt < 0.0;
 	m_fuelEmpty[LEFT_WING] = lw < 0.0;
 	m_fuelEmpty[RIGHT_WING] = rw < 0.0;
 	m_fuelEmpty[RIGHT_TIP] = rt < 0.0;
-	//------------Neue Idee wegen ChangeMass------------
-	m_fuelEmpty[UNUSED_ONE] = u1 < 0.0;
-	m_fuelEmpty[UNUSED_TWO] = u2 < 0.0;
-	m_fuelEmpty[UNUSED_THREE] = u3 < 0.0;
-	m_fuelEmpty[UNUSED_FOUR] = u4 < 0.0;
-	m_fuelEmpty[UNUSED_FIVE] = u5 < 0.0;
-	m_fuelEmpty[UNUSED_SIX] = u6 < 0.0;
-	m_fuelEmpty[UNUSED_SEVEN] = u7 < 0.0;
 
 	// Check each of the external tanks for negative fuel capacity.
 	// This means it is an empty tank.
@@ -193,28 +179,6 @@ void Fuelsystem::setFuelCapacity(double u1,  double lt, double u2, double lw, do
 	m_fuelCapacity[LEFT_WING] = abs(lw);
 	m_fuelCapacity[RIGHT_WING] = abs(rw);
 	m_fuelCapacity[RIGHT_TIP] = abs(rt);
-
-	//-----Idee um Problemen bei ChangeMass vorzubeugen---------------------
-	m_fuel[UNUSED_ONE] = 0.0;
-	m_fuelSet[UNUSED_ONE] = false;
-
-	m_fuel[UNUSED_TWO] = 0.0;
-	m_fuelSet[UNUSED_TWO] = false;
-
-	m_fuel[UNUSED_THREE] = 0.0;
-	m_fuelSet[UNUSED_THREE] = false;
-
-	m_fuel[UNUSED_FOUR] = 0.0;
-	m_fuelSet[UNUSED_FOUR] = false;
-
-	m_fuel[UNUSED_FIVE] = 0.0;
-	m_fuelSet[UNUSED_FIVE] = false;
-
-	m_fuel[UNUSED_SIX] = 0.0;
-	m_fuelSet[UNUSED_SIX] = false;
-
-	m_fuel[UNUSED_SEVEN] = 0.0;
-	m_fuelSet[UNUSED_SEVEN] = false;
 }
 
 

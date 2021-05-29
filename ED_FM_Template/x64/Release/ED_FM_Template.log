@@ -1,15 +1,69 @@
 ﻿E:\Visual Studio c++\Visual Studio main\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(477,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-  Engine.cpp
+  Airframe.cpp
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(25,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(36,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(37,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(70,20): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(81,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
 C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Table.h(82,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Engine.h(49,638): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Engine.h(50,589): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(73,17): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(115,17): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(157,17): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(326,18): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(351,21): warning C4244: 'initializing': conversion from '_Rep' to 'int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(359,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(363,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(367,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(371,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(379,27): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(383,27): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(387,27): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(391,27): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(403,21): warning C4244: 'initializing': conversion from '_Rep' to 'int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(411,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(415,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(419,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(423,27): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(427,27): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(438,21): warning C4244: 'initializing': conversion from '_Rep' to 'int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(447,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(451,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(455,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(459,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(463,28): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(495,21): warning C4244: 'initializing': conversion from '_Rep' to 'int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(548,21): warning C4244: 'initializing': conversion from '_Rep' to 'int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\ExternalFMTemplate\ED_FM_Template\Airframe.cpp(583,21): warning C4244: 'initializing': conversion from '_Rep' to 'int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
      Creating library ..\..\bin\YF104G.lib and object ..\..\bin\YF104G.exp
   Generating code
-  7 of 223 functions ( 3.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  15 of 232 functions ( 6.5%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
+    4 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   ED_FM_Template.vcxproj -> C:\Users\User\Saved Games\DCS\Mods\aircraft\YF104G_EFM\bin\YF104G.dll

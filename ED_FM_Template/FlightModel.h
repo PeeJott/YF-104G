@@ -50,6 +50,10 @@ private:
 	double m_aoaPrevious = 0.0;
 	//--------------Thrust related Values-----------------------------
 	//double m_thrust = 0.0; //neu 21FEb21 rauskommentiert 28.02.2021
+	//--------------Misc---------------------------------------------
+	//--------------PitchUp and Stall--------------------------------
+	double m_pitchup = 0.0;
+	double m_stallMult = 0.0;
 
 	//--------------Formula-Parts STAB--------------------------------
 	//s : area
@@ -104,6 +108,11 @@ private:
 	//-------------Thrust------------------------
 	//Table PMax;
 	//Table PFor;
+	//------------Misc---------------------------
+	//------------PitchUp and Stall-------------
+	Table PitAoA;
+	Table PitMult;
+	Table StAoA;
 };
 
 const Vec3& FlightModel::getForce() const

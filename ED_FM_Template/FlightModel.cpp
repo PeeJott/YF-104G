@@ -42,11 +42,17 @@ FlightModel::FlightModel
 	Cndr(DAT_Cndr, CON_Cndrmin, CON_Cndrmax),
 	Cnr(DAT_Cnr, CON_Cnrmin, CON_Cnrmax),
 	Cyb(DAT_Cyb, CON_Cybmin, CON_Cybmax),
-	Cydr(DAT_Cydr, CON_Cydrmin, CON_Cydrmax)
+	Cydr(DAT_Cydr, CON_Cydrmin, CON_Cydrmax),
 	
 	//---------------Thrust------------------------------------
 	//PMax(DAT_PMax, CON_PMaxmin, CON_PMaxmax)
 	//PFor(DAT_PFor, CON_PFormin, CON_PFormax)
+	//---------------Misc-------------------------------------
+	//--------------PitchUP and Stall------------------------
+	PitAoA(DAT_PitchAoA, CON_PitAoAMin, CON_PitAoAMax),
+	PitMult(DAT_PitchMult, CON_PitMulMin, CON_PitMulMax),
+	StAoA(DAT_StallAoA, CON_StAoAMin, CON_StAoAMax)
+	
 	//der letzte Eintrag darf KEIN Komma haben...
 
 
@@ -68,10 +74,35 @@ void FlightModel::zeroInit()
 	m_aoaPrevious = 0.0;
 	m_aoaPrevious = 0.0;
 	m_aoaDot = 0.0;
+	
 	m_state.m_mach = 0.0;
+	m_state.m_beta = 0.0;
+	m_state.m_omega = 0.0;
+	m_pitchup = 0.0;
+	m_stallMult = 0.0;
+
+	M_mcrit = 0.0;
+	M_mcrit_b = 0.0;
+
+	CDwave = 0.0;
+
+	CDi = 0.0;
+
+	CDGear = 0.0;
+	CDFlaps = 0.0;
+	CLFlaps = 0.0;
+	CDBrk = 0.0;
+	CDBrkCht = 0.0;
+	CLblc = 0.0;
+
+	m_force = 0.0;
+	m_moment = 0.0;
 
 	m_moment = Vec3();
 	m_force = Vec3();
+	
+
+
 
 }
 
@@ -100,18 +131,19 @@ void FlightModel::L_stab()
 
 void FlightModel::M_stab()
 {
-	//set pitch moment-- "-" vor Cmde eingefügt, da positiver Wert erwartet--
-	m_moment.z += m_k * CON_mac * (Cmalpha(m_state.m_mach) * m_state.m_aoa + (0.90 * -Cmde(m_state.m_mach)) * (m_input.m_pitch + m_input.m_trimm_up - m_input.m_trimm_down)) 
+	//set pitch moment-- "-" vor Cmde eingefügt, da positiver Wert erwartet--//---Cmde von 0.9 auf 0.8 und Cmalpha von 1.15 auf 1.25 auf 1.35 
+	m_moment.z += m_k * CON_mac * (1.35 * (Cmalpha(m_state.m_mach) * m_state.m_aoa) + (0.80 * -Cmde(m_state.m_mach)) * ((m_input.m_pitch + m_pitchup) + m_input.m_trimm_up - m_input.m_trimm_down)) 
 			+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_mac * CON_mac * ((1.75 * Cmq(m_state.m_mach))*m_state.m_omega.z + (1.45 * Cmadot(m_state.m_mach)) * m_aoaDot);
 }
 
 void FlightModel::N_stab()
 {
 	//set yaw moment-- "Cnda * da" ausgelassen, da wegen gegenläufiger ailerons geringfügig (Buch Seite 114) "Cnp * Pstab" ausgelassen, da ggf. unnötig 
-	// "-" vor Cndr eingefügt, da "Rudereffektivität" positiv sein müsste-- "-" vor Cnb eingefügt, da Dämpfung-- "2 *" vor Cnr eingefügt für mehr Dämpfung
+	// "-" vor Cndr eingefügt, da "Rudereffektivität" positiv sein müsste-- "-" vor Cnb eingefügt, da Dämpfung-- "2.5 *" vor Cnr eingefügt für mehr Dämpfung
+	// "- (0.75 * m_stallMult)" und "- m_stallMult" eingefügt wegen Stall-Verhalten
 	//moment.y
-	m_moment.y += m_q * (1.5 * -Cnb(m_state.m_mach) * m_state.m_beta + -Cndr(m_state.m_mach) * -m_input.m_yaw)
-		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * (2.5 * Cnr(m_state.m_mach) * m_state.m_omega.y);
+	m_moment.y += m_q * ((1.5 - ( 0.75 * m_stallMult)) * -Cnb(m_state.m_mach) * m_state.m_beta + -Cndr(m_state.m_mach) * -m_input.m_yaw)
+		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * ((2.5 - m_stallMult) * Cnr(m_state.m_mach) * m_state.m_omega.y);
 }
 
 
@@ -129,7 +161,8 @@ void FlightModel::drag()
 	//approx m_force.x negative
 	//erster Versuch: m_force.x = -(m_k * (CDmach(m_state.m_mach) + CDa(m_state.m_aoa)
 		//+ ((CLmach(m_state.m_mach) + CLa(m_state.m_mach)) * (CLmach(m_state.m_mach) + CLa(m_state.m_mach))) / CON_pi * CON_AR * CON_e));
-	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (CDa(m_state.m_mach) * m_state.m_aoa)+ (CDeng(m_state.m_mach)) + CDGear + CDFlaps + CDBrk + CDBrkCht); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
+	// statt 0.85 jetzt 0.80 * CDa(etc) um Alpha-Drag anzupassen.
+	m_force.x += -m_k * ((CDmin(m_state.m_mach)) + (0.80 * (CDa(m_state.m_mach) * m_state.m_aoa)) + (CDeng(m_state.m_mach)) + CDGear + CDFlaps + CDBrk + CDBrkCht); // +CDwave + CDi); CDwave und CDi wieder dazu, wenn DRAG geklärt.
 }
 
 void FlightModel::sideForce()
@@ -189,6 +222,37 @@ void FlightModel::update(double dt)
 	sideForce();
 	thrustForce();
 	//printf("vector %f \n", m_force.x); //--Der Test für die gesamte (Thrust abzgl. Drag) resultierende m_force.x
+
+	//----------------function for Pitchup-Factor, Pitchup-force and pitchup-speed--------------------
+	if ((m_state.m_aoa >= 0.15) && (m_airframe.getFlapsPosition() == 0.0) && (m_state.m_mach > 0.26))
+	{
+		m_pitchup = 0.55 * ((PitAoA(m_state.m_aoa) * PitMult(m_state.m_mach)));
+	}
+	else if ((m_state.m_aoa >= 0.15) && ((m_airframe.getFlapsPosition() > 0.0) || (m_state.m_mach <= 0.26)))
+	{
+		m_pitchup = 0.3 * ((PitAoA(m_state.m_aoa) * PitMult(m_state.m_mach)));
+	}
+	else
+	{
+		m_pitchup = 0;
+	}
+	//printf("m_pitchup %f \n", m_pitchup);
+	//printf("AoA %f \n", m_state.m_aoa);
+	
+	//-------------function for Stall-AoA and Stall-Speed and resulting stall-force----------------------------------------------
+	if ((m_state.m_aoa >= 0.2533) && (m_airframe.getFlapsPosition() == 0.0))
+	{
+		m_stallMult = 1.75 * (StAoA(m_state.m_aoa) * PitMult(m_state.m_mach));
+	}
+	else if ((m_state.m_aoa >= 0.2533) && (m_airframe.getFlapsPosition() > 0.0)) // || (m_state.m_mach <= 0.26)))
+	{
+		m_stallMult = 0.3 * (StAoA(m_state.m_aoa) * PitMult(m_state.m_mach));
+	}
+	else
+	{
+		m_stallMult = 0.0;
+	}
+	//printf("m_stallMult %f \n", m_stallMult);
 }
 
 

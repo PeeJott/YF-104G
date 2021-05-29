@@ -22,7 +22,7 @@ Fuelsystem::Fuelsystem
 
 void Fuelsystem::zeroInit()
 {
-	
+
 }
 
 void Fuelsystem::coldInit()

@@ -32,19 +32,19 @@
 //double  speed_of_sound = 320;
 
 //============================= OLD Statics ===================================//
-static Input s_input;
-static State s_state;
-static Engine s_engine(s_state, s_input); //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
-static Fuelsystem s_fuelsystem(s_state, s_input, s_engine);
-static Airframe s_airframe(s_state, s_input, s_engine);
-static FlightModel s_flightModel(s_state, s_input, s_engine, s_airframe); 
+//static Input s_input;
+//static State s_state;
+//static Engine s_engine(s_state, s_input); //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
+//static Fuelsystem s_fuelsystem(s_state, s_input, s_engine);
+//static Airframe s_airframe(s_state, s_input, s_engine);
+//static FlightModel s_flightModel(s_state, s_input, s_engine, s_airframe); 
 
 
 //=========================================================================//
 
 //--------------------------NEW Statics-------------------------------------//
 
-/*static Input* s_input = NULL;
+static Input* s_input = NULL;
 static State* s_state = NULL;
 static Engine* s_engine = NULL; //NEU (s_input, s_state)// !!WICHTIG!! überall muss die Reihenfolge Input/State/Engine/Flightmodel sein, NICHT andersrum
 static Fuelsystem* s_fuelsystem = NULL;
@@ -52,11 +52,11 @@ static Airframe* s_airframe = NULL;
 static FlightModel* s_flightModel = NULL;
 
 //------------------------NEW static functions-------------------------------//
-static void init(const char* config);
+static void init();
 static void cleanup();
 //---------------------------------------------------------------------------//
 
-void init(const char* config)
+void init()
 {
 	s_input = new Input;
 	s_state = new State;
@@ -83,17 +83,17 @@ void cleanup()
 	s_airframe = NULL;
 	s_flightModel = NULL;
 
-}*/
+}
 
 void ed_fm_add_local_force(double & x,double &y,double &z,double & pos_x,double & pos_y,double & pos_z)
 {
-	x = s_flightModel.getForce().x;
-	y = s_flightModel.getForce().y;
-	z = s_flightModel.getForce().z;
+	x = s_flightModel->getForce().x;
+	y = s_flightModel->getForce().y;
+	z = s_flightModel->getForce().z;
 
-	pos_x = s_state.m_com.x;
-	pos_y = s_state.m_com.y;
-	pos_z = s_state.m_com.z;
+	pos_x = s_state->m_com.x;
+	pos_y = s_state->m_com.y;
+	pos_z = s_state->m_com.z;
 }
 
 void ed_fm_add_global_force(double & x,double &y,double &z,double & pos_x,double & pos_y,double & pos_z)
@@ -108,17 +108,17 @@ void ed_fm_add_global_moment(double & x,double &y,double &z)
 
 void ed_fm_add_local_moment(double& x,double& y,double& z)
 {
-	x = s_flightModel.getMoment().x;
-	y = s_flightModel.getMoment().y;
-	z = s_flightModel.getMoment().z;
+	x = s_flightModel->getMoment().x;
+	y = s_flightModel->getMoment().y;
+	z = s_flightModel->getMoment().z;
 }
 
 void ed_fm_simulate(double dt)
 {
-	s_flightModel.update(dt);
-	s_engine.update(dt);
-	s_airframe.airframeUpdate(dt);
-	s_fuelsystem.update(dt);
+	s_flightModel->update(dt);
+	s_engine->update(dt);
+	s_airframe->airframeUpdate(dt);
+	s_fuelsystem->update(dt);
 }
 
 void ed_fm_set_atmosphere(double h,//altitude above sea level
@@ -133,7 +133,7 @@ void ed_fm_set_atmosphere(double h,//altitude above sea level
 {
 	//void State::setCurrentAtmosphere( double temperature, double speedOfSound, double density, double pressure, const Vec3& wind )
 
-	s_state.setCurrentAtmosphere(t, a, ro, p, Vec3(wind_vx, wind_vy, wind_vz));
+	s_state->setCurrentAtmosphere(t, a, ro, p, Vec3(wind_vx, wind_vy, wind_vz));
 }
 /*
 called before simulation to set up your environment for the next step
@@ -147,7 +147,7 @@ void ed_fm_set_current_mass_state (double mass,
 									double moment_of_inertia_z
 									)
 {
-	s_state.setCOM(Vec3(center_of_mass_x, center_of_mass_y, center_of_mass_z));
+	s_state->setCOM(Vec3(center_of_mass_x, center_of_mass_y, center_of_mass_z));
 }
 /*
 called before simulation to set up your environment for the next step
@@ -173,7 +173,7 @@ void ed_fm_set_current_state (double ax,//linear acceleration component in world
 							double quaternion_w //orientation quaternion components in world coordinate system
 							)
 {
-	s_state.setCurrentStateWorldAxis(
+	s_state->setCurrentStateWorldAxis(
 		Vec3(px, py, pz),
 		Vec3(vx, vy, vz));
 }
@@ -208,7 +208,7 @@ void ed_fm_set_current_state_body_axis(
 	Vec3 velocity(vx, vy, vz);
 	Vec3 windVelocity(wind_vx, wind_vy, wind_vz);
 
-	s_state.setCurrentStateBodyAxis(
+	s_state->setCurrentStateBodyAxis(
 		common_angle_of_attack,
 		common_angle_of_slide,
 		Vec3(roll, yaw, pitch),
@@ -228,262 +228,262 @@ void ed_fm_set_command(int command,
 	switch (command)
 	{
 	case COMMAND_PITCH:
-		s_input.m_pitch = value;
+		s_input->m_pitch = value;
 		break;
 	case COMMAND_ROLL:
-		s_input.m_roll = value;
+		s_input->m_roll = value;
 		break;
 	case COMMAND_THROTTLE:
-		s_input.m_throttle = value; // 0.65 * (-value + 1.0); auskommentiert und durch "value" ersetzt zur Angleichung an A4 Scooter.cpp
+		s_input->m_throttle = value; // 0.65 * (-value + 1.0); auskommentiert und durch "value" ersetzt zur Angleichung an A4 Scooter.cpp
 		break;
 	case COMMAND_YAW:
-		s_input.m_yaw = value;
+		s_input->m_yaw = value;
 		break;
 	case COMMAND_TRIMM_UP:
-		s_input.m_trimm_up;
-		if (s_input.m_trimm_up == 0)
+		s_input->m_trimm_up;
+		if (s_input->m_trimm_up == 0)
 		{
-			s_input.m_trimm_up = 0.0002;
+			s_input->m_trimm_up = 0.0002;
 		}
-		else if (s_input.m_trimm_up != 0)
+		else if (s_input->m_trimm_up != 0)
 		{
-			s_input.m_trimm_up += 0.0002;
+			s_input->m_trimm_up += 0.0002;
 		}
 		//printf("TrimmUp %f \n", s_input.m_trimm_up);
 		break;
 	case COMMAND_TRIMM_DOWN:
-		s_input.m_trimm_down;
-		if (s_input.m_trimm_down == 0)
+		s_input->m_trimm_down;
+		if (s_input->m_trimm_down == 0)
 		{
-			s_input.m_trimm_down = 0.0002;
+			s_input->m_trimm_down = 0.0002;
 		}
-		else if (s_input.m_trimm_down != 0)
+		else if (s_input->m_trimm_down != 0)
 		{
-			s_input.m_trimm_down += 0.0002;
+			s_input->m_trimm_down += 0.0002;
 		}
 		break;
 	case COMMAND_TRIMM_AIL_L:
-		s_input.m_trimm_ail_l;
-		if (s_input.m_trimm_ail_l == 0)
+		s_input->m_trimm_ail_l;
+		if (s_input->m_trimm_ail_l == 0)
 		{
-			s_input.m_trimm_ail_l = 0.0002;
+			s_input->m_trimm_ail_l = 0.0002;
 		}
-		else if (s_input.m_trimm_ail_l != 0)
+		else if (s_input->m_trimm_ail_l != 0)
 		{
-			s_input.m_trimm_ail_l += 0.0002;
+			s_input->m_trimm_ail_l += 0.0002;
 		}
 		break;
 	case COMMAND_TRIMM_AIL_R:
-		s_input.m_trimm_ail_r;
-		if (s_input.m_trimm_ail_r == 0)
+		s_input->m_trimm_ail_r;
+		if (s_input->m_trimm_ail_r == 0)
 		{
-			s_input.m_trimm_ail_r = 0.0002;
+			s_input->m_trimm_ail_r = 0.0002;
 		}
-		else if (s_input.m_trimm_ail_r != 0)
+		else if (s_input->m_trimm_ail_r != 0)
 		{
-			s_input.m_trimm_ail_r += 0.0002;
+			s_input->m_trimm_ail_r += 0.0002;
 		}
 		break;
 	case COMMAND_GEAR_TOGGLE:
-		s_input.m_gear_toggle;
-		if (s_input.m_gear_toggle == 0)
+		s_input->m_gear_toggle;
+		if (s_input->m_gear_toggle == 0)
 		{
-			s_input.m_gear_toggle = 1;
+			s_input->m_gear_toggle = 1;
 		}
 		else
 		{
-			s_input.m_gear_toggle = 0;
+			s_input->m_gear_toggle = 0;
 		}
 		break;
 	case COMMAND_GEAR_UP:
-		s_input.m_gearup;
-		if (s_input.m_gearup == 0)
+		s_input->m_gearup;
+		if (s_input->m_gearup == 0)
 		{
-			s_input.m_gear_toggle = 0;
+			s_input->m_gear_toggle = 0;
 		}
 		else
 		{
-			s_input.m_gearup = 0;
+			s_input->m_gearup = 0;
 		}
 		break;
 	case COMMAND_GEAR_DOWN: 
-		s_input.m_geardown;
-		if (s_input.m_geardown == 0)
+		s_input->m_geardown;
+		if (s_input->m_geardown == 0)
 		{
-			s_input.m_gear_toggle = 1;
+			s_input->m_gear_toggle = 1;
 		}
 		else
 		{
-			s_input.m_geardown = 0;
+			s_input->m_geardown = 0;
 		}
 		break;
 	case COMMAND_BRAKE: 
-		s_input.m_brake;
-		if (s_input.m_brake == 0)
+		s_input->m_brake;
+		if (s_input->m_brake == 0)
 		{
-			s_input.m_brake = 1;
+			s_input->m_brake = 1;
 		}
 		else
 		{
-			s_input.m_brake = 0;
+			s_input->m_brake = 0;
 		}
 		break;
 	case COMMAND_RELEASE_BRAKE:
-		s_input.m_release_brake;
-		if (s_input.m_release_brake == 0)
+		s_input->m_release_brake;
+		if (s_input->m_release_brake == 0)
 		{
-			s_input.m_release_brake = 1;
+			s_input->m_release_brake = 1;
 		}
 		else
 		{
-			s_input.m_release_brake = 0;
+			s_input->m_release_brake = 0;
 		}
 		break;
 	case COMMAND_LEFT_BRAKE:
-		s_input.m_leftbrake = value;
+		s_input->m_leftbrake = value;
 		break;
 	case COMMAND_RIGHT_BRAKE:
-		s_input.m_rightbrake = value;
+		s_input->m_rightbrake = value;
 		break;
 	/*case COMMAND_FLAPS_INCREASE:
-		s_input.m_flapsinc;
+		s_input->m_flapsinc;
 		break;
 	case COMMAND_FLAPS_DECREASE:
-		s_input.m_flapsdec;
+		s_input->m_flapsdec;
 		break;*/
 	case COMMAND_FLAPS_DOWN:
-		s_input.m_flapsdown;
-		if (s_input.m_flapsdown == 0)
+		s_input->m_flapsdown;
+		if (s_input->m_flapsdown == 0)
 		{
-			s_input.m_flaps_toggle = 1;
+			s_input->m_flaps_toggle = 1;
 		}
 		else
 		{
-			s_input.m_flapsdown = 0;
+			s_input->m_flapsdown = 0;
 		}
 		break;
 	case COMMAND_FLAPS_UP:
-		s_input.m_flapsup;
-		if (s_input.m_flapsup == 0)
+		s_input->m_flapsup;
+		if (s_input->m_flapsup == 0)
 		{
-			s_input.m_flaps_toggle = 0;
+			s_input->m_flaps_toggle = 0;
 		}
 		else
 		{
-			s_input.m_flapsup = 0;
+			s_input->m_flapsup = 0;
 		}
 		break;
 	case COMMAND_FLAPS_TOGGLE:
-		s_input.m_flaps_toggle;
-		if (s_input.m_flaps_toggle == 0)
+		s_input->m_flaps_toggle;
+		if (s_input->m_flaps_toggle == 0)
 		{
-			s_input.m_flaps_toggle = 0.5;
+			s_input->m_flaps_toggle = 0.5;
 		}
-		else if (s_input.m_flaps_toggle == 0.5)
+		else if (s_input->m_flaps_toggle == 0.5)
 		{
-			s_input.m_flaps_toggle = 1;
+			s_input->m_flaps_toggle = 1;
 		}
 		else
 		{
-			s_input.m_flaps_toggle = 0;
+			s_input->m_flaps_toggle = 0;
 		}
 		// "= value;" entfernt, weil nur 1 oder 0 TEST!!
 		break;
 	case COMMAND_AIRBRAKE:
-		s_input.m_airbrk;
-		if (s_input.m_airbrk == 0)
+		s_input->m_airbrk;
+		if (s_input->m_airbrk == 0)
 		{
-			s_input.m_airbrk = 1;
+			s_input->m_airbrk = 1;
 		}
 		else
 		{
-			s_input.m_airbrk = 0;
+			s_input->m_airbrk = 0;
 		}
 		break;
 	case COMMAND_AIRBRAKE_EXTEND:
-		s_input.m_airbrkext;
-		if (s_input.m_airbrkext == 0)
+		s_input->m_airbrkext;
+		if (s_input->m_airbrkext == 0)
 		{
-			s_input.m_airbrk = 1;
+			s_input->m_airbrk = 1;
 		}
 		else
 		{
-			s_input.m_airbrkext = 0;
+			s_input->m_airbrkext = 0;
 		}
 		break;
 	case COMMAND_AIRBRAKE_RETRACT:
-		s_input.m_airbrkret;
-		if (s_input.m_airbrkret == 0)
+		s_input->m_airbrkret;
+		if (s_input->m_airbrkret == 0)
 		{
-			s_input.m_airbrk = 0;
+			s_input->m_airbrk = 0;
 		}
 		else
 		{
-			s_input.m_airbrkret = 0;
+			s_input->m_airbrkret = 0;
 		}
 		break;
 	case COMMAND_HOOK_TOGGLE:
-		s_input.m_hooktgl;
-		if (s_input.m_hooktgl == 0)
+		s_input->m_hooktgl;
+		if (s_input->m_hooktgl == 0)
 		{
-			s_input.m_hooktgl = 1;
+			s_input->m_hooktgl = 1;
 		}
 		else
 		{
-			s_input.m_hooktgl = 0;
+			s_input->m_hooktgl = 0;
 		}
 		break;
 	case COMMAND_NOSEWHEEL_STEERING:
-		s_input.m_nwsteering;
-		if (s_input.m_nwsteering == 0)
+		s_input->m_nwsteering;
+		if (s_input->m_nwsteering == 0)
 		{
-			s_input.m_nwsteering = 1;
+			s_input->m_nwsteering = 1;
 		}
 		else
 		{
-			s_input.m_nwsteering = 0;
+			s_input->m_nwsteering = 0;
 		}
 		break;
 	case COMMAND_BRAKE_CHUTE:
-		s_input.m_brkchute;
-		if (s_input.m_brkchute == 0)
+		s_input->m_brkchute;
+		if (s_input->m_brkchute == 0)
 		{
-			s_input.m_brkchute = 1;
+			s_input->m_brkchute = 1;
 		}
 		else
 		{
-			s_input.m_brkchute = 0;
+			s_input->m_brkchute = 0;
 		}
 		break;
 	case COMMAND_ENGINE_START:
-		s_input.m_engine_start;
-		if (s_input.m_engine_start == 0)
+		s_input->m_engine_start;
+		if (s_input->m_engine_start == 0)
 		{
-			s_input.m_engine_start = 1;
+			s_input->m_engine_start = 1;
 		}
 		break;
 	case COMMAND_ENGINE_STOP:
-		s_input.m_engine_stop;
-		if (s_input.m_engine_stop == 0)
+		s_input->m_engine_stop;
+		if (s_input->m_engine_stop == 0)
 		{
-			s_input.m_engine_stop = 1;
+			s_input->m_engine_stop = 1;
 		}
 		break;
 	/*case COMMAND_NOSEWHEEL_STEERING_ENGAGE:
-		s_input.m_nwsteeringeng = value;
+		s_input->m_nwsteeringeng = value;
 		break;
 	case COMMMAND_NOSEWHEEL_STEERING_DISENGAGE:
-		s_input.m_nwsteeringdiseng = value;
+		s_input->m_nwsteeringdiseng = value;
 		break;
 	case COMMAND_STARTER_BUTTON:
-		s_input.m_starterbutton = value;
+		s_input->m_starterbutton = value;
 		break;
 	case COMMAND_THROTTLE_DETEND:
-		s_input.m_starterbutton = value;
+		s_input->m_starterbutton = value;
 		break;*/
 	
-	default:
-		printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
+	//default:
+		//printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
 	}
 }
 /*
@@ -515,18 +515,18 @@ bool ed_fm_change_mass  (double & delta_mass,
 						double & delta_mass_moment_of_inertia_z
 						)
 {
-	Fuelsystem::Tank tank = s_fuelsystem.getSelectedTank();//AB HIER GEHT ES EIGENTLICH LOS
+	Fuelsystem::Tank tank = s_fuelsystem->getSelectedTank();//DAb hier Change Mass geht los
 	if (tank == Fuelsystem::NUMBER_OF_TANKS)
 	{
-		s_fuelsystem.setSelectedTank(Fuelsystem::INTERNAL);
+		s_fuelsystem->setSelectedTank(Fuelsystem::INTERNAL);
 		return false;
 	}
 
-	Vec3 pos = s_fuelsystem.getFuelPos(tank);
+	Vec3 pos = s_fuelsystem->getFuelPos(tank);
 	//-------Vec3 r = pos - s_state->getCOM();---------------------------
 
-	delta_mass = s_fuelsystem.getFuelQtyDelta(tank);
-	s_fuelsystem.setFuelPrevious(tank);
+	delta_mass = s_fuelsystem->getFuelQtyDelta(tank);
+	s_fuelsystem->setFuelPrevious(tank);
 
 	//-----------printf( "Tank %d, Pos: %lf, %lf, %lf, dm: %lf\n", tank, pos.x, pos.y, pos.z, delta_mass );---------------
 
@@ -534,7 +534,7 @@ bool ed_fm_change_mass  (double & delta_mass,
 	delta_mass_pos_y = pos.y;
 	delta_mass_pos_z = pos.z;
 
-	s_fuelsystem.setSelectedTank((Fuelsystem::Tank)((int)tank + 1));
+	s_fuelsystem->setSelectedTank((Fuelsystem::Tank)((int)tank + 1));
 	return true;
 	
 	//return false;
@@ -543,7 +543,7 @@ bool ed_fm_change_mass  (double & delta_mass,
 	//if (fuel_consumption_since_last_time > 0)
 	//{
 	//	delta_mass		 = fuel_consumption_since_last_time;
-	//	delta_mass_pos_x = -1.0;
+	//	delta_mass_pos_x = -1->0;
 	//	delta_mass_pos_y =  1.0;
 	//	delta_mass_pos_z =  0;
 
@@ -566,7 +566,7 @@ bool ed_fm_change_mass  (double & delta_mass,
 */
 void   ed_fm_set_internal_fuel(double fuel)
 {
-	s_fuelsystem.setInternal(fuel);
+	s_fuelsystem->setInternal(fuel);
 	//internal_fuel = fuel;
 }
 /*
@@ -575,23 +575,26 @@ void   ed_fm_set_internal_fuel(double fuel)
 double ed_fm_get_internal_fuel()
 {
 	//return 1.0;
-	return s_fuelsystem.getFuelQtyInternal();
+	return s_fuelsystem->getFuelQtyInternal();
 }
 /*
 	set external fuel volume for each payload station , called for weapon init and on reload
 */
+//lediglich Änderung in der {} für StationToTank
+
 void  ed_fm_set_external_fuel(int	 station,
 	double fuel,
 	double x,
 	double y,
 	double z)
 {
-	s_fuelsystem.setFuelQty((Fuelsystem::Tank)(station + 1), Vec3(x, y, z), fuel);
+	Fuelsystem::Tank tank = s_fuelsystem->stationToTank(station);
+	s_fuelsystem->setFuelQty(tank, Vec3(x, y, z), fuel);
 }
 
 	//Das folgende ist das Original, davor ist meine schlechte Fälschung
 /*{
-	s_fuelsystem.setFuelQty((Fuelsystem::Tank)(station + 1), Vec3(x, y, z), fuel);
+	s_fuelsystem->setFuelQty((Fuelsystem::Tank)(station + 1), Vec3(x, y, z), fuel);
 }*/
 
 /*
@@ -600,8 +603,29 @@ void  ed_fm_set_external_fuel(int	 station,
 double ed_fm_get_external_fuel ()
 {
 	//return 0;
-	return s_fuelsystem.getFuelQtyExternal();
+	return s_fuelsystem->getFuelQtyExternal();
 }
+
+/*ACHTUNG-ACHTUNG Veränderungen im Anmarsch: Ab DCS V2.7 muss ed_fm_set_draw_args und
+ed_fm_set_fc3_cockpit_draw_args wie folgt verändert werden
+
+
+NEU!! void ed_fm_set_fc3_cockpit_draw_args_v2(float* data, size_t size)
+NEU!! {
+NEU!!	data[YOUR_ARGUMENT] = WHAT_YOU_WANT;
+NEU!! }
+NEU!!
+NEU!! Compared to
+ALT!! void ed_fm_set_fc3_cockpit_draw_args(EdDrawArgument* drawargs, size_t size)
+ALT!! {
+ALT!!	drawargs[YOUR_ARGUMENT].f = WHAT_YOU_WANT;
+ALT!! }
+
+in der ed_fm_template.h müssen auch Änderungen vorgenommen werden in:
+
+void ed_fm_set_fc3_cockpit_draw_args_v2(float* data, size_t size)
+*/
+
 
 void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
 {
@@ -615,32 +639,45 @@ void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
 		drawargs[616].f = drawargs[5].f;
 	}
 
-	drawargs[12].f = -s_airframe.getAileron();//left Aileron
-	drawargs[11].f = s_airframe.getAileron();//right aileron
-	drawargs[15].f = s_airframe.getStabilizer(); //right elevator ist standard für ein Leitwerk
-	//drawargs[16].f = s_airframe.getStabilizer();//left elevator// erst mal einen testen, weil ist ja nur einer
-	drawargs[17].f = -s_airframe.getRudder(); //rudder
-	drawargs[9].f = s_airframe.getFlapsPosition();//right flap Versuch
-	drawargs[10].f = s_airframe.getFlapsPosition();//left flap Versuch
-	drawargs[182].f = s_airframe.getSpeedBrakePosition();//airbrake #1
-	drawargs[184].f = s_airframe.getSpeedBrakePosition();//airbrake #2
-	drawargs[0].f = s_airframe.getGearNPosition();//Nosewheel Position
-	drawargs[3].f = s_airframe.getGearRPosition();//Right Gear Position
-	drawargs[5].f = s_airframe.getGearLPosition();//Left Gear Position
-	drawargs[25].f = s_airframe.getHookPosition();//Hook Position
-	drawargs[28].f = s_engine.updateBurner();//Burner Stage 1 and 0
-	drawargs[89].f = s_airframe.getNozzlePosition();//Engine Nozzle Stage 1 - 0 - 1
-	drawargs[2].f = s_airframe.getNoseWheelAngle();//Nosewheel Angle +/- 60°
-	drawargs[35].f = s_airframe.brkChutePosition();
-	drawargs[36].f = s_airframe.brkChuteSlewY();//slew chute in Y-Axis (-1 to +1)
-	drawargs[37].f = s_airframe.brkChuteSlewZ();//slew chute in Z-Axis (-1 to +1)
+	drawargs[12].f = -s_airframe->getAileron();//left Aileron
+	drawargs[11].f = s_airframe->getAileron();//right aileron
+	drawargs[15].f = s_airframe->getStabilizer(); //right elevator ist standard für ein Leitwerk
+	//drawargs[16].f = s_airframe->getStabilizer();//left elevator// erst mal einen testen, weil ist ja nur einer
+	drawargs[17].f = -s_airframe->getRudder(); //rudder
+	drawargs[9].f = s_airframe->getFlapsPosition();//right flap Versuch
+	drawargs[10].f = s_airframe->getFlapsPosition();//left flap Versuch
+	drawargs[182].f = s_airframe->getSpeedBrakePosition();//airbrake #1
+	drawargs[184].f = s_airframe->getSpeedBrakePosition();//airbrake #2
+	drawargs[0].f = s_airframe->getGearNPosition();//Nosewheel Position
+	drawargs[3].f = s_airframe->getGearRPosition();//Right Gear Position
+	drawargs[5].f = s_airframe->getGearLPosition();//Left Gear Position
+	drawargs[25].f = s_airframe->getHookPosition();//Hook Position
+	drawargs[28].f = s_engine->updateBurner();//Burner Stage 1 and 0
+	drawargs[89].f = s_airframe->getNozzlePosition();//Engine Nozzle Stage 1 - 0 - 1
+	drawargs[2].f = s_airframe->getNoseWheelAngle();//Nosewheel Angle +/- 60°
+	drawargs[35].f = s_airframe->brkChutePosition();
+	drawargs[36].f = s_airframe->brkChuteSlewY();//slew chute in Y-Axis (-1 to +1)
+	drawargs[37].f = s_airframe->brkChuteSlewZ();//slew chute in Z-Axis (-1 to +1)
 
 }
 
-
-void ed_fm_configure(const char * cfg_path)
+void ed_fm_set_fc3_cockpit_draw_args(EdDrawArgument* drawargs, size_t size)
 {
+	drawargs[39].f = s_airframe->getGearLLamp();//Fahrwerkslampe linkes Fahrwerk
+	drawargs[40].f = s_airframe->getGearFLamp();//Fahrwerkslampe Bugrad
+	drawargs[41].f = s_airframe->getGearRLamp();//Fahrwerkslampe rechtes Fahrwerk
+}
 
+
+void ed_fm_configure(const char * cfg_path) //neu eingefügt wegen Pointer und steuert die Initialisierung
+{
+	//printf("Initialising...\n");//zur überprüfung des Initialisierungsprozesses
+	init();
+}
+
+void ed_fm_release() //neu eingefügt wegen Pointer und steuert den CleanUp nach dem Shut-Down
+{
+	cleanup();
 }
 
 double test_gear_state = 0;
@@ -653,77 +690,81 @@ switch (index)
 case ED_FM_SUSPENSION_0_GEAR_POST_STATE:
 case ED_FM_SUSPENSION_0_DOWN_LOCK:
 case ED_FM_SUSPENSION_0_UP_LOCK:
-	return s_airframe.getGearNPosition(); //vorher zum testen bei allen 3 "return 1.0;"
+	return s_airframe->getGearNPosition(); //vorher zum testen bei allen 3 "return 1.0;"
 
 case ED_FM_SUSPENSION_1_GEAR_POST_STATE:
 case ED_FM_SUSPENSION_1_DOWN_LOCK:
 case ED_FM_SUSPENSION_1_UP_LOCK:
-	return s_airframe.getGearLPosition();
+	return s_airframe->getGearLPosition();
 
 case ED_FM_SUSPENSION_2_GEAR_POST_STATE:
 case ED_FM_SUSPENSION_2_DOWN_LOCK:
 case ED_FM_SUSPENSION_2_UP_LOCK:
-	return s_airframe.getGearRPosition();
+	return s_airframe->getGearRPosition();
 
 case ED_FM_SUSPENSION_1_RELATIVE_BRAKE_MOMENT:
-	return s_airframe.updateBrake();
+	return s_airframe->updateBrake();
 case ED_FM_SUSPENSION_2_RELATIVE_BRAKE_MOMENT:
-	return s_airframe.updateBrake();
+	return s_airframe->updateBrake();
 
 case ED_FM_ANTI_SKID_ENABLE:
 	return 1.0;
 
 //NWS-Stuff
 case ED_FM_SUSPENSION_0_WHEEL_SELF_ATTITUDE:
-	return s_airframe.NWSstate() > 0.5 ? 0.0 : 1.0;
+	return s_input->m_nwsteering == 1.0 ? 0.0 : 1.0; //was return s_airframe->NWSstate() == 1.0 ? 1.0 : 0.0;
 case ED_FM_SUSPENSION_0_WHEEL_YAW:
-	return s_airframe.getNoseWheelAngle(); //> 0.5 ? -s_input.m_yaw * 0.5 : 0.0; //rotation to 45 degrees, half 90 (range of the wheel)
+	return s_airframe->getNoseWheelAngle(); //> 0.5 ? -s_input.m_yaw * 0.5 : 0.0; //rotation to 45 degrees, half 90 (range of the wheel)
 
 //Engine-Stuff
-case ED_FM_ENGINE_1_CORE_RPM:
-case ED_FM_ENGINE_1_RPM:
-	return s_engine.getRPMNorm();
+case ED_FM_ENGINE_1_CORE_RPM: //RPM in Rad/s
+	//return s_engine->getRPMNorm();
+case ED_FM_ENGINE_1_RPM: //RPM in Rad/s
+	return s_engine->getRPMNorm();
 case ED_FM_ENGINE_1_TEMPERATURE:
-	return 23.0;
+	return s_engine->tempInC();
 case ED_FM_ENGINE_1_OIL_PRESSURE:
-	return 600.0;
+	return (s_engine->getRPMNorm()) * 1000;
 case ED_FM_ENGINE_1_FUEL_FLOW:
-	return s_engine.FuelFlowUpdate();
+	return s_engine->FuelFlowUpdate();
 case ED_FM_ENGINE_1_CORE_RELATED_THRUST:
 case ED_FM_ENGINE_1_RELATED_THRUST:
 case ED_FM_ENGINE_1_RELATED_RPM:
-case ED_FM_ENGINE_1_CORE_RELATED_RPM:
-	return s_engine.getRPMNorm();
+case ED_FM_ENGINE_1_CORE_RELATED_RPM: //related=normalised RPM in %
+	return s_engine->getRPMNorm();
+
+case ED_FM_ENGINE_1_THRUST:
+	return s_engine->updateThrust();
 
 case ED_FM_ENGINE_1_COMBUSTION:
-	return s_engine.FuelFlowUpdate();
+	return s_engine->FuelFlowUpdate();
 
 case ED_FM_FUEL_INTERNAL_FUEL:
-	return s_fuelsystem.getFuelQtyInternal();
+	return s_fuelsystem->getFuelQtyInternal();
 
 case ED_FM_FUEL_TOTAL_FUEL:
-	return (s_fuelsystem.getFuelQtyExternal() + s_fuelsystem.getFuelQtyInternal());
+	return (s_fuelsystem->getFuelQtyExternal() + s_fuelsystem->getFuelQtyInternal());
 
 case ED_FM_FUEL_FUEL_TANK_GROUP_0_LEFT:
-	return s_fuelsystem.getFuelQtyExternalLeft();
+	return s_fuelsystem->getFuelQtyExternalLeft();
 
 case ED_FM_FUEL_FUEL_TANK_GROUP_0_RIGHT:
-	return s_fuelsystem.getFuelQtyExternalRight();
+	return s_fuelsystem->getFuelQtyExternalRight();
 
 case ED_FM_FC3_STICK_PITCH:
-	return s_input.m_pitch;
+	return s_input->m_pitch;
 case ED_FM_FC3_STICK_ROLL:
-	return s_input.m_roll;
+	return s_input->m_roll;
 case ED_FM_FC3_RUDDER_PEDALS:
-	return s_input.m_yaw;
+	return s_input->m_yaw;
 
 case ED_FM_FC3_THROTTLE_LEFT:
-	return s_airframe.getIntThrottlePosition();
+	return s_airframe->getIntThrottlePosition();
 case ED_FM_FC3_THROTTLE_RIGHT:
-	return s_airframe.getIntThrottlePosition();
+	return s_airframe->getIntThrottlePosition();
 
 case ED_FM_FC3_GEAR_HANDLE_POS:
-	return s_input.m_gear_toggle;
+	return s_input->m_gear_toggle;
 
 
 
@@ -738,27 +779,36 @@ case ED_FM_FC3_GEAR_HANDLE_POS:
 
 void ed_fm_cold_start()
 {
-	s_airframe.coldInit();
-	s_engine.coldInit();
-	s_fuelsystem.coldInit();
-	s_flightModel.coldInit();
+	s_input->coldInit();
+	s_airframe->coldInit();
+	s_engine->coldInit();
+	s_fuelsystem->coldInit();
+	s_flightModel->coldInit();
 	
 }
 
 void ed_fm_hot_start()
 {
-	s_airframe.hotInit();
-	s_engine.hotInit();
-	s_fuelsystem.hotInit();
-	s_flightModel.hotInit();
+	s_input->hotInit();
+	s_airframe->hotInit();
+	s_engine->hotInit();
+	s_fuelsystem->hotInit();
+	s_flightModel->hotInit();
 }
 
 void ed_fm_hot_start_in_air()
 {
-	s_airframe.airborneInit();
-	s_engine.airborneInit();
-	s_engine.airborneInit();
-	s_flightModel.airborneInit();
+	s_input->airborneInit();
+	s_airframe->airborneInit();
+	s_engine->airborneInit();
+	s_engine->airborneInit();
+	s_flightModel->airborneInit();
+}
+
+//Neu eingefügt und in der ED_FM_Template.h ebenfalls
+void ed_fm_repair()
+{
+
 }
 
 bool ed_fm_add_local_force_component( double & x,double &y,double &z,double & pos_x,double & pos_y,double & pos_z )

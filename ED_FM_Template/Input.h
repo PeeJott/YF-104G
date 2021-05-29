@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "BaseComponent.h"
 
 enum Command
 {
@@ -41,40 +42,86 @@ enum Command
 };
 
 
-
-struct Input
+class Input
 {
-	double m_pitch;
-	double m_roll;
-	double m_yaw;
-	double m_throttle;
-	double m_trimm_up;
-	double m_trimm_down;
-	double m_trimm_ail_l;
-	double m_trimm_ail_r;
-	double m_flaps_toggle;
-	double m_gear_toggle;
-	double m_gearup;
-	double m_geardown;
-	double m_brake;
-	double m_release_brake;
-	double m_brakeDuration;
-	double m_leftbrake;
-	double m_rightbrake;
-	double m_flapsinc;
-	double m_flapsdec;
-	double m_flapsdown;
-	double m_flapsup;
-	double m_airbrk;
-	double m_airbrkext;
-	double m_airbrkret;
-	double m_hooktgl;
-	double m_nwsteering;
+	public:
+		virtual void zeroInit()
+		{
+			m_pitch = 0.0;
+			m_roll = 0.0;
+			m_yaw = 0.0;
+			m_throttle = 0.0;
+			m_trimm_up = 0.0;
+			m_trimm_down = 0.0;
+			m_trimm_ail_l = 0.0;
+			m_trimm_ail_r = 0.0;
+			m_flaps_toggle = 0.0;
+			m_gear_toggle = 0.0;
+			m_gearup = 0.0;
+			m_geardown = 0.0;
+			m_brake = 0.0;
+			m_release_brake = 0.0;
+			m_brakeDuration = 0.0;
+			m_leftbrake = 0.0;
+			m_rightbrake = 0.0;
+			m_flapsinc = 0.0;
+			m_flapsdec = 0.0;
+			m_flapsdown = 0.0;
+			m_flapsup = 0.0;
+			m_airbrk = 0.0;
+			m_airbrkext = 0.0;
+			m_airbrkret = 0.0;
+			m_hooktgl = 0.0;
+			m_nwsteering = 0.0;
+		}
+
+		
+		virtual void coldInit()
+		{
+			zeroInit();
+		}
+
+		virtual void hotInit()
+		{
+			zeroInit();
+		}
+
+		virtual void airborneInit()
+		{
+			zeroInit();
+		}
+
+	double m_pitch = 0.0;
+	double m_roll = 0.0;
+	double m_yaw = 0.0;
+	double m_throttle = 0.0;
+	double m_trimm_up = 0.0;
+	double m_trimm_down = 0.0;
+	double m_trimm_ail_l = 0.0;
+	double m_trimm_ail_r = 0.0;
+	double m_flaps_toggle = 0.0;
+	double m_gear_toggle = 0.0;
+	double m_gearup = 0.0;
+	double m_geardown = 0.0;
+	double m_brake = 0.0;
+	double m_release_brake = 0.0;
+	double m_brakeDuration = 0.0;
+	double m_leftbrake = 0.0;
+	double m_rightbrake = 0.0;
+	double m_flapsinc = 0.0;
+	double m_flapsdec = 0.0;
+	double m_flapsdown = 0.0;
+	double m_flapsup = 0.0;
+	double m_airbrk = 0.0;
+	double m_airbrkext = 0.0;
+	double m_airbrkret = 0.0;
+	double m_hooktgl = 0.0;
+	double m_nwsteering = 0.0;
 	//double m_nwsteeringeng;
 	//double m_nwsteeringdiseng;
 	//double m_starterbutton;
 	//double m_trhottledet;
-	double m_brkchute;
-	double m_engine_start;
-	double m_engine_stop;
+	double m_brkchute = 0.0;
+	double m_engine_start = 0.0;
+	double m_engine_stop = 0.0;
 };

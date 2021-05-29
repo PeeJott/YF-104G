@@ -22,13 +22,13 @@ Airframe::Airframe
 	m_state(state),
 	m_input(input),
 	m_engine(engine),
-	m_actuatorFlap(1.75),
+	m_actuatorFlap(1.1),
 	m_actuatorAirbrk(1.2),
-	m_actuatorGearL(0.6),
-	m_actuatorGearN(0.6),
-	m_actuatorGearR(0.6),
+	m_actuatorGearL(0.4),
+	m_actuatorGearN(0.4),
+	m_actuatorGearR(0.4),
 	m_actuatorHook(0.6),
-	m_actuatorNozzle(1.35),
+	m_actuatorNozzle(1.25),
 	m_actuatorNosewheel(2.0)
 {
 	//huhu!!
@@ -40,6 +40,10 @@ void Airframe::zeroInit()
 	m_gearLPosition = 0.0;
 	m_gearRPosition = 0.0;
 	m_gearNPosition = 0.0;
+
+	m_gearFLamp = 0.0;
+	m_gearLLamp = 0.0;
+	m_gearRLamp = 0.0;
 
 	m_gearStart = 0.0;
 
@@ -67,6 +71,7 @@ void Airframe::zeroInit()
 	m_chuteState = 0.0;
 	m_mass = 1.0;
 	m_timePassed = 0.0;
+
 }
 
 void Airframe::coldInit()
@@ -286,6 +291,10 @@ double Airframe::NWSstate()
 	if (m_input.m_nwsteering == 1)
 	{
 		m_nwsEngage = 1;
+	}
+	else if (m_input.m_nwsteering == 0)
+	{
+		m_nwsEngage = 0;
 	}
 	else
 	{
@@ -624,3 +633,4 @@ double Airframe::BLCsystem()
 	}
 	return m_blcLift;
 }
+
