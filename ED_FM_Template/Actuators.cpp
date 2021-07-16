@@ -19,12 +19,13 @@ Actuator::~Actuator()
 
 void Actuator::zeroInit()
 {
-
+	
 }
 
 //NEU eingefügt um die Actuator-Position bei GroundStart setzen zu können
 void Actuator::groundInit(double pos, double targetpos)
 {
+	
 	m_actuatorPos = pos;
 	m_actuatorTargetPos = targetpos;
 }
@@ -35,7 +36,7 @@ void Actuator::hotInit()
 }
 void Actuator::airborneInit()
 {
-
+	
 }
 
 double Actuator::inputUpdate(double targetPosition, double dt)

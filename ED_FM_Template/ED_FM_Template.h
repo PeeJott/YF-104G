@@ -113,6 +113,8 @@ extern "C"
 															double common_angle_of_attack, //AoA radians
 															double common_angle_of_slide   //AoS radians
 															);
+	
+	ED_FM_TEMPLATE_API void ed_fm_on_damage(int element, double element_integrity_factor); //NEU eingefügt wegen Damage-Modell zum Erhalten des Damage-Status von ED
 	/*
 	input handling
 	*/
@@ -169,13 +171,14 @@ extern "C"
 	ED_FM_TEMPLATE_API double ed_fm_get_external_fuel ();
 	//ACHTUNG-ACHTUNG Änderungen für DCS V 2.7 siehe ed_fm_template.cpp
 	ED_FM_TEMPLATE_API void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size);
-	ED_FM_TEMPLATE_API void ed_fm_set_fc3_cockpit_draw_args(EdDrawArgument* drawargs, size_t size); //NEU eingefügt wegen Direktzugriff auf FC-3 Cockpit Anzeigen
+	ED_FM_TEMPLATE_API void ed_fm_set_fc3_cockpit_draw_args_v2 (float* data, size_t size); //NEU eingefügt wegen Direktzugriff auf FC-3 Cockpit Anzeigen
 	ED_FM_TEMPLATE_API void ed_fm_configure		(const char * cfg_path);
 	ED_FM_TEMPLATE_API void ed_fm_release();//neu eingefügt wegen Pointer
 
 
 	ED_FM_TEMPLATE_API double ed_fm_get_param(unsigned index);
 
+	ED_FM_TEMPLATE_API bool ed_fm_pop_simulation_event(ed_fm_simulation_event& out);
 	/*
 	call backs for diffrenrt starting conditions
 	*/
@@ -184,5 +187,7 @@ extern "C"
 	ED_FM_TEMPLATE_API void ed_fm_hot_start_in_air();
 
 	ED_FM_TEMPLATE_API void ed_fm_repair(); //neu eingefügt wegen den repairs
+
+	ED_FM_TEMPLATE_API double ed_fm_get_shake_amplitude(); //neu eingefügt wegen Cockpit-Shaker-Function in flightModel.h und flightModel.cpp
 
 };

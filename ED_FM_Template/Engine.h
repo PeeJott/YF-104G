@@ -43,6 +43,12 @@ public:
 	// inline void setThrust(double thrust); //auskommentiert zum Angleichen A4 engine.h
 
 	double tempInC();
+	
+	double overHeatCount();
+	double overHeat();
+	//void heatCoolDown();
+	void repairHeatDamage();
+	double overSpeedInd();
 
 	inline void setThrottle(double throttle); //Neu eingefügt nach A4 engine2.h
 	
@@ -67,7 +73,7 @@ private:
 	double m_corrAirDensity = 0.0;
 	
 	double m_correctedFuelFlow = 0.0;
-	double m_fuelFlow = 0.0;
+	double m_fuelFlow = 0.0; //von double zu float wegen Datenübertragung
 	double m_rpmNormal = 0.0;
 	double m_spoolFactor = 0.0;
 	double m_spoolFactorPrevious = 0.0;
@@ -104,8 +110,13 @@ private:
 	bool m_started = false;
 
 	double m_tempInC = 0.0;
-
-
+	double m_overHeat = 0.0;
+	double m_heatOne = 0.0;
+	double m_heatTwo = 0.0;
+	int m_heatTimerUP = 0;
+	int m_heatTimerDOWN = 0;
+	double m_overSpeedInd = 0.0;
+	bool m_heatFailure = false;
 
 	//-------------Thrust Tables init------------------------
 	Table PMax;
@@ -233,7 +244,7 @@ double Engine::getRPMNorm()
 double Engine::getRPM()
 {
 	
-	return 1;
+	return 1.0;
 	//return CON_ThrToRPM * updateThrust(); //erstmal um was zu haben
 }
 

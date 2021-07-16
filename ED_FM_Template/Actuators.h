@@ -18,9 +18,9 @@ public:
 	double getPosition();
 	void setActuatorSpeed(double factor);
 
-private:
-	double m_actuatorFactor;
-	double m_actuatorSpeed;
-	double m_actuatorPos;
-	double m_actuatorTargetPos;
+private: // = 0.0; bei allen actuators eingefügt, vorher fehlte das!!!
+	double m_actuatorFactor = 0.0;
+	double m_actuatorSpeed = 0.0;
+	double m_actuatorPos = 0.0;
+	double m_actuatorTargetPos = 0.0;
 };

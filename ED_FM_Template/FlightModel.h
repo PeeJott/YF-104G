@@ -9,6 +9,7 @@
 #include "Airframe.h"
 #include "Fuel_System.h"
 #include "BaseComponent.h"
+#include "Timer.h"
 
 class FlightModel
 {
@@ -31,6 +32,12 @@ public:
 	void drag();
 	void sideForce();
 	void thrustForce();
+
+	//----------Cockpit-Shaker--------------------------
+	void calculateShake(double& dt);
+	inline double getCockpitShake();
+	//inline void setCockpitShakeModifier(double mod);
+
 
 	inline const Vec3& getForce() const; //inline u.U. unnötig, da die Funktion nicht direkt hier implementiert wurde; inline könnte weg
 	inline const Vec3& getMoment() const; //inline u.U. unnötig, da die Funktion nicht direkt hier implementiert wurde; inline könnte weg
@@ -76,10 +83,34 @@ private:
 	double CDBrkCht = 0.0;//NEU und Drag Brake-Chute
 	double CLblc = 0.0; //NEU BLC Lift-System für die angeströmten Landeklappen
 
+	//---------------damage varaiables for parts---------------------
+	double m_rWingDamageCL = 0.0;
+	double m_rWingDamageCD = 0.0;
+	double m_lWingDamageCL = 0.0;
+	double m_lWingDamageCD = 0.0;
+	double m_ailDamage = 0.0;
+	double m_flapDamage = 0.0;
+	double m_rSpdBrkDamage = 0.0;
+	double m_lSpdBrkDamage = 0.0;
+	double m_hStabDamage = 0.0;
+	double m_vStabDamage = 0.0;
+
+	//-------------Shaker-Stuff-------------------------------
+	double m_cockpitShake = 0.0;
+	double m_cockpitShakeModifier = 0.0;
+
+	bool prevGearShake = false;
+	bool gearShake = false;
+	Timer m_shakeDuration;
+
+
+
 	//--------------Tables from AeroData_1.h------------------------
 	//--------------PITCH--------------------------
 	Table Cmalpha;
+	Table CmalphaNEW;
 	Table Cmde;
+	Table CmdeNEW;
 	Table Cmq;
 	Table Cmadot; //genau so für jede DATA_Table
 	Table CmM;
@@ -124,3 +155,14 @@ const Vec3& FlightModel::getMoment() const
 {
 	return m_moment;
 }
+
+double FlightModel::getCockpitShake()
+{
+	return m_cockpitShake;
+}
+
+/*void FlightModel::setCockpitShakeModifier(double mod)
+{
+	m_cockpitShakeModifier = mod;
+	m_cockpitShakeModifier = 1.5;
+}*/

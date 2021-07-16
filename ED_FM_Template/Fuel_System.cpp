@@ -22,6 +22,9 @@ Fuelsystem::Fuelsystem
 
 void Fuelsystem::zeroInit()
 {
+	m_adjExtFuelQty = 0.0;
+	m_lowFuel = 0.0;
+	m_bingoFuel = 0.0;
 
 }
 

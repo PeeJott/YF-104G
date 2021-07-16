@@ -57,7 +57,13 @@ public:
 	inline double getFuelQtyExternal() const;
 	inline double getFuelQtyExternalLeft() const;
 	inline double getFuelQtyExternalRight() const;
+	inline double getFuelQtyExternalTip() const;
+	inline double getFuelQtyExternalWing() const;
 	inline double getFuelQtyInternal() const;
+	inline double getFuelQtyTotal() const;
+	inline double getAdjFuelQtyExternal();
+	inline double lowFuelWarning();
+	inline double bingoFuelWarning();
 	inline double getFuelQtyDelta(Tank tank) const;
 	inline const Vec3& getFuelPos(Tank tank) const;
 	inline Tank getSelectedTank() const;
@@ -108,13 +114,18 @@ private:
 	bool m_fuelSet[NUMBER_OF_TANKS] = { false, false, false, false, false}; //Check, if tank is empty or full
 
 	//										 INTERNAL   TIP_L   WING_L  WING_R  TIP_R 
-	double m_fuelCapacity[NUMBER_OF_TANKS] = { 2641.0, 1018.0, 1018.0, 1018.0, 1018.0 }; //values from F104g.lua.
+	double m_fuelCapacity[NUMBER_OF_TANKS] = { 2641.0, 500.0, 500.0, 500.0, 500.0 }; //values from F104g.lua.
 
 	Vec3 m_fuelPos[NUMBER_OF_TANKS] = { Vec3(), Vec3(), Vec3(), Vec3(), Vec3() };
 
 	bool m_hasFuel = true; //this is false if the fuel cannot be delivered or all fuel is burned.
 
 	Tank m_selectedTank = INTERNAL;
+
+	double m_lowFuel = 0.0;
+	double m_bingoFuel = 0.0;
+
+	float m_adjExtFuelQty = 0.0;
 };
 
 void Fuelsystem::setFuelQty(Tank tank, const Vec3& position, double value)
@@ -202,6 +213,21 @@ double Fuelsystem::getFuelQtyExternal() const
 	return m_fuel[LEFT_TIP] + m_fuel[LEFT_WING] + m_fuel[RIGHT_WING] + m_fuel[RIGHT_TIP];
 }
 
+double Fuelsystem::getAdjFuelQtyExternal()
+{
+	m_adjExtFuelQty = getFuelQtyExternal() * 0.0005;
+
+	
+	/*printf("ExternalFuel %f \n", m_adjExtFuelQty);
+	printf("EF_Wing-L %f \n", m_fuel[LEFT_WING]);
+	printf("EF_Wing-R %f \n", m_fuel[RIGHT_WING]);
+	printf("EF_TIP-L %f \n", m_fuel[LEFT_TIP]);
+	printf("EF_TIP-R %f \n", m_fuel[RIGHT_TIP]);*/
+
+
+	return m_adjExtFuelQty;
+}
+
 double Fuelsystem::getFuelQtyExternalLeft() const
 {
 	return m_fuel[LEFT_TIP] + m_fuel[LEFT_WING];
@@ -210,6 +236,21 @@ double Fuelsystem::getFuelQtyExternalLeft() const
 double Fuelsystem::getFuelQtyExternalRight() const
 {
 	return m_fuel[RIGHT_WING] + m_fuel[RIGHT_TIP];
+}
+
+double Fuelsystem::getFuelQtyExternalTip() const
+{
+	return m_fuel[RIGHT_TIP] + m_fuel[LEFT_TIP];
+}
+
+double Fuelsystem::getFuelQtyExternalWing() const
+{
+	return m_fuel[RIGHT_WING] + m_fuel[LEFT_WING];
+}
+
+double Fuelsystem::getFuelQtyTotal() const
+{
+	return m_fuel[RIGHT_WING] + m_fuel[RIGHT_TIP] + m_fuel[LEFT_WING] + m_fuel[LEFT_TIP] + m_fuel[INTERNAL];
 }
 
 double Fuelsystem::getFuelQtyInternal() const
@@ -296,4 +337,30 @@ double Fuelsystem::addFuelToTank(Tank tank, double dm, double min)
 	m_fuel[tank] += dm;
 
 	return desiredTransfer - dm;
+}
+
+double Fuelsystem::lowFuelWarning()
+{
+	if (getFuelQtyTotal() <= 454.0)
+	{
+		m_lowFuel = 1.0;
+	}
+	else
+	{
+		m_lowFuel = 0.0;
+	}
+	return m_lowFuel;
+}
+
+double Fuelsystem::bingoFuelWarning()
+{
+	if (getFuelQtyTotal() <= 908.0)
+	{
+		m_bingoFuel = 1.0;
+	}
+	else
+	{
+		m_bingoFuel = 0.0;
+	}
+	return m_bingoFuel;
 }

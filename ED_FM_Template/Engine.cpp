@@ -66,6 +66,15 @@ void Engine::zeroInit()
 	m_rpmPrevious = 0.0;
 
 	m_tempInC = 0.0;
+
+	m_overHeat = 0.0;
+	m_heatOne = 0.0;
+	m_heatTwo = 0.0;
+	m_heatTimerUP = 0;
+	m_heatTimerDOWN = 0;
+	m_overSpeedInd = 0.0;
+	m_heatFailure = false;
+
 }
 
 void Engine::coldInit()
@@ -81,9 +90,9 @@ void Engine::hotInit()
 	m_ignitors = true;
 	m_rpmNormal = 0.72;
 	m_rpmPrevious = 0.72;
-	m_input.m_engine_start = 1;
+	m_input.m_engine_start = 1.0;
 	m_spoolHOldSpool = 0.70;
-	m_spoolCOldSpool = 0.0;
+	m_spoolCOldSpool = 0.71;
 }
 
 void Engine::airborneInit()
@@ -93,24 +102,24 @@ void Engine::airborneInit()
 	m_ignitors = true;
 	m_rpmNormal = 0.85;
 	m_rpmPrevious = 0.85;
-	m_input.m_engine_start = 1;
+	m_input.m_engine_start = 1.0;
 	m_spoolHOldSpool = 0.70;
-	m_spoolCOldSpool = 0.0;
+	m_spoolCOldSpool = 0.71;
 }
 
 void Engine::update(double dt)
 {
 	double corrThrottle = 0.0;
 	
-	if (m_input.m_engine_start == 1)
+	if (m_input.m_engine_start == 1.0)
 	{
 		m_ignitors = true;
 	}
-	if ((m_input.m_engine_start == 1) && (m_input.m_engine_stop == 1))
+	if (((m_input.m_engine_start == 1.0) && (m_input.m_engine_stop == 1.0)) || (m_input.m_engine_start == 0.0))
 	{
 		m_ignitors = false;
-		m_input.m_engine_start = 0;
-		m_input.m_engine_stop = 0;
+		m_input.m_engine_start = 0.0;
+		m_input.m_engine_stop = 0.0;
 	}
 
 	//---------------OLD corrected Air Density with 2 steps
@@ -154,7 +163,7 @@ void Engine::update(double dt)
 	}*/
 	
 	//RESET updateSpoolCold
-	if ((m_ignitors == false) || (m_hasFuel == false))
+	if ((m_ignitors == false) || (m_hasFuel == false) || (overHeat() == 1.0))
 	{
 		m_spoolCOldSpool = getRPMNorm();
 		m_spoolCDelta = 0.0;
@@ -174,6 +183,27 @@ void Engine::update(double dt)
 		m_spoolHNewSpool = 0.0;
 		m_spoolHSpoolStep = 0.0;
 	}
+
+	//heatCoolDown();
+
+	//printf("FuelFlow_Real %f \n", FuelFlowUpdate());
+	/*printf("FuelIndicator %f \n", m_heatTimerUP);
+	printf("OHStage %f \n", m_overHeat);
+	printf("OverSpeedInd %f \n", m_overSpeedInd);
+	printf("Mach %f \n", m_state.m_mach);
+	printf("AirDensity %f \n", m_state.m_airDensity);*/
+
+	//-------------NEU eingefügt wegen Replay-Käse--------------
+	updateThrust();
+	FuelFlowUpdate();
+	updateSpool();
+	updateBurner();
+	updateSpoolCold();
+	updateSpoolHot();
+	tempInC();
+	overHeat();
+	overHeatCount();
+	overSpeedInd();
 }
 
 double Engine::updateThrust() //Wenn Veränderungen dann hier verändern NICHT oben!!!!! //dt in die Klammer eingefügt//double zu void mit double dt verändert
@@ -236,7 +266,7 @@ double Engine::updateThrust() //Wenn Veränderungen dann hier verändern NICHT obe
 	{
 		m_thrust = 0.0;
 	}
-
+	
 	return m_thrust;
 }
 
@@ -252,7 +282,7 @@ double Engine::FuelFlowUpdate()
 	}
 	else
 	{
-		spoolUpFactor = 1;
+		spoolUpFactor = 1.0;
 	}
 	//starting up or restarting
 	/*if (getRPMNorm() < 0.50)
@@ -312,7 +342,7 @@ double Engine::FuelFlowUpdate()
 
 	if (m_input.m_throttle >= 0.0)
 	{
-		corrThrottle = (1 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+		corrThrottle = (1.0 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
 	}
 	else
 	{
@@ -342,20 +372,20 @@ double Engine::FuelFlowUpdate()
 	
 	if ((corrThrottle < 0.01) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_fuelFlow = spoolUpFactor * (1500.0 * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * (0.60 * corrThrottle * (CON_FuCoMil * PMax(m_state.m_mach) / 1000))));
+		m_fuelFlow = spoolUpFactor * (1500.0 * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * (0.60 * corrThrottle * (CON_FuCoMil * PMax(m_state.m_mach) / 1000.0))));
 	}
 
 	else if ((corrThrottle >= 0.01) && (corrThrottle < 0.85) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_fuelFlow = spoolUpFactor *((corrThrottle * ((CON_FuCoMil * PMax(m_state.m_mach)) / 1000) + 1500) * (m_state.m_airDensity / CON_sDay_den)); //+ (m_state.m_mach * (0.60 * updateSpool() * CON_CeMax * 3600 * 2.205));
+		m_fuelFlow = spoolUpFactor *((corrThrottle * ((CON_FuCoMil * PMax(m_state.m_mach)) / 1000.0) + 1500.0) * (m_state.m_airDensity / CON_sDay_den)); //+ (m_state.m_mach * (0.60 * updateSpool() * CON_CeMax * 3600 * 2.205));
 	}
 	else if ((corrThrottle >= 0.85) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_fuelFlow = spoolUpFactor * ((corrThrottle * ((CON_FuCoAB * PFor(m_state.m_mach)) / 1000) + 1500) * (m_state.m_airDensity / CON_sDay_den)); // (m_state.m_mach * (0.60 * updateSpool() * CON_CeFor * 3600 * 2.205));
+		m_fuelFlow = spoolUpFactor * ((corrThrottle * ((CON_FuCoAB * PFor(m_state.m_mach)) / 1000.0) + 1500.0) * (m_state.m_airDensity / CON_sDay_den)); // (m_state.m_mach * (0.60 * updateSpool() * CON_CeFor * 3600 * 2.205));
 	}
 	else
 	{
-	m_fuelFlow = 0;
+	m_fuelFlow = 0.0;
 	}
 
 	return m_fuelFlow;
@@ -368,7 +398,7 @@ double Engine::updateSpool()
 
 	if (m_input.m_throttle >= 0.0)
 	{
-		corrThrottle = (1 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+		corrThrottle = (1.0 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
 	}
 	else
 	{
@@ -452,11 +482,11 @@ double Engine::updateBurner()
 
 	if ((updateSpool() >= 0.85) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_burner = 1;
+		m_burner = 1.0;
 	}
 	else
 	{
-		m_burner = 0;
+		m_burner = 0.0;
 	}
 	return m_burner;
 }
@@ -467,7 +497,7 @@ double Engine::tempInC()
 
 	if (getRPMNorm() > 0.0)
 	{
-		m_tempInC = 950 * getRPMNorm();
+		m_tempInC = (950 * getRPMNorm()) * overHeatCount();
 	}
 	else
 	{
@@ -475,5 +505,104 @@ double Engine::tempInC()
 	}
 
 	return m_tempInC;
+}
+
+double Engine::overHeatCount()
+{
+	//Overheating of the engine due to overspeed
+	bool CounterGo = false;
+	bool CounterBack = false;
+
+	if ((((m_state.m_mach > 1.15) && (m_state.m_mach <= 1.25)) && (m_state.m_airDensity > 1.112)) || (((m_state.m_mach > 1.40) && (m_state.m_mach <= 1.55)) && ((m_state.m_airDensity > 0.9093) && (m_state.m_airDensity <= 1.112))) || (((m_state.m_mach > 1.70) && (m_state.m_mach <= 1.9)) && ((m_state.m_airDensity > 0.6601) && (m_state.m_airDensity < 0.9093))) || (((m_state.m_mach > 2.3) && (m_state.m_mach <= 2.5)) && (m_state.m_airDensity < 0.6601)))
+	{
+		m_heatOne = 0.00001;
+		CounterGo = true;
+	}
+	else if (((m_state.m_mach > 1.25) && (m_state.m_airDensity > 1.112)) || ((m_state.m_mach > 1.55) && ((m_state.m_airDensity > 0.9093) && (m_state.m_airDensity <= 1.112))) || ((m_state.m_mach > 1.90) && ((m_state.m_airDensity > 0.6601) && (m_state.m_airDensity < 0.9093))) || ((m_state.m_mach > 2.5) && (m_state.m_airDensity < 0.6601)))
+	{
+		m_heatOne = 0.00005;
+		CounterGo = true;
+	}
+	else if ((m_state.m_mach < 1.0) && (m_heatTimerUP > 1) && (m_heatFailure == false))
+	{
+		CounterBack = true;
+	}
+
+	if (CounterGo == true)
+	{
+		m_heatTimerUP++;
+	}
+	else if ((CounterBack == true) && (CounterGo == false) && (m_heatTimerUP > m_heatTimerDOWN))
+	{
+		m_heatTimerDOWN++;
+	}
+
+	m_heatTwo = (m_heatOne * (m_heatTimerUP - m_heatTimerDOWN)) + 1.0;
+
+	return m_heatTwo;
+}
+
+/*void Engine::heatCoolDown()
+{
+	if ((m_state.m_mach < 1.0) && (m_heatTimer > 1) && (m_overHeat != 1.0))
+	{
+		m_heatTimer--;
+	}
+	
+}*/
+
+double Engine::overHeat()
+{
+	if ((tempInC() > 1045.0) && (tempInC() <= 1250.0))
+	{
+		m_overHeat = 0.5;
+	}
+	else if ((tempInC() > 1250.0) && (tempInC() <= 1350.0))
+	{
+		m_overHeat = 0.75;
+	}
+	else if (tempInC() > 1350.0)
+	{
+		m_overHeat = 1.0;
+		m_input.m_engine_start = 0.0;
+		m_input.m_engine_stop = 0.0;
+		m_heatFailure = true;
+	}
+	else if ((m_heatFailure == true) && (m_input.m_engine_start == 0.0) && (m_input.m_engine_stop == 0.0))
+	{
+		m_input.m_engine_start = 2.0;
+		m_input.m_engine_stop = 2.0;
+	}
+	else
+	{
+		m_overHeat = 0.0;
+	}
+
+	return m_overHeat;
+}
+
+double Engine::overSpeedInd()
+{
+	if (((m_state.m_mach > 1.10) && (m_state.m_airDensity > 1.112)) || ((m_state.m_mach > 1.25) && ((m_state.m_airDensity > 0.9093) && (m_state.m_airDensity <= 1.112))) || ((m_state.m_mach > 1.60) && ((m_state.m_airDensity > 0.6601) && (m_state.m_airDensity < 0.9093))) || ((m_state.m_mach > 2.2) && (m_state.m_airDensity < 0.6601)))
+	{
+		m_overSpeedInd = 1.0;
+	}
+	else
+	{
+		m_overSpeedInd = 0.0;
+	}
+
+	return m_overSpeedInd;
+}
+
+void Engine::repairHeatDamage()
+{
+	m_overHeat = 0.0;
+	m_input.m_engine_start = 0.0;
+	m_input.m_engine_stop = 0.0;
+	m_heatFailure = false;
+	m_heatTimerDOWN = 0;
+	m_heatTimerUP = 0;
+
 }
 

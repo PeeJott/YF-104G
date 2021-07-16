@@ -219,6 +219,12 @@ void ed_fm_set_current_state_body_axis(
 		Vec3(ax, ay, az)
 	);
 }
+
+void ed_fm_on_damage(int element, double element_integrity_factor)
+{
+	s_airframe->setIntegrityElement((Airframe::Damage)element, (float)element_integrity_factor);
+}
+
 /*
 input handling
 */
@@ -228,117 +234,142 @@ void ed_fm_set_command(int command,
 	switch (command)
 	{
 	case COMMAND_PITCH:
-		s_input->m_pitch = value;
+		s_input->pitch(value);
 		break;
 	case COMMAND_ROLL:
-		s_input->m_roll = value;
+		s_input->roll(value);
 		break;
+		/*s_input->m_roll = value;
+		break;*/
 	case COMMAND_THROTTLE:
-		s_input->m_throttle = value; // 0.65 * (-value + 1.0); auskommentiert und durch "value" ersetzt zur Angleichung an A4 Scooter.cpp
+		s_input->throttle(value);
 		break;
+		/*s_input->m_throttle = value; // 0.65 * (-value + 1.0); auskommentiert und durch "value" ersetzt zur Angleichung an A4 Scooter.cpp
+		break;*/
 	case COMMAND_YAW:
-		s_input->m_yaw = value;
+		s_input->yaw(value);
 		break;
+		/*s_input->m_yaw = value;
+		break;*/
 	case COMMAND_TRIMM_UP:
-		s_input->m_trimm_up;
-		if (s_input->m_trimm_up == 0)
+		s_input->trimmUP();
+		break;
+		/*s_input->m_trimm_up;
+		if (s_input->m_trimm_up == 0.0)
 		{
 			s_input->m_trimm_up = 0.0002;
 		}
-		else if (s_input->m_trimm_up != 0)
+		else if (s_input->m_trimm_up != 0.0)
 		{
 			s_input->m_trimm_up += 0.0002;
 		}
 		//printf("TrimmUp %f \n", s_input.m_trimm_up);
-		break;
+		break;*/
 	case COMMAND_TRIMM_DOWN:
-		s_input->m_trimm_down;
-		if (s_input->m_trimm_down == 0)
+		s_input->trimmDOWN();
+		break;
+		/*s_input->m_trimm_down;
+		if (s_input->m_trimm_down == 0.0)
 		{
 			s_input->m_trimm_down = 0.0002;
 		}
-		else if (s_input->m_trimm_down != 0)
+		else if (s_input->m_trimm_down != 0.0)
 		{
 			s_input->m_trimm_down += 0.0002;
 		}
-		break;
+		break;*/
 	case COMMAND_TRIMM_AIL_L:
-		s_input->m_trimm_ail_l;
-		if (s_input->m_trimm_ail_l == 0)
+		s_input->trimmAilL();
+		break;
+		/*s_input->m_trimm_ail_l;
+		if (s_input->m_trimm_ail_l == 0.0)
 		{
 			s_input->m_trimm_ail_l = 0.0002;
 		}
-		else if (s_input->m_trimm_ail_l != 0)
+		else if (s_input->m_trimm_ail_l != 0.0)
 		{
 			s_input->m_trimm_ail_l += 0.0002;
 		}
-		break;
+		break;*/
 	case COMMAND_TRIMM_AIL_R:
-		s_input->m_trimm_ail_r;
-		if (s_input->m_trimm_ail_r == 0)
+		s_input->trimmAilR();
+		break;
+		/*s_input->m_trimm_ail_r;
+		if (s_input->m_trimm_ail_r == 0.0)
 		{
 			s_input->m_trimm_ail_r = 0.0002;
 		}
-		else if (s_input->m_trimm_ail_r != 0)
+		else if (s_input->m_trimm_ail_r != 0.0)
 		{
 			s_input->m_trimm_ail_r += 0.0002;
 		}
-		break;
+		break;*/
 	case COMMAND_GEAR_TOGGLE:
-		s_input->m_gear_toggle;
-		if (s_input->m_gear_toggle == 0)
+		s_input->gearToggle();
+		break;
+		//----------folgend das alte COMMAND---------------
+		/*s_input->m_gear_toggle;
+		if (s_input->m_gear_toggle == 0.0)
 		{
-			s_input->m_gear_toggle = 1;
+			s_input->m_gear_toggle = 1.0;
 		}
 		else
 		{
-			s_input->m_gear_toggle = 0;
+			s_input->m_gear_toggle = 0.0;
 		}
-		break;
+		break;*/
 	case COMMAND_GEAR_UP:
-		s_input->m_gearup;
-		if (s_input->m_gearup == 0)
+		s_input->gearUP();
+		break;
+		/*s_input->m_gearup;
+		if (s_input->m_gearup == 0.0)
 		{
-			s_input->m_gear_toggle = 0;
+			s_input->m_gear_toggle = 0.0;
 		}
 		else
 		{
-			s_input->m_gearup = 0;
+			s_input->m_gearup = 0.0;
 		}
-		break;
+		break;*/
 	case COMMAND_GEAR_DOWN: 
-		s_input->m_geardown;
-		if (s_input->m_geardown == 0)
+		s_input->gearDOWN();
+		break;
+		/*s_input->m_geardown;
+		if (s_input->m_geardown == 0.0)
 		{
-			s_input->m_gear_toggle = 1;
+			s_input->m_gear_toggle = 1.0;
 		}
 		else
 		{
-			s_input->m_geardown = 0;
+			s_input->m_geardown = 0.0;
 		}
-		break;
+		break;*/
 	case COMMAND_BRAKE: 
-		s_input->m_brake;
-		if (s_input->m_brake == 0)
+		s_input->brake();
+		break;
+		/*s_input->m_brake;
+		if (s_input->m_brake == 0.0)
 		{
-			s_input->m_brake = 1;
+			s_input->m_brake = 1.0;
 		}
 		else
 		{
-			s_input->m_brake = 0;
+			s_input->m_brake = 0.0;
 		}
-		break;
+		break;*/
 	case COMMAND_RELEASE_BRAKE:
-		s_input->m_release_brake;
-		if (s_input->m_release_brake == 0)
+		s_input->releaseBrake();
+		break;
+		/*s_input->m_release_brake;
+		if (s_input->m_release_brake == 0.0)
 		{
-			s_input->m_release_brake = 1;
+			s_input->m_release_brake = 1.0;
 		}
 		else
 		{
-			s_input->m_release_brake = 0;
+			s_input->m_release_brake = 0.0;
 		}
-		break;
+		break;*/
 	case COMMAND_LEFT_BRAKE:
 		s_input->m_leftbrake = value;
 		break;
@@ -353,120 +384,278 @@ void ed_fm_set_command(int command,
 		break;*/
 	case COMMAND_FLAPS_DOWN:
 		s_input->m_flapsdown;
-		if (s_input->m_flapsdown == 0)
+		if (s_input->m_flapsdown == 0.0)
 		{
-			s_input->m_flaps_toggle = 1;
+			s_input->m_flaps_toggle = 1.0;
 		}
 		else
 		{
-			s_input->m_flapsdown = 0;
+			s_input->m_flapsdown = 0.0;
 		}
 		break;
 	case COMMAND_FLAPS_UP:
 		s_input->m_flapsup;
-		if (s_input->m_flapsup == 0)
+		if (s_input->m_flapsup == 0.0)
 		{
-			s_input->m_flaps_toggle = 0;
+			s_input->m_flaps_toggle = 0.0;
 		}
 		else
 		{
-			s_input->m_flapsup = 0;
+			s_input->m_flapsup = 0.0;
 		}
 		break;
 	case COMMAND_FLAPS_TOGGLE:
 		s_input->m_flaps_toggle;
-		if (s_input->m_flaps_toggle == 0)
+		if (s_input->m_flaps_toggle == 0.0)
 		{
 			s_input->m_flaps_toggle = 0.5;
 		}
 		else if (s_input->m_flaps_toggle == 0.5)
 		{
-			s_input->m_flaps_toggle = 1;
+			s_input->m_flaps_toggle = 1.0;
 		}
 		else
 		{
-			s_input->m_flaps_toggle = 0;
+			s_input->m_flaps_toggle = 0.0;
 		}
 		// "= value;" entfernt, weil nur 1 oder 0 TEST!!
 		break;
 	case COMMAND_AIRBRAKE:
 		s_input->m_airbrk;
-		if (s_input->m_airbrk == 0)
+		if (s_input->m_airbrk == 0.0)
 		{
-			s_input->m_airbrk = 1;
+			s_input->m_airbrk = 1.0;
 		}
 		else
 		{
-			s_input->m_airbrk = 0;
+			s_input->m_airbrk = 0.0;
 		}
 		break;
 	case COMMAND_AIRBRAKE_EXTEND:
 		s_input->m_airbrkext;
-		if (s_input->m_airbrkext == 0)
+		if (s_input->m_airbrkext == 0.0)
 		{
-			s_input->m_airbrk = 1;
+			s_input->m_airbrk = 1.0;
 		}
 		else
 		{
-			s_input->m_airbrkext = 0;
+			s_input->m_airbrkext = 0.0;
 		}
 		break;
 	case COMMAND_AIRBRAKE_RETRACT:
 		s_input->m_airbrkret;
-		if (s_input->m_airbrkret == 0)
+		if (s_input->m_airbrkret == 0.0)
 		{
-			s_input->m_airbrk = 0;
+			s_input->m_airbrk = 0.0;
 		}
 		else
 		{
-			s_input->m_airbrkret = 0;
+			s_input->m_airbrkret = 0.0;
 		}
 		break;
 	case COMMAND_HOOK_TOGGLE:
 		s_input->m_hooktgl;
-		if (s_input->m_hooktgl == 0)
+		if (s_input->m_hooktgl == 0.0)
 		{
-			s_input->m_hooktgl = 1;
+			s_input->m_hooktgl = 1.0;
 		}
 		else
 		{
-			s_input->m_hooktgl = 0;
+			s_input->m_hooktgl = 0.0;
 		}
 		break;
 	case COMMAND_NOSEWHEEL_STEERING:
 		s_input->m_nwsteering;
-		if (s_input->m_nwsteering == 0)
+		if (s_input->m_nwsteering == 0.0)
 		{
-			s_input->m_nwsteering = 1;
+			s_input->m_nwsteering = 1.0;
 		}
 		else
 		{
-			s_input->m_nwsteering = 0;
+			s_input->m_nwsteering = 0.0;
 		}
 		break;
 	case COMMAND_BRAKE_CHUTE:
 		s_input->m_brkchute;
-		if (s_input->m_brkchute == 0)
+		if (s_input->m_brkchute == 0.0)
 		{
-			s_input->m_brkchute = 1;
+			s_input->m_brkchute = 1.0;
 		}
 		else
 		{
-			s_input->m_brkchute = 0;
+			s_input->m_brkchute = 0.0;
 		}
 		break;
 	case COMMAND_ENGINE_START:
 		s_input->m_engine_start;
-		if (s_input->m_engine_start == 0)
+		if (s_input->m_engine_start == 0.0)
 		{
-			s_input->m_engine_start = 1;
+			s_input->m_engine_start = 1.0;
 		}
 		break;
 	case COMMAND_ENGINE_STOP:
 		s_input->m_engine_stop;
-		if (s_input->m_engine_stop == 0)
+		if (s_input->m_engine_stop == 0.0)
 		{
-			s_input->m_engine_stop = 1;
+			s_input->m_engine_stop = 1.0;
+		}
+		break;
+	case COMMAND_AUTOPILOT_ENG:
+		s_input->m_autoPilotEng;
+		if (s_input->m_autoPilotEng == 0.0)
+		{
+			s_input->m_autoPilotEng = 1.0;
+		}
+		else
+		{
+			s_input->m_autoPilotEng = 0.0;
+		}
+		break;
+	case COMMAND_LIGHT_TOGGLE:
+		s_input->m_light_toggle;
+		if (s_input->m_light_toggle == 0.0)
+		{
+			s_input->m_light_toggle = 0.5;
+		}
+		if (s_input->m_light_toggle == 0.5)
+		{
+			s_input->m_light_toggle = 1.0;
+		}
+		else
+		{
+			s_input->m_light_toggle = 0.0;
+		}
+		break;
+	case COMMAND_ELEV_UP_GO:
+		s_input->m_elev_up_go;
+		if (s_input->m_elev_up_go == 0.0)
+		{
+			s_input->m_elev_up_go = 1.0;
+		}
+		else
+		{
+			s_input->m_elev_up_go = 0.0;
+		}
+		break;
+	case COMMAND_ELEV_UP_STOP:
+		s_input->m_elev_up_stop;
+		if (s_input->m_elev_up_stop == 0.0)
+		{
+			s_input->m_elev_up_stop = 1.0;
+		}
+		else
+		{
+			s_input->m_elev_up_stop = 0.0;
+		}
+		break;
+	case COMMAND_ELEV_DOWN_GO:
+		s_input->m_elev_down_go;
+		if (s_input->m_elev_down_go == 0.0)
+		{
+			s_input->m_elev_down_go = 1.0;
+		}
+		else
+		{
+			s_input->m_elev_down_go = 0.0;
+		}
+		break;
+	case COMMAND_ELEV_DOWN_STOP:
+		s_input->m_elev_down_stop;
+		if (s_input->m_elev_down_stop == 0.0)
+		{
+			s_input->m_elev_down_stop = 1.0;
+		}
+		else
+		{
+			s_input->m_elev_down_stop = 0.0;
+		}
+		break;
+	case COMMAND_RUD_LEFT_GO:
+		s_input->m_rudder_left_go;
+		if (s_input->m_rudder_left_go == 0.0)
+		{
+			s_input->m_rudder_left_go = 1.0;
+		}
+		else
+		{
+			s_input->m_rudder_left_go = 0.0;
+		}
+		break;
+	case COMMAND_RUD_LEFT_STOP:
+		s_input->m_rudder_left_stop;
+		if (s_input->m_rudder_left_stop == 0.0)
+		{
+			s_input->m_rudder_left_stop = 1.0;
+		}
+		else
+		{
+			s_input->m_rudder_left_stop = 0.0;
+		}
+		break;
+	case COMMAND_RUD_RIGHT_GO:
+		s_input->m_rudder_right_go;
+		if (s_input->m_rudder_right_go == 0.0)
+		{
+			s_input->m_rudder_right_go = 1.0;
+		}
+		else
+		{
+			s_input->m_rudder_right_go = 0.0;
+		}
+		break;
+	case COMMAND_RUD_RIGHT_STOP:
+	s_input->m_rudder_right_stop;
+	if (s_input->m_rudder_right_stop == 0.0)
+	{
+		s_input->m_rudder_right_stop = 1.0;
+	}
+	else
+	{
+		s_input->m_rudder_right_stop = 0.0;
+	}
+	break;
+	case COMMAND_AIL_RIGHT_GO:
+		s_input->m_ail_right_go;
+		if (s_input->m_ail_right_go == 0.0)
+		{
+			s_input->m_ail_right_go = 1.0;
+		}
+		else
+		{
+			s_input->m_ail_right_go = 0.0;
+		}
+		break;
+	case COMMAND_AIL_RIGHT_STOP:
+		s_input->m_ail_right_stop;
+		if (s_input->m_ail_right_stop == 0.0)
+		{
+			s_input->m_ail_right_stop = 1.0;
+		}
+		else
+		{
+			s_input->m_ail_right_stop = 0.0;
+		}
+		break;
+	case COMMAND_AIL_LEFT_GO:
+		s_input->m_ail_left_go;
+		if (s_input->m_ail_left_go == 0.0)
+		{
+			s_input->m_ail_left_go = 1.0;
+		}
+		else
+		{
+			s_input->m_ail_left_go = 0.0;
+		}
+		break;
+	case COMMAND_AIL_LEFT_STOP:
+		s_input->m_ail_left_stop;
+		if (s_input->m_ail_left_stop == 0.0)
+		{
+			s_input->m_ail_left_stop = 1.0;
+		}
+		else
+		{
+			s_input->m_ail_left_stop = 0.0;
 		}
 		break;
 	/*case COMMAND_NOSEWHEEL_STEERING_ENGAGE:
@@ -661,11 +850,30 @@ void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
 
 }
 
-void ed_fm_set_fc3_cockpit_draw_args(EdDrawArgument* drawargs, size_t size)
+void ed_fm_set_fc3_cockpit_draw_args_v2(float* data, size_t size)
 {
-	drawargs[39].f = s_airframe->getGearLLamp();//Fahrwerkslampe linkes Fahrwerk
-	drawargs[40].f = s_airframe->getGearFLamp();//Fahrwerkslampe Bugrad
-	drawargs[41].f = s_airframe->getGearRLamp();//Fahrwerkslampe rechtes Fahrwerk
+	data[39] = s_airframe->getGearLLamp();//Fahrwerkslampe linkes Fahrwerk
+	data[40] = s_airframe->getGearFLamp();//Fahrwerkslampe Bugrad
+	data[41] = s_airframe->getGearRLamp();//Fahrwerkslampe rechtes Fahrwerk
+	data[42] = s_airframe->getFlapIndLEPos();//FlapPosition-Indicator LE-Flaps
+	data[43] = s_airframe->getFlapIndTEPos();//FlapPosition-Indicator TE-Flaps
+	data[600] = s_airframe->getFlapLevPos();//FlapLever-Position
+
+	data[531] = s_airframe->fuelFlowIndGaugeUpdate();//FuelFlow-Indicator
+
+	data[602] = s_engine->overHeat();//OverHeat-Warning-Light 0.0/0.5/0.75 == off/yellow/red
+	data[601] = s_engine->overSpeedInd();//OverSpeed Warning indicator
+	data[606] = s_input->m_autoPilotEng;// 0=aus 1.0 = grün-an
+	data[603] = s_input->m_light_toggle;//0=aus 0.5 = gelb 1.0=grün
+	data[604] = s_fuelsystem->lowFuelWarning();//LowFuelIndicator
+	//data[607] = s_fuelsystem->getFuelQtyTotal();//Fuel-Indicator for total Fuel
+	data[608] = s_fuelsystem->getAdjFuelQtyExternal();//Fuel-Indicator for External Fuel only
+	data[609] = s_airframe->brkChutePosition();//Chute-Position_Indicator 0.0 = aus 1.0 = Chute released
+	data[226] = s_airframe->getHookPosition(); //Hook-Position Indicator 1.0 = ausgefahren 0.0 = eingefahren
+	data[225] = s_fuelsystem->bingoFuelWarning();//BingoFuel Indicator 1.0 = an/rot 0.0 = aus
+	data[200] = s_airframe->getSpeedBrakePosition();//SpdBrk-Position-Indicator 1.0 = an 0.0 = aus
+	data[221] = s_airframe->ailDamageIndicator();//Damage-Indicator for aileron Damage 1.0 = an; 0.0=aus
+	data[209] = s_airframe->stabDamageIndicator();//Damage-Indicator for horizontal stabilizer 1.0=an; 0.0=aus
 }
 
 
@@ -720,16 +928,17 @@ case ED_FM_SUSPENSION_0_WHEEL_YAW:
 case ED_FM_ENGINE_1_CORE_RPM: //RPM in Rad/s
 	//return s_engine->getRPMNorm();
 case ED_FM_ENGINE_1_RPM: //RPM in Rad/s
-	return s_engine->getRPMNorm();
+	//return s_engine->getRPMNorm();
 case ED_FM_ENGINE_1_TEMPERATURE:
 	return s_engine->tempInC();
 case ED_FM_ENGINE_1_OIL_PRESSURE:
-	return (s_engine->getRPMNorm()) * 1000;
-case ED_FM_ENGINE_1_FUEL_FLOW:
-	return s_engine->FuelFlowUpdate();
+	return (s_engine->getRPMNorm()) * 1000.0;
+//case ED_FM_ENGINE_1_FUEL_FLOW:
+	//return s_engine->FuelFlowUpdate();
 case ED_FM_ENGINE_1_CORE_RELATED_THRUST:
 case ED_FM_ENGINE_1_RELATED_THRUST:
 case ED_FM_ENGINE_1_RELATED_RPM:
+	return s_engine->getRPMNorm();
 case ED_FM_ENGINE_1_CORE_RELATED_RPM: //related=normalised RPM in %
 	return s_engine->getRPMNorm();
 
@@ -743,7 +952,7 @@ case ED_FM_FUEL_INTERNAL_FUEL:
 	return s_fuelsystem->getFuelQtyInternal();
 
 case ED_FM_FUEL_TOTAL_FUEL:
-	return (s_fuelsystem->getFuelQtyExternal() + s_fuelsystem->getFuelQtyInternal());
+	return s_fuelsystem->getFuelQtyTotal();
 
 case ED_FM_FUEL_FUEL_TANK_GROUP_0_LEFT:
 	return s_fuelsystem->getFuelQtyExternalLeft();
@@ -777,8 +986,28 @@ case ED_FM_FC3_GEAR_HANDLE_POS:
 }
 
 
+bool ed_fm_pop_simulation_event(ed_fm_simulation_event& out)
+{
+	Airframe::Damage damage;
+	float integrity;
+
+	if (s_airframe->processDamageStack(damage, integrity))
+	{
+		out.event_type = ED_FM_EVENT_STRUCTURE_DAMAGE;
+		out.event_params[0] = (float)damage;
+		out.event_params[1] = integrity;
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void ed_fm_cold_start()
 {
+	s_state->coldInit();
 	s_input->coldInit();
 	s_airframe->coldInit();
 	s_engine->coldInit();
@@ -789,6 +1018,7 @@ void ed_fm_cold_start()
 
 void ed_fm_hot_start()
 {
+	s_state->hotInit();
 	s_input->hotInit();
 	s_airframe->hotInit();
 	s_engine->hotInit();
@@ -798,6 +1028,7 @@ void ed_fm_hot_start()
 
 void ed_fm_hot_start_in_air()
 {
+	s_state->airborneInit();
 	s_input->airborneInit();
 	s_airframe->airborneInit();
 	s_engine->airborneInit();
@@ -808,7 +1039,13 @@ void ed_fm_hot_start_in_air()
 //Neu eingefügt und in der ED_FM_Template.h ebenfalls
 void ed_fm_repair()
 {
+	s_airframe->resetDamage();
+	s_engine->repairHeatDamage();
+}
 
+double ed_fm_get_shake_amplitude()
+{
+	return s_flightModel->getCockpitShake();
 }
 
 bool ed_fm_add_local_force_component( double & x,double &y,double &z,double & pos_x,double & pos_y,double & pos_z )

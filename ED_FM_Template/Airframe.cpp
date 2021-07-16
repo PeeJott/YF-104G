@@ -22,16 +22,55 @@ Airframe::Airframe
 	m_state(state),
 	m_input(input),
 	m_engine(engine),
-	m_actuatorFlap(1.1),
+	m_actuatorFlap(0.9),
 	m_actuatorAirbrk(1.2),
-	m_actuatorGearL(0.4),
-	m_actuatorGearN(0.4),
-	m_actuatorGearR(0.4),
+	m_actuatorGearL(0.2),
+	m_actuatorGearN(0.2),
+	m_actuatorGearR(0.2),
 	m_actuatorHook(0.6),
-	m_actuatorNozzle(1.25),
+	m_actuatorNozzle(1.1),
 	m_actuatorNosewheel(2.0)
+
 {
-	//huhu!!
+	m_integrityElement = new float[(int)Damage::COUNT];
+	zeroInit();
+
+	m_damageStack.reserve(10);
+}
+
+Airframe::~Airframe()
+{
+	delete[] m_integrityElement;
+}
+
+void Airframe::printDamageState()
+{
+	printf("===========================================\n");
+
+	printf("            ||\n");
+	printf("            ||\n");
+	printf("%.1lf %.1lf %.1lf || %.1lf %.1lf %.1lf\n",
+		DMG_ELEM(Damage::WING_L_OUT),
+		DMG_ELEM(Damage::WING_L_CENTER),
+		DMG_ELEM(Damage::WING_L_IN),
+		DMG_ELEM(Damage::WING_R_IN),
+		DMG_ELEM(Damage::WING_R_CENTER),
+		DMG_ELEM(Damage::WING_R_OUT));
+
+	printf("        %.1f || %.1f\n", DMG_ELEM(Damage::AILERON_L), DMG_ELEM(Damage::AILERON_R));
+	printf("            ||\n");
+	printf("        %.1f || %.1f\n", DMG_ELEM(Damage::STABILIZATOR_L), DMG_ELEM(Damage::STABILIZATOR_R));
+	printf("        %.1f || %.1f\n", DMG_ELEM(Damage::ELEVATOR_L), DMG_ELEM(Damage::ELEVATOR_R));
+	printf("            %.1f\n", getVertStabDamage());
+	printf("            %.1f\n", getRudderDamage());
+}
+
+void Airframe::resetDamage()
+{
+	for (int i = 0; i < (int)Damage::COUNT; i++)
+	{
+		m_integrityElement[i] = 1.0f;
+	}
 }
 
 void Airframe::zeroInit()
@@ -60,6 +99,8 @@ void Airframe::zeroInit()
 
 	m_noseWheelAngle = 0.0;
 
+	resetDamage();
+	
 	m_nozzlePosition = 0.0;
 
 	m_int_throttlePos = 0.0;
@@ -70,12 +111,48 @@ void Airframe::zeroInit()
 	m_nwsEngage = 0.0;
 	m_chuteState = 0.0;
 	m_mass = 1.0;
-	m_timePassed = 0.0;
+	m_damageStack.clear();
+	
+	m_timePassed = 0;
+
+	m_engDmgMulti = 1.0;
+
+	m_desiredAlt = 0.0;
+	m_previousAlt = 0.0;
+	m_autPilAltEng = 0.0;
+	m_altHold = 0.0;
+	m_ascHA = 0.0;
+	m_decHA = 0.0;
+	m_decend = false;
+	m_acend = false;
+	m_level = false;
+	m_acendHoldAngle = false;
+	m_decendHoldAngle = false;
+
+	m_flapsLevPos = 0.0;
+	m_flapsIndTEPos = 0.0;
+	m_flapsIndLEPos = 0.0;
+
+	m_fuelHundred = 0.0;
+	m_fuelThousand = 0.0;
+	m_fuelDivide = 0.0;
+
+	m_elevUP = 0.0;
+	m_elevDOWN = 0.0;
+	m_ailRIGHT = 0.0;
+	m_ailLEFT = 0.0;
+	m_rudRIGHT = 0.0;
+	m_rudLEFT = 0.0;
+
+	m_ailDamInd = 0.0;
+	m_stabDamInd = 0.0;
 
 }
 
 void Airframe::coldInit()
 {
+	zeroInit();
+	
 	//--Ground Init SET Actuator---------
 	m_actuatorGearL.groundInit(1.0, 1.0);
 	m_actuatorGearN.groundInit(1.0, 1.0);
@@ -86,11 +163,11 @@ void Airframe::coldInit()
 	m_gearNPosition = 0.0;
 
 	//-----gear position for ground start
-	m_gearStart = 0;
+	m_gearStart = 0.0;
 	//m_actuatorGearL = 0.0;
 	//m_actuatorGearN = 0.0;
 	//m_actuatorGearR = 0.0;
-	m_input.m_gear_toggle = 1;
+	m_input.m_gear_toggle = 1.0;
 	//------aerodynamic surfaces-------
 	m_flapsPosition = 0.0;
 	m_speedBrakePosition = 0.0;
@@ -107,16 +184,18 @@ void Airframe::coldInit()
 	m_nozzlePosition = 0.0;
 	m_int_throttlePos = 0.0;
 
-	m_input.m_brake = 0;
+	m_input.m_brake = 0.0;
 
 	m_nwsEngage = 0.0;
 	m_chuteState = 0.0;
 	m_mass = 1.0;
-	m_timePassed = 0.0;
+	m_timePassed = 0;
 }
 
 void Airframe::hotInit()
 {
+	zeroInit();
+
 	//--Ground Init SET Actuator---------
 	m_actuatorGearL.groundInit(1.0, 1.0);
 	m_actuatorGearN.groundInit(1.0, 1.0);
@@ -127,11 +206,11 @@ void Airframe::hotInit()
 	m_gearNPosition = 0.0;
 
 	//---Gear position for ground start----------
-	m_gearStart = 0;
+	m_gearStart = 0.0;
 	//m_actuatorGearL = 0.0;
 	//m_actuatorGearN = 0.0;
 	//m_actuatorGearR = 0.0;
-	m_input.m_gear_toggle = 1;
+	m_input.m_gear_toggle = 1.0;
 
 	//------aerodynamic surfaces-------
 	m_flapsPosition = 0.0;
@@ -149,12 +228,12 @@ void Airframe::hotInit()
 	m_nozzlePosition = 0.0;
 	m_int_throttlePos = 0.0;
 
-	m_input.m_brake = 0;
+	m_input.m_brake = 0.0;
 	
 	m_nwsEngage = 0.0;
 	m_chuteState = 0.0;
 	m_mass = 1.0;
-	m_timePassed = 0.0;
+	m_timePassed = 0;
 }
 
 void Airframe::airborneInit()
@@ -182,7 +261,9 @@ void Airframe::airframeUpdate(double dt)
 	//m_engine.setHasFuel(m_fuel[Tank::INTERNAL] > 20.0);
 
 	//printf( "Compressor Damage %lf, Turbine Damage: %lf\n", getCompressorDamage(), getTurbineDamage() );
-
+	
+	//m_engine.setIntegrity(DMG_ELEM(Damage::ENGINE)); NOCH einfügen in der engine-class
+	
 	m_stabilizer = setStabilizer(dt);
 	m_aileronLeft = setAileron(dt);
 	m_aileronRight = -m_aileronLeft;
@@ -209,28 +290,78 @@ void Airframe::airframeUpdate(double dt)
 	//printf("Flp-Up-Value %f \n", m_input.m_flapsup);
 	//printf("YAW_Value %f \n", m_input.m_flapstgl);
 	//printf("Flp-Tgl-Value %f \n", m_input.m_flapstgl);
+	
+	//---------Engine flame-out function------------------
+
+	if (((getCompressorDamage() < 0.15) || (getTurbineDamage() < 0.15)) && (m_input.m_engine_start == 1))
+	{
+		m_input.m_engine_stop = 0.0;
+		m_input.m_engine_start = 0.0;
+
+	}
+	else if (((getCompressorDamage() < 0.15) || (getTurbineDamage() < 0.15)) && (m_input.m_engine_start == 0) && (m_input.m_engine_stop == 0))
+	{
+		m_input.m_engine_stop = 2.0;
+		m_input.m_engine_start = 2.0;
+	}
+	else if ((getCompressorDamage() >= 0.65) && (getTurbineDamage() >= 0.65) && (m_input.m_engine_start == 2))
+	{
+		m_input.m_engine_start = 0.0;
+		m_input.m_engine_stop = 0.0;
+	}
+
+	//------------------AutoPilot-Update------------------
+	autoPilotAltH(dt);
+
+//--------------------KeyCommand-Updates-----------------
+	keyCommandElevator(dt);
+	keyCommandAileron(dt);
+	keyCommandRudder(dt);
+	//printf("FuelFlow_Indicator %f \n", fuelFlowIndGaugeUpdate());
+	//printf("FuelFlow in lbs/h %f \n", m_engine.FuelFlowUpdate());
+
+//------------------FuelFlow Indicator Update-----------(NEU ggf. überflüssig)
+	fuelFlowIndGaugeUpdate();
+	//printf("FuelIndicator %f \n", m_fuelThousand);
+
+//----------Brake update---------------(NEU ggf. überflüssig)
+	//updateBrake();
+
+//---------Internal Throttle Position update---(NEU, ggf. überflüssig)
+	//getIntThrottlePosition();
+
+//----Alle folgenden NEU eingefpgt und von () zu (doubel dt) geändert!!!
+	//brkChutePosition();
+	//brkChuteSlewY();
+	//brkChuteSlewZ();
+
+	//BLCsystem();
+	getEngineDamageMult();
+
+
+
 }
 
 double Airframe::updateBrake()
 {
 	m_brakeMoment = 0.0;
 	
-	if (m_input.m_release_brake == 1)
+	if (m_input.m_release_brake == 1.0)
 	{
-		if (m_input.m_brake == 1)
+		if (m_input.m_brake == 1.0)
 		{
-			m_input.m_brake = 0;
-			m_input.m_release_brake = 0;
+			m_input.m_brake = 0.0;
+			m_input.m_release_brake = 0.0;
 		}
 	}
 	
-	if (m_input.m_brake == 1)
+	if (m_input.m_brake == 1.0)
 	{
 		m_brakeMoment = 0.66;
 	}
 	else
 	{
-		m_brakeMoment = 0;
+		m_brakeMoment = 0.0;
 	}
 	
 	return m_brakeMoment;
@@ -274,7 +405,7 @@ double Airframe::getIntThrottlePosition()
 
 	if (m_input.m_throttle >= 0.0)
 	{
-		corrThrottle = (1 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+		corrThrottle = (1.0 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
 	}
 	else
 	{
@@ -288,17 +419,17 @@ double Airframe::getIntThrottlePosition()
 
 double Airframe::NWSstate()
 {
-	if (m_input.m_nwsteering == 1)
+	if (m_input.m_nwsteering == 1.0)
 	{
-		m_nwsEngage = 1;
+		m_nwsEngage = 1.0;
 	}
-	else if (m_input.m_nwsteering == 0)
+	else if (m_input.m_nwsteering == 0.0)
 	{
-		m_nwsEngage = 0;
+		m_nwsEngage = 0.0;
 	}
 	else
 	{
-		m_nwsEngage = 0;
+		m_nwsEngage = 0.0;
 	}
 	return m_nwsEngage;
 }
@@ -320,7 +451,7 @@ double Airframe::brkChutePosition()
 		m_chuteState = 1.0;
 		m_timePassed = 55;
 	}
-	else if (m_input.m_brkchute == 0)
+	else if (m_input.m_brkchute == 0.0)
 	{
 		m_chuteState = 0.0;
 		m_timePassed = 0.0;
@@ -612,6 +743,9 @@ double Airframe::brkChuteSlewZ()
 		if (m_mach_speed == 0.00)
 		{
 		m_chuteSlewZ = 0.0;
+		
+		printf("ChuteSlewZ-Value %f \n", m_chuteSlewZ);
+
 		return m_chuteSlewZ;
 		}
 
@@ -622,15 +756,431 @@ double Airframe::BLCsystem()
 {
 	m_blcLift = 0.0;
 
-	if ((getFlapsPosition() == 1) && (m_engine.getRPMNorm() >= 0.85))
+	if ((getFlapsPosition() == 1.0) && (m_engine.getRPMNorm() >= 0.85))
 	{
 		m_blcLift = (0.50 * m_engine.getRPMNorm()) * CON_FlpL2;
 	}
 
 	else
 	{
-		m_blcLift = 0;
+		m_blcLift = 0.0;
 	}
 	return m_blcLift;
 }
 
+double Airframe::getEngineDamageMult()
+{
+	if ((getCompressorDamage() <= 0.75) || (getTurbineDamage() <= 0.75))
+	{
+		m_engDmgMulti = ((getCompressorDamage() + getTurbineDamage()) / 2.0) * 1.15;
+	}
+	else
+	{
+		m_engDmgMulti = 1.0;
+	}
+	return m_engDmgMulti;
+}
+
+/*void Airframe::engineFlameOut()
+{
+	if (((getCompressorDamage() < 0.25) || (getTurbineDamage() < 0.25)) && (m_input.m_engine_start == 1))
+	{
+		m_input.m_engine_stop = 1;
+
+		m_input.m_engine_start = 2;
+	}
+
+	if ((getCompressorDamage() >= 0.65) && (getTurbineDamage() >= 0.65) && (m_input.m_engine_start == 2))
+	{
+		m_input.m_engine_start = 0;
+		m_input.m_engine_stop = 0;
+	}
+ 
+}*/
+
+void Airframe::autoPilotAltH(double dt)
+{
+	
+	m_ascHA = 0.1309; // = 7,5° in Radians
+	m_decHA = -0.1309;
+
+	double altHoldCorridorLow = m_altHold * 1.02;
+	double altHoldCorridorHigh = m_altHold * 0.98;
+	
+	if (m_state.m_angle.z > m_ascHA)
+	{
+		m_acendHoldAngle = true;
+	}
+	else
+	{
+		m_acendHoldAngle = false;
+	}
+
+	if (m_state.m_angle.z < m_decHA)
+	{
+		m_decendHoldAngle = true;
+	}
+	else
+	{
+		m_decendHoldAngle = false;
+	}
+
+	if (m_state.m_angle.z == m_state.m_aoa)
+	{
+		m_level = true;
+	}
+	else
+	{
+		m_level = false;
+	}
+
+	if ((m_state.m_angle.z > 0.0) && ((m_state.m_angle.z - m_state.m_aoa) > 0.0))
+	{
+		m_acend = true;
+	}
+	else
+	{
+		m_acend = false;
+	}
+
+	if (m_state.m_angle.z < 0.0)
+	{
+		m_decend = true;
+	}
+	else
+	{
+		m_decend = false;
+	}
+	
+	if (m_input.m_autoPilotEng == 1.0)
+	{
+		m_desiredAlt = m_state.m_airDensity;
+
+		if ((m_input.m_autoPilotEng == 1.0) && (m_altHold > m_state.m_airDensity) && ((m_state.m_airDensity < altHoldCorridorHigh) || (m_state.m_airDensity > altHoldCorridorLow)))
+		{
+			if ((m_decendHoldAngle == false) && (m_altHold != 0.0))
+			{
+				if (m_state.m_angle.z == m_decHA)
+				{
+					m_pitchAPadj = 0.0;
+				}
+				if (m_state.m_angle.z > m_decHA)
+				{
+					m_pitchAPadj = -0.03;
+				}
+			}
+
+			if ((m_decendHoldAngle == true) && (m_altHold != 0.0))
+			{
+				if (m_state.m_angle.z < -0.34)
+				{
+					m_pitchAPadj = 0.05;
+				}
+				if ((m_state.m_angle.z >= -0.34) && (m_state.m_angle.z < m_decHA))
+				{
+					m_pitchAPadj = 0.03;
+				}
+			}
+		}
+		
+		if ((m_input.m_autoPilotEng == 1.0) && (m_altHold < m_state.m_airDensity) && ((m_state.m_airDensity < altHoldCorridorHigh) || (m_state.m_airDensity > altHoldCorridorLow)))
+		{
+			if ((m_acendHoldAngle == false) && (m_altHold != 0.0))
+			{
+				if (m_state.m_angle.z == m_ascHA)
+				{
+					m_pitchAPadj = 0.0;
+				}
+				if (m_state.m_angle.z < m_ascHA)
+				{
+					m_pitchAPadj = 0.03;
+				}
+			}
+
+			if ((m_acendHoldAngle == true) && (m_altHold != 0.0))
+			{
+				if (m_state.m_angle.z > 0.34)
+				{
+					m_pitchAPadj = -0.05;
+				}
+				if ((m_state.m_angle.z <= 0.34) && (m_state.m_angle.z > m_ascHA))
+				{
+					m_pitchAPadj = -0.03;
+				}
+			}
+		}
+		
+		if ((m_input.m_autoPilotEng == 1.0) && ((m_state.m_airDensity >= altHoldCorridorHigh) && (m_state.m_airDensity <= altHoldCorridorLow)))
+		{
+			if ((m_state.m_angle.z == m_state.m_aoa) && (m_state.m_angle.z >= 0.0))
+			{
+				m_pitchAPadj = 0.0;
+			}
+			if ((m_state.m_angle.z > m_state.m_aoa) && (m_state.m_angle.z > 0.0))
+			{
+				m_pitchAPadj = -0.01;
+			}
+			if ((m_state.m_angle.z < m_state.m_aoa) && (m_state.m_angle.z <= 0.0))
+			{
+				m_pitchAPadj = 0.02;
+			}
+			if (m_state.m_angle.z < m_state.m_aoa)
+			{
+				m_pitchAPadj = 0.01;
+			}
+			
+
+		}
+		
+		if ((m_previousAlt != m_desiredAlt) && (m_previousAlt != 0.0) && (m_input.m_autoPilotEng == 1) && (m_altHold == 0.0))
+		{
+			m_altHold = m_state.m_airDensity;
+		}
+		else if ((m_altHold != 0.0) && (m_previousAlt != m_desiredAlt) && (m_input.m_autoPilotEng == 1.0))
+		{
+
+		}
+
+		m_previousAlt = m_desiredAlt;
+	}
+	else if (m_input.m_autoPilotEng == 0.0)
+	{
+		m_pitchAPadj = 0.0;
+		m_previousAlt = 0.0;
+		m_altHold = 0.0;
+		m_desiredAlt = 0.0;
+	}
+
+
+			/*else if ((m_altHold - m_state.m_airDensity > 0.05) && (m_altHold - m_state.m_airDensity <= 0.1) && (m_altHold != 0.0) && (m_decend == false))
+			{
+				m_pitchAPadj = -0.03;
+			}
+			else if ((m_altHold - m_state.m_airDensity > 0.008) && (m_altHold - m_state.m_airDensity <= 0.05) && (m_altHold != 0.0) && (m_level == false) && (m_state.m_angle.z <= 0.0))
+			{
+				m_pitchAPadj = 0.01;
+			}
+			else if ((m_altHold - m_state.m_airDensity >= 0.0) && (m_altHold - m_state.m_airDensity <= 0.008) && (m_altHold != 0.0) && (m_level == true))
+			{
+				m_pitchAPadj = 0.0;
+			}
+			else
+			{
+				m_pitchAPadj = 0.0;
+			}
+		}
+		else if ((m_input.m_autoPilotEng == 1) && (m_altHold < m_state.m_airDensity) && (m_altHold != 0.0))
+		{
+			if ((m_state.m_airDensity - m_altHold > 0.2) && (m_acend == false) && (m_altHold != 0.0))
+			{
+				m_pitchAPadj = 0.05;
+			}
+			else if ((m_state.m_airDensity - m_altHold > 0.1) && (m_state.m_airDensity - m_altHold <= 0.2) && (m_acend == false) && (m_altHold != 0.0))
+			{
+				m_pitchAPadj = 0.03;
+			}
+			else if ((m_state.m_airDensity - m_altHold > 0.008) && (m_state.m_airDensity - m_altHold <= 0.02) && (m_altHold != 0.0) && (m_level == false))
+			{
+				m_pitchAPadj = -0.01;
+			}
+			else if ((m_state.m_airDensity - m_altHold >= 0.000) && (m_state.m_airDensity - m_altHold <= 0.008) && (m_altHold != 0.0) && (m_level == true))
+			{
+				m_pitchAPadj = 0.0;
+			}
+			else
+			{
+				m_pitchAPadj = 0.0;
+			}
+		}
+		else if ((m_input.m_autoPilotEng == 1) && (m_altHold == m_state.m_airDensity))
+		{
+			m_pitchAPadj = 0.0;
+		}
+		else
+		{
+			m_pitchAPadj = 0.0;
+		}
+		
+		if ((m_previousAlt != m_desiredAlt) && (m_previousAlt != 0.0) && (m_input.m_autoPilotEng == 1) && (m_altHold == 0.0))
+		{
+			m_altHold = m_state.m_airDensity;
+		}
+		else if ((m_altHold != 0.0) && (m_previousAlt != m_desiredAlt) && (m_input.m_autoPilotEng == 1))
+		{
+
+		}
+		
+		m_previousAlt = m_desiredAlt;
+	}
+	else if (m_input.m_autoPilotEng == 0)
+	{
+		m_pitchAPadj = 0.0;
+		m_previousAlt = 0.0;
+		m_altHold = 0.0;
+		m_desiredAlt = 0.0;
+	}*/
+
+	/*printf("m_altHold %f \n", m_altHold);
+	printf("airDensity %f \n", m_state.m_airDensity);
+	printf("Angle %f \n", m_state.m_angle.z);
+	printf("AP_Pitch_Adj. %f \n", m_pitchAPadj);
+	printf("AoA %f \n", m_state.m_aoa);*/
+}
+
+double Airframe::fuelFlowIndGaugeUpdate()
+{
+	//direct fuelFlowGauge has 1-100 with 12.000 = 100 and 0 = 0; 0-70 = 0 - 6.000 lbs/h; 72,5 = 7.000 lbs/h; 75 = 8.000 lbs/h; 81,25 = 9; 87,5 = 10; 93,75 = 11; 100 = 12
+
+	if (m_engine.FuelFlowUpdate() <= 6000.0)
+	{
+		m_fuelThousand = m_engine.FuelFlowUpdate() * 0.01166;
+	}
+	else if ((m_engine.FuelFlowUpdate() > 6000) && (m_engine.FuelFlowUpdate() < 12000.0))
+	{
+		m_fuelThousand = (m_engine.FuelFlowUpdate() * 0.005) + 40.0;
+	}
+	else if (m_engine.FuelFlowUpdate() >= 12000.0)
+	{
+		m_fuelThousand = 100.0;
+	}
+
+	return m_fuelThousand * 0.01;
+}
+
+void Airframe::keyCommandElevator(double dt)
+{
+	//m_elevUP = 0.0;
+	//m_elevDOWN = 0.0;
+
+	if (m_input.m_elev_up_go == 1.0)
+	{
+		if (m_input.m_elev_up_stop == 1.0)
+		{
+			m_input.m_elev_up_go = 0.0;
+			m_input.m_elev_up_stop = 0.0;
+			m_input.m_pitch = 0.0;
+		}
+	}
+
+	if (m_input.m_elev_up_go == 1.0)
+	{
+		m_elevUP++;
+		m_input.m_pitch = (m_elevUP / 400.0);
+		m_elevDOWN = 0.0;
+	}
+	else
+	{
+		m_elevUP = 0.0;
+	}
+
+	if (m_input.m_elev_down_go == 1.0)
+	{
+		if (m_input.m_elev_down_stop == 1.0)
+		{
+			m_input.m_elev_down_go = 0.0;
+			m_input.m_elev_down_stop = 0.0;
+			m_input.m_pitch = 0.0;
+		}
+	}
+
+	if (m_input.m_elev_down_go == 1.0)
+	{
+		m_elevDOWN++;
+		m_input.m_pitch = (-m_elevDOWN / 400);
+		m_elevUP = 0.0;
+	}
+	else
+	{
+		m_elevDOWN = 0.0;
+	}
+}
+
+void Airframe::keyCommandRudder(double dt)
+{
+	if (m_input.m_rudder_right_go == 1.0)
+	{
+		if (m_input.m_rudder_right_stop == 1.0)
+		{
+			m_input.m_rudder_right_go = 0.0;
+			m_input.m_rudder_right_stop = 0.0;
+			m_input.m_yaw = 0.0;
+		}
+	}
+
+	if (m_input.m_rudder_right_go == 1.0)
+	{
+		m_rudRIGHT++;
+		m_input.m_yaw = (m_rudRIGHT / 200.0);
+		m_rudLEFT = 0.0;
+	}
+	else
+	{
+		m_rudRIGHT = 0.0;
+	}
+
+	if (m_input.m_rudder_left_go == 1.0)
+	{
+		if (m_input.m_rudder_left_stop == 1.0)
+		{
+			m_input.m_rudder_left_go = 0.0;
+			m_input.m_rudder_left_stop = 0.0;
+			m_input.m_yaw = 0.0;
+		}
+	}
+
+	if (m_input.m_rudder_left_go == 1.0)
+	{
+		m_rudLEFT++;
+		m_input.m_yaw = (-m_rudLEFT / 200.0);
+		m_rudRIGHT = 0.0;
+	}
+	else
+	{
+		m_rudLEFT = 0.0;
+	}
+}
+
+void Airframe::keyCommandAileron(double dt)
+{
+	if (m_input.m_ail_right_go == 1.0)
+	{
+		if (m_input.m_ail_right_stop == 1.0)
+		{
+			m_input.m_ail_right_go = 0.0;
+			m_input.m_ail_right_stop = 0.0;
+			m_input.m_roll = 0.0;
+		}
+	}
+
+	if (m_input.m_ail_right_go == 1.0)
+	{
+		m_ailRIGHT++;
+		m_input.m_roll = (m_ailRIGHT / 200.0);
+		m_ailLEFT = 0.0;
+	}
+	else
+	{
+		m_ailRIGHT = 0.0;
+	}
+
+	if (m_input.m_ail_left_go == 1.0)
+	{
+		if (m_input.m_ail_left_stop == 1.0)
+		{
+			m_input.m_ail_left_go = 0.0;
+			m_input.m_ail_left_stop = 0.0;
+			m_input.m_roll = 0.0;
+		}
+	}
+
+	if (m_input.m_ail_left_go == 1.0)
+	{
+		m_ailLEFT++;
+		m_input.m_roll = (-m_ailLEFT / 200.0);
+		m_ailRIGHT = 0.0;
+	}
+	else
+	{
+		m_ailLEFT = 0.0;
+	}
+}
