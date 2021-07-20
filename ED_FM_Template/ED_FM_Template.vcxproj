@@ -181,6 +181,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FlightModel.cpp" />
     <ClCompile Include="Fuel_System.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

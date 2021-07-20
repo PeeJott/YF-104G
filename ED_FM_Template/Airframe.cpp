@@ -106,7 +106,7 @@ void Airframe::zeroInit()
 	m_int_throttlePos = 0.0;
 
 	//set to "0" after each init
-	m_input.m_brake = 0.0;
+	//m_input.m_brake = 0.0; geht nicht, da jetzt funktion
 
 	m_nwsEngage = 0.0;
 	m_chuteState = 0.0;
@@ -137,12 +137,20 @@ void Airframe::zeroInit()
 	m_fuelThousand = 0.0;
 	m_fuelDivide = 0.0;
 
-	m_elevUP = 0.0;
+	/*m_elevUP = 0.0;
 	m_elevDOWN = 0.0;
 	m_ailRIGHT = 0.0;
 	m_ailLEFT = 0.0;
 	m_rudRIGHT = 0.0;
 	m_rudLEFT = 0.0;
+	
+	m_keyPitch = 0.0;
+	m_keyRoll = 0.0;
+	m_keyYaw = 0.0;
+
+	m_finalPitch = 0.0;
+	m_finalRoll = 0.0;
+	m_finalYaw = 0.0;*/
 
 	m_ailDamInd = 0.0;
 	m_stabDamInd = 0.0;
@@ -167,7 +175,7 @@ void Airframe::coldInit()
 	//m_actuatorGearL = 0.0;
 	//m_actuatorGearN = 0.0;
 	//m_actuatorGearR = 0.0;
-	m_input.m_gear_toggle = 1.0;
+	//m_input.m_gear_toggle = 1.0; auskommentiert weil nicht zeroable da jetzt funktion
 	//------aerodynamic surfaces-------
 	m_flapsPosition = 0.0;
 	m_speedBrakePosition = 0.0;
@@ -184,7 +192,7 @@ void Airframe::coldInit()
 	m_nozzlePosition = 0.0;
 	m_int_throttlePos = 0.0;
 
-	m_input.m_brake = 0.0;
+	//m_input.m_brake = 0.0; geht nicht, da jetzt funktion
 
 	m_nwsEngage = 0.0;
 	m_chuteState = 0.0;
@@ -210,7 +218,7 @@ void Airframe::hotInit()
 	//m_actuatorGearL = 0.0;
 	//m_actuatorGearN = 0.0;
 	//m_actuatorGearR = 0.0;
-	m_input.m_gear_toggle = 1.0;
+	//m_input.m_gear_toggle = 1.0; nicht mehr setzbar, da jetzt funktion
 
 	//------aerodynamic surfaces-------
 	m_flapsPosition = 0.0;
@@ -228,7 +236,7 @@ void Airframe::hotInit()
 	m_nozzlePosition = 0.0;
 	m_int_throttlePos = 0.0;
 
-	m_input.m_brake = 0.0;
+	//m_input.m_brake = 0.0; geht nicht, da jetzt funktion
 	
 	m_nwsEngage = 0.0;
 	m_chuteState = 0.0;
@@ -293,30 +301,28 @@ void Airframe::airframeUpdate(double dt)
 	
 	//---------Engine flame-out function------------------
 
-	if (((getCompressorDamage() < 0.15) || (getTurbineDamage() < 0.15)) && (m_input.m_engine_start == 1))
+	if (((getCompressorDamage() < 0.15) || (getTurbineDamage() < 0.15)) && (m_input.getEngineStart() == 1))
 	{
-		m_input.m_engine_stop = 0.0;
-		m_input.m_engine_start = 0.0;
-
+		m_engine.m_needRepair = true;
+		m_engine.m_needRestart = true; 
 	}
-	else if (((getCompressorDamage() < 0.15) || (getTurbineDamage() < 0.15)) && (m_input.m_engine_start == 0) && (m_input.m_engine_stop == 0))
+	/*else if (((getCompressorDamage() < 0.15) || (getTurbineDamage() < 0.15)) && (m_input.m_engine_start == 0) && (m_input.m_engine_stop == 0))
 	{
 		m_input.m_engine_stop = 2.0;
 		m_input.m_engine_start = 2.0;
-	}
-	else if ((getCompressorDamage() >= 0.65) && (getTurbineDamage() >= 0.65) && (m_input.m_engine_start == 2))
+	}*/
+	else if ((getCompressorDamage() >= 0.65) && (getTurbineDamage() >= 0.65) && (m_engine.m_needRestart == false))
 	{
-		m_input.m_engine_start = 0.0;
-		m_input.m_engine_stop = 0.0;
+		m_engine.m_needRepair = false;
 	}
 
 	//------------------AutoPilot-Update------------------
 	autoPilotAltH(dt);
 
 //--------------------KeyCommand-Updates-----------------
-	keyCommandElevator(dt);
-	keyCommandAileron(dt);
-	keyCommandRudder(dt);
+	//keyCommandElevator(dt);
+	//keyCommandAileron(dt);
+	//keyCommandRudder(dt);
 	//printf("FuelFlow_Indicator %f \n", fuelFlowIndGaugeUpdate());
 	//printf("FuelFlow in lbs/h %f \n", m_engine.FuelFlowUpdate());
 
@@ -346,16 +352,16 @@ double Airframe::updateBrake()
 {
 	m_brakeMoment = 0.0;
 	
-	if (m_input.m_release_brake == 1.0)
+	/*if (m_input.m_release_brake == 1.0)
 	{
 		if (m_input.m_brake == 1.0)
 		{
 			m_input.m_brake = 0.0;
 			m_input.m_release_brake = 0.0;
 		}
-	}
+	}*/ //wurde in Input.cpp verschoben "setBrake()"
 	
-	if (m_input.m_brake == 1.0)
+	if (m_input.getBrake() == 1.0)
 	{
 		m_brakeMoment = 0.66;
 	}
@@ -372,13 +378,13 @@ double Airframe::setNozzlePosition(double dt) //Nozzle-Position 0-10% Thrust ope
 	double NozzlePos = 0.0;
 	double corrThrottle = 0.0;
 
-	if (m_input.m_throttle >= 0.0)
+	if (m_input.getThrottle() >= 0.0)
 	{
-		corrThrottle = (1 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+		corrThrottle = (1 - CON_ThrotIDL) * m_input.getThrottle() + CON_ThrotIDL;
 	}
 	else
 	{
-		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
+		corrThrottle = (m_input.getThrottle() + 1.0) / 2.0;
 	}
 
 	if (corrThrottle <= 0.10)
@@ -403,13 +409,13 @@ double Airframe::getIntThrottlePosition()
 	m_int_throttlePos = 0.0;
 	double corrThrottle = 0.0;
 
-	if (m_input.m_throttle >= 0.0)
+	if (m_input.getThrottle() >= 0.0)
 	{
-		corrThrottle = (1.0 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+		corrThrottle = (1.0 - CON_ThrotIDL) * m_input.getThrottle() + CON_ThrotIDL;
 	}
 	else
 	{
-		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
+		corrThrottle = (m_input.getThrottle() + 1.0) / 2.0;
 	}
 
 	m_int_throttlePos = corrThrottle;
@@ -419,11 +425,11 @@ double Airframe::getIntThrottlePosition()
 
 double Airframe::NWSstate()
 {
-	if (m_input.m_nwsteering == 1.0)
+	if (m_input.getNWS() == 1.0)
 	{
 		m_nwsEngage = 1.0;
 	}
-	else if (m_input.m_nwsteering == 0.0)
+	else if (m_input.getNWS() == 0.0)
 	{
 		m_nwsEngage = 0.0;
 	}
@@ -438,7 +444,7 @@ double Airframe::brkChutePosition()
 {
 	int timeToGo = 50;
 
-	if ((m_input.m_brkchute == 1) && (m_timePassed < timeToGo))
+	if ((m_input.getBrkChute() == 1) && (m_timePassed < timeToGo))
 	{
 		m_chuteState = 0.5;
 	}
@@ -451,7 +457,7 @@ double Airframe::brkChutePosition()
 		m_chuteState = 1.0;
 		m_timePassed = 55;
 	}
-	else if (m_input.m_brkchute == 0.0)
+	else if (m_input.getBrkChute() == 0.0)
 	{
 		m_chuteState = 0.0;
 		m_timePassed = 0.0;
@@ -464,7 +470,7 @@ double Airframe::brkChutePosition()
 double Airframe::brkChuteSlewY()
 {
 	m_chuteSlewY = 0.0;
-	float m_chuteDiceRoll = 0.0;
+	double m_chuteDiceRoll = 0.0;
 	int dice_roll = 0;
 	int dice_roll1 = 0;
 	int dice_roll2 = 0;
@@ -744,7 +750,7 @@ double Airframe::brkChuteSlewZ()
 		{
 		m_chuteSlewZ = 0.0;
 		
-		printf("ChuteSlewZ-Value %f \n", m_chuteSlewZ);
+		//printf("ChuteSlewZ-Value %f \n", m_chuteSlewZ);
 
 		return m_chuteSlewZ;
 		}
@@ -780,23 +786,6 @@ double Airframe::getEngineDamageMult()
 	}
 	return m_engDmgMulti;
 }
-
-/*void Airframe::engineFlameOut()
-{
-	if (((getCompressorDamage() < 0.25) || (getTurbineDamage() < 0.25)) && (m_input.m_engine_start == 1))
-	{
-		m_input.m_engine_stop = 1;
-
-		m_input.m_engine_start = 2;
-	}
-
-	if ((getCompressorDamage() >= 0.65) && (getTurbineDamage() >= 0.65) && (m_input.m_engine_start == 2))
-	{
-		m_input.m_engine_start = 0;
-		m_input.m_engine_stop = 0;
-	}
- 
-}*/
 
 void Airframe::autoPilotAltH(double dt)
 {
@@ -852,11 +841,11 @@ void Airframe::autoPilotAltH(double dt)
 		m_decend = false;
 	}
 	
-	if (m_input.m_autoPilotEng == 1.0)
+	if (m_input.getAutoPEng() == 1.0)
 	{
 		m_desiredAlt = m_state.m_airDensity;
 
-		if ((m_input.m_autoPilotEng == 1.0) && (m_altHold > m_state.m_airDensity) && ((m_state.m_airDensity < altHoldCorridorHigh) || (m_state.m_airDensity > altHoldCorridorLow)))
+		if ((m_input.getAutoPEng() == 1.0) && (m_altHold > m_state.m_airDensity) && ((m_state.m_airDensity < altHoldCorridorHigh) || (m_state.m_airDensity > altHoldCorridorLow)))
 		{
 			if ((m_decendHoldAngle == false) && (m_altHold != 0.0))
 			{
@@ -883,7 +872,7 @@ void Airframe::autoPilotAltH(double dt)
 			}
 		}
 		
-		if ((m_input.m_autoPilotEng == 1.0) && (m_altHold < m_state.m_airDensity) && ((m_state.m_airDensity < altHoldCorridorHigh) || (m_state.m_airDensity > altHoldCorridorLow)))
+		if ((m_input.getAutoPEng() == 1.0) && (m_altHold < m_state.m_airDensity) && ((m_state.m_airDensity < altHoldCorridorHigh) || (m_state.m_airDensity > altHoldCorridorLow)))
 		{
 			if ((m_acendHoldAngle == false) && (m_altHold != 0.0))
 			{
@@ -910,7 +899,7 @@ void Airframe::autoPilotAltH(double dt)
 			}
 		}
 		
-		if ((m_input.m_autoPilotEng == 1.0) && ((m_state.m_airDensity >= altHoldCorridorHigh) && (m_state.m_airDensity <= altHoldCorridorLow)))
+		if ((m_input.getAutoPEng() == 1.0) && ((m_state.m_airDensity >= altHoldCorridorHigh) && (m_state.m_airDensity <= altHoldCorridorLow)))
 		{
 			if ((m_state.m_angle.z == m_state.m_aoa) && (m_state.m_angle.z >= 0.0))
 			{
@@ -932,18 +921,18 @@ void Airframe::autoPilotAltH(double dt)
 
 		}
 		
-		if ((m_previousAlt != m_desiredAlt) && (m_previousAlt != 0.0) && (m_input.m_autoPilotEng == 1) && (m_altHold == 0.0))
+		if ((m_previousAlt != m_desiredAlt) && (m_previousAlt != 0.0) && (m_input.getAutoPEng() == 1) && (m_altHold == 0.0))
 		{
 			m_altHold = m_state.m_airDensity;
 		}
-		else if ((m_altHold != 0.0) && (m_previousAlt != m_desiredAlt) && (m_input.m_autoPilotEng == 1.0))
+		else if ((m_altHold != 0.0) && (m_previousAlt != m_desiredAlt) && (m_input.getAutoPEng() == 1.0))
 		{
 
 		}
 
 		m_previousAlt = m_desiredAlt;
 	}
-	else if (m_input.m_autoPilotEng == 0.0)
+	else if (m_input.getAutoPEng() == 0.0)
 	{
 		m_pitchAPadj = 0.0;
 		m_previousAlt = 0.0;
@@ -952,73 +941,6 @@ void Airframe::autoPilotAltH(double dt)
 	}
 
 
-			/*else if ((m_altHold - m_state.m_airDensity > 0.05) && (m_altHold - m_state.m_airDensity <= 0.1) && (m_altHold != 0.0) && (m_decend == false))
-			{
-				m_pitchAPadj = -0.03;
-			}
-			else if ((m_altHold - m_state.m_airDensity > 0.008) && (m_altHold - m_state.m_airDensity <= 0.05) && (m_altHold != 0.0) && (m_level == false) && (m_state.m_angle.z <= 0.0))
-			{
-				m_pitchAPadj = 0.01;
-			}
-			else if ((m_altHold - m_state.m_airDensity >= 0.0) && (m_altHold - m_state.m_airDensity <= 0.008) && (m_altHold != 0.0) && (m_level == true))
-			{
-				m_pitchAPadj = 0.0;
-			}
-			else
-			{
-				m_pitchAPadj = 0.0;
-			}
-		}
-		else if ((m_input.m_autoPilotEng == 1) && (m_altHold < m_state.m_airDensity) && (m_altHold != 0.0))
-		{
-			if ((m_state.m_airDensity - m_altHold > 0.2) && (m_acend == false) && (m_altHold != 0.0))
-			{
-				m_pitchAPadj = 0.05;
-			}
-			else if ((m_state.m_airDensity - m_altHold > 0.1) && (m_state.m_airDensity - m_altHold <= 0.2) && (m_acend == false) && (m_altHold != 0.0))
-			{
-				m_pitchAPadj = 0.03;
-			}
-			else if ((m_state.m_airDensity - m_altHold > 0.008) && (m_state.m_airDensity - m_altHold <= 0.02) && (m_altHold != 0.0) && (m_level == false))
-			{
-				m_pitchAPadj = -0.01;
-			}
-			else if ((m_state.m_airDensity - m_altHold >= 0.000) && (m_state.m_airDensity - m_altHold <= 0.008) && (m_altHold != 0.0) && (m_level == true))
-			{
-				m_pitchAPadj = 0.0;
-			}
-			else
-			{
-				m_pitchAPadj = 0.0;
-			}
-		}
-		else if ((m_input.m_autoPilotEng == 1) && (m_altHold == m_state.m_airDensity))
-		{
-			m_pitchAPadj = 0.0;
-		}
-		else
-		{
-			m_pitchAPadj = 0.0;
-		}
-		
-		if ((m_previousAlt != m_desiredAlt) && (m_previousAlt != 0.0) && (m_input.m_autoPilotEng == 1) && (m_altHold == 0.0))
-		{
-			m_altHold = m_state.m_airDensity;
-		}
-		else if ((m_altHold != 0.0) && (m_previousAlt != m_desiredAlt) && (m_input.m_autoPilotEng == 1))
-		{
-
-		}
-		
-		m_previousAlt = m_desiredAlt;
-	}
-	else if (m_input.m_autoPilotEng == 0)
-	{
-		m_pitchAPadj = 0.0;
-		m_previousAlt = 0.0;
-		m_altHold = 0.0;
-		m_desiredAlt = 0.0;
-	}*/
 
 	/*printf("m_altHold %f \n", m_altHold);
 	printf("airDensity %f \n", m_state.m_airDensity);
@@ -1047,140 +969,3 @@ double Airframe::fuelFlowIndGaugeUpdate()
 	return m_fuelThousand * 0.01;
 }
 
-void Airframe::keyCommandElevator(double dt)
-{
-	//m_elevUP = 0.0;
-	//m_elevDOWN = 0.0;
-
-	if (m_input.m_elev_up_go == 1.0)
-	{
-		if (m_input.m_elev_up_stop == 1.0)
-		{
-			m_input.m_elev_up_go = 0.0;
-			m_input.m_elev_up_stop = 0.0;
-			m_input.m_pitch = 0.0;
-		}
-	}
-
-	if (m_input.m_elev_up_go == 1.0)
-	{
-		m_elevUP++;
-		m_input.m_pitch = (m_elevUP / 400.0);
-		m_elevDOWN = 0.0;
-	}
-	else
-	{
-		m_elevUP = 0.0;
-	}
-
-	if (m_input.m_elev_down_go == 1.0)
-	{
-		if (m_input.m_elev_down_stop == 1.0)
-		{
-			m_input.m_elev_down_go = 0.0;
-			m_input.m_elev_down_stop = 0.0;
-			m_input.m_pitch = 0.0;
-		}
-	}
-
-	if (m_input.m_elev_down_go == 1.0)
-	{
-		m_elevDOWN++;
-		m_input.m_pitch = (-m_elevDOWN / 400);
-		m_elevUP = 0.0;
-	}
-	else
-	{
-		m_elevDOWN = 0.0;
-	}
-}
-
-void Airframe::keyCommandRudder(double dt)
-{
-	if (m_input.m_rudder_right_go == 1.0)
-	{
-		if (m_input.m_rudder_right_stop == 1.0)
-		{
-			m_input.m_rudder_right_go = 0.0;
-			m_input.m_rudder_right_stop = 0.0;
-			m_input.m_yaw = 0.0;
-		}
-	}
-
-	if (m_input.m_rudder_right_go == 1.0)
-	{
-		m_rudRIGHT++;
-		m_input.m_yaw = (m_rudRIGHT / 200.0);
-		m_rudLEFT = 0.0;
-	}
-	else
-	{
-		m_rudRIGHT = 0.0;
-	}
-
-	if (m_input.m_rudder_left_go == 1.0)
-	{
-		if (m_input.m_rudder_left_stop == 1.0)
-		{
-			m_input.m_rudder_left_go = 0.0;
-			m_input.m_rudder_left_stop = 0.0;
-			m_input.m_yaw = 0.0;
-		}
-	}
-
-	if (m_input.m_rudder_left_go == 1.0)
-	{
-		m_rudLEFT++;
-		m_input.m_yaw = (-m_rudLEFT / 200.0);
-		m_rudRIGHT = 0.0;
-	}
-	else
-	{
-		m_rudLEFT = 0.0;
-	}
-}
-
-void Airframe::keyCommandAileron(double dt)
-{
-	if (m_input.m_ail_right_go == 1.0)
-	{
-		if (m_input.m_ail_right_stop == 1.0)
-		{
-			m_input.m_ail_right_go = 0.0;
-			m_input.m_ail_right_stop = 0.0;
-			m_input.m_roll = 0.0;
-		}
-	}
-
-	if (m_input.m_ail_right_go == 1.0)
-	{
-		m_ailRIGHT++;
-		m_input.m_roll = (m_ailRIGHT / 200.0);
-		m_ailLEFT = 0.0;
-	}
-	else
-	{
-		m_ailRIGHT = 0.0;
-	}
-
-	if (m_input.m_ail_left_go == 1.0)
-	{
-		if (m_input.m_ail_left_stop == 1.0)
-		{
-			m_input.m_ail_left_go = 0.0;
-			m_input.m_ail_left_stop = 0.0;
-			m_input.m_roll = 0.0;
-		}
-	}
-
-	if (m_input.m_ail_left_go == 1.0)
-	{
-		m_ailLEFT++;
-		m_input.m_roll = (-m_ailLEFT / 200.0);
-		m_ailRIGHT = 0.0;
-	}
-	else
-	{
-		m_ailLEFT = 0.0;
-	}
-}

@@ -150,7 +150,7 @@ void FlightModel::L_stab()
 	//Neu eingefügt am 14.02.2021 PJ-- "-" vor Clr eingefügt, da Clr Daten positiv waren und negativ sein müssten da Dämpfung
 	//m_moment.x-- "2 *" vor Clda eingefügt für stärkere Ailerons = schon besser-- "2*" vor Clp eingefügt -- "0,5 *" vor Clb eingefügt
 	//m_ailDamage als multiplikator eingefügt; (m_lWingDamageCD + m_rWingDamageCD) bzgl. WingDamageRoll-Effekt eingefügt;
-	m_moment.x += m_q * (Clb(m_state.m_mach) * m_state.m_beta + Clda(m_state.m_mach) * ((m_input.m_roll + m_input.m_trimm_ail_r - m_input.m_trimm_ail_l) * m_ailDamage ) + (m_lWingDamageCD + m_rWingDamageCD) + (0.55 * Cldr(m_state.m_mach)) * m_input.m_yaw )
+	m_moment.x += m_q * (Clb(m_state.m_mach) * m_state.m_beta + Clda(m_state.m_mach) * ((m_input.getRoll() + m_input.getTrimmAilR() - m_input.getTrimmAilL()) * m_ailDamage ) + (m_lWingDamageCD + m_rWingDamageCD) + (0.55 * Cldr(m_state.m_mach)) * m_input.getYaw() )
 		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * (2.0 * Clp(m_state.m_mach) * m_state.m_omega.x + (1.5 * -Clr(m_state.m_mach)) * m_state.m_omega.y);
 }
 
@@ -159,7 +159,7 @@ void FlightModel::M_stab()
 	//set pitch moment-- 
 	//"-" vor Cmde eingefügt, da positiver Wert erwartet--//---Cmde von 0.9 auf 0.8 und Cmalpha von 1.15 auf 1.25 auf 1.35 
 	//m_pitchup ist Pitch-Up-Moment durch AoA > 15°; m_airframe.autoPilotAltH() ist Pitch due to auto-Pilot Altitude-hold; m_hStabDamage ist horizontal stabilizer integrity in %  
-	m_moment.z += m_k * CON_mac * (1.35 * (CmalphaNEW(m_state.m_mach) * m_state.m_aoa) + (0.80 * -CmdeNEW(m_state.m_mach)) * (((m_input.m_pitch + m_pitchup) + m_input.m_trimm_up - m_input.m_trimm_down + m_airframe.getAutoPilotAltH()) * m_hStabDamage )) 
+	m_moment.z += m_k * CON_mac * (1.35 * (CmalphaNEW(m_state.m_mach) * m_state.m_aoa) + (0.80 * -CmdeNEW(m_state.m_mach)) * (((m_input.getPitch() + m_pitchup) + m_input.getTrimmUp() - m_input.getTrimmDown() + m_airframe.getAutoPilotAltH()) * m_hStabDamage )) 
 			+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_mac * CON_mac * ((1.75 * Cmq(m_state.m_mach))*m_state.m_omega.z + (1.45 * Cmadot(m_state.m_mach)) * m_aoaDot);
 }
 
@@ -168,9 +168,9 @@ void FlightModel::N_stab()
 	//set yaw moment-- 
 	//"Cnda * da" ausgelassen, da wegen gegenläufiger ailerons geringfügig (Buch Seite 114) "Cnp * Pstab" ausgelassen, da ggf. unnötig 
 	// "-" vor Cndr eingefügt, da "Rudereffektivität" positiv sein müsste-- "-" vor Cnb eingefügt, da Dämpfung-- "2.5 *" vor Cnr eingefügt für mehr Dämpfung
-	// "- (0.75 * m_stallMult)" und "- m_stallMult" eingefügt wegen Stall-Verhalten
+	// "- (0.75 * m_stallMult)" und "- m_stallMult" eingefügt wegen Stall-Verhalten// statt 0.75 0.95 als m_stallMult eingefügt 
 	//moment.y
-	m_moment.y += m_q * ((1.5 - ( 0.75 * m_stallMult)) * -Cnb(m_state.m_mach) * m_state.m_beta + -Cndr(m_state.m_mach) * -m_input.m_yaw)
+	m_moment.y += m_q * ((1.5 - ( 0.95 * m_stallMult)) * -Cnb(m_state.m_mach) * m_state.m_beta + -Cndr(m_state.m_mach) * -m_input.getYaw())
 		+ 0.25 * m_state.m_airDensity * m_scalarVelocity * CON_A * CON_b * CON_b * ((2.5 - m_stallMult) * Cnr(m_state.m_mach) * m_state.m_omega.y);
 }
 
@@ -199,7 +199,7 @@ void FlightModel::sideForce()
 {
 	//set side force
 	//m_force.z
-	m_force.z += m_k * ((Cydr(m_state.m_mach) * m_input.m_yaw) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
+	m_force.z += m_k * ((Cydr(m_state.m_mach) * m_input.getYaw()) + (Cyb(m_state.m_mach) * m_state.m_beta)); //neu eingefügt 28Mar21
 }
 
 void FlightModel::thrustForce()
@@ -273,11 +273,11 @@ void FlightModel::update(double dt)
 	//-------------function for Stall-AoA and Stall-Speed and resulting stall-force----------------------------------------------
 	if ((m_state.m_aoa >= 0.2533) && (m_airframe.getFlapsPosition() == 0.0))
 	{
-		m_stallMult = 1.75 * (StAoA(m_state.m_aoa) * PitMult(m_state.m_mach));
+		m_stallMult = 2.25 * (StAoA(m_state.m_aoa) * PitMult(m_state.m_mach));//von 1.75 zu 2.25
 	}
 	else if ((m_state.m_aoa >= 0.2533) && (m_airframe.getFlapsPosition() > 0.0)) // || (m_state.m_mach <= 0.26)))
 	{
-		m_stallMult = 0.3 * (StAoA(m_state.m_aoa) * PitMult(m_state.m_mach));
+		m_stallMult = 1.75 * (StAoA(m_state.m_aoa) * PitMult(m_state.m_mach)); //von 1.25 auf 1.75
 	}
 	else
 	{

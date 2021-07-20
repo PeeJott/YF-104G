@@ -24,7 +24,7 @@ void Engine::zeroInit()
 	m_scalarVelocitySquared = 0.0;
 	//-------------Engine Values/Commands----------------------------
 	m_thrust = 0.0;
-	m_input.m_throttle = -1.0;
+	//m_input.m_throttle = -1.0; da jetzt Funktion getThrottle()
 	
 	m_burner = 0.0;
 	m_fuelFlow = 0.0;
@@ -43,8 +43,10 @@ void Engine::zeroInit()
 	
 	m_hasFuel = true;
 	m_ignitors = false;
-	m_input.m_engine_start = 0.0;
-	m_input.m_engine_stop = 0.0;
+	//m_input.m_engine_start = 0.0; auskomentiert da in Funktionen
+	//m_input.m_engine_stop = 0.0;
+	m_needRestart = false;
+	m_needRepair = false;
 	
 	m_spoolCDelta = 0.0;
 	m_spoolCDeltaABS = 0.0;
@@ -90,7 +92,7 @@ void Engine::hotInit()
 	m_ignitors = true;
 	m_rpmNormal = 0.72;
 	m_rpmPrevious = 0.72;
-	m_input.m_engine_start = 1.0;
+	//m_input.m_engine_start = 1.0;
 	m_spoolHOldSpool = 0.70;
 	m_spoolCOldSpool = 0.71;
 }
@@ -102,7 +104,7 @@ void Engine::airborneInit()
 	m_ignitors = true;
 	m_rpmNormal = 0.85;
 	m_rpmPrevious = 0.85;
-	m_input.m_engine_start = 1.0;
+	//m_input.m_engine_start = 1.0;
 	m_spoolHOldSpool = 0.70;
 	m_spoolCOldSpool = 0.71;
 }
@@ -111,15 +113,15 @@ void Engine::update(double dt)
 {
 	double corrThrottle = 0.0;
 	
-	if (m_input.m_engine_start == 1.0)
+	if ((m_input.getEngineStart() == 1.0) && (m_needRepair == false) && (m_heatFailure == false) && (m_needRestart == false))
 	{
 		m_ignitors = true;
 	}
-	if (((m_input.m_engine_start == 1.0) && (m_input.m_engine_stop == 1.0)) || (m_input.m_engine_start == 0.0))
+	if ((m_input.getEngineStop() == 1.0) || (m_input.getEngineStart() == 0.0) || (m_needRepair == true) || (m_heatFailure == true) || (m_needRestart == true))
 	{
 		m_ignitors = false;
-		m_input.m_engine_start = 0.0;
-		m_input.m_engine_stop = 0.0;
+		//m_input.m_engine_start = 0.0;
+		//m_input.m_engine_stop = 0.0;
 	}
 
 	//---------------OLD corrected Air Density with 2 steps
@@ -204,6 +206,7 @@ void Engine::update(double dt)
 	overHeat();
 	overHeatCount();
 	overSpeedInd();
+	restartNeeded();
 }
 
 double Engine::updateThrust() //Wenn Veränderungen dann hier verändern NICHT oben!!!!! //dt in die Klammer eingefügt//double zu void mit double dt verändert
@@ -340,13 +343,13 @@ double Engine::FuelFlowUpdate()
 	
 	double corrThrottle = 0.0;
 
-	if (m_input.m_throttle >= 0.0)
+	if (m_input.getThrottle() >= 0.0)
 	{
-		corrThrottle = (1.0 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+		corrThrottle = (1.0 - CON_ThrotIDL) * m_input.getThrottle() + CON_ThrotIDL;
 	}
 	else
 	{
-		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
+		corrThrottle = (m_input.getThrottle() + 1.0) / 2.0;
 	}
 
 	//---------------------FuelFlow-OLD an RPM-angelehnt, funktioniert aber-----------------------
@@ -396,13 +399,13 @@ double Engine::updateSpool()
 	double corrThrottle = 0.0;
 
 
-	if (m_input.m_throttle >= 0.0)
+	if (m_input.getThrottle() >= 0.0)
 	{
-		corrThrottle = (1.0 - CON_ThrotIDL) * m_input.m_throttle + CON_ThrotIDL;
+		corrThrottle = (1.0 - CON_ThrotIDL) * m_input.getThrottle() + CON_ThrotIDL;
 	}
 	else
 	{
-		corrThrottle = (m_input.m_throttle + 1.0) / 2.0;
+		corrThrottle = (m_input.getThrottle() + 1.0) / 2.0;
 	}
 	
 	
@@ -564,14 +567,15 @@ double Engine::overHeat()
 	else if (tempInC() > 1350.0)
 	{
 		m_overHeat = 1.0;
-		m_input.m_engine_start = 0.0;
-		m_input.m_engine_stop = 0.0;
+		//m_input.m_engine_start = 0.0;
+		//m_input.m_engine_stop = 0.0;
 		m_heatFailure = true;
 	}
-	else if ((m_heatFailure == true) && (m_input.m_engine_start == 0.0) && (m_input.m_engine_stop == 0.0))
+	else if (((m_heatFailure == true) ||(m_needRepair == true)) && (m_input.getEngineStart() == 1.0))
 	{
-		m_input.m_engine_start = 2.0;
-		m_input.m_engine_stop = 2.0;
+		//m_input.m_engine_start = 2.0;
+		//m_input.m_engine_stop = 2.0;
+		m_needRestart = true;
 	}
 	else
 	{
@@ -598,11 +602,20 @@ double Engine::overSpeedInd()
 void Engine::repairHeatDamage()
 {
 	m_overHeat = 0.0;
-	m_input.m_engine_start = 0.0;
-	m_input.m_engine_stop = 0.0;
+	//m_input.m_engine_start = 0.0;
+	//m_input.m_engine_stop = 0.0;
 	m_heatFailure = false;
+	m_needRepair = false;
 	m_heatTimerDOWN = 0;
 	m_heatTimerUP = 0;
 
+}
+
+void Engine::restartNeeded()
+{
+	if ((m_input.getEngineStart() == 0.0) && (m_heatFailure == false) && (m_needRepair == false) && (m_needRestart == true))
+	{
+		m_needRestart = false;
+	}
 }
 

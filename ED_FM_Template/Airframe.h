@@ -132,13 +132,6 @@ public:
 	//FuelFlow direct gauge-steering and Indicators
 	double fuelFlowIndGaugeUpdate();
 
-	//Key-Commands for aero-surfaces
-	//---the key commands manipulate the m_input values to move the aero-surfaces accordingly
-
-	void keyCommandElevator(double dt);
-	void keyCommandRudder(double dt);
-	void keyCommandAileron(double dt);
-
 	//-------Damage Indicators Aileron and Stabilizer-------------
 	inline double ailDamageIndicator();
 	inline double stabDamageIndicator();
@@ -437,16 +430,8 @@ private:
 
 	//-----------FuelFlow Indicator---------------------------------
 	double m_fuelHundred = 0.0;
-	float m_fuelThousand = 0.0;
+	double m_fuelThousand = 0.0;
 	double m_fuelDivide = 0.0;
-
-	//-----------key-commands aero-elements--------------------------
-	double m_elevUP = 0.0;
-	double m_elevDOWN = 0.0;
-	double m_ailRIGHT = 0.0;
-	double m_ailLEFT = 0.0;
-	double m_rudRIGHT = 0.0;
-	double m_rudLEFT = 0.0;
 
 	//-----------Damage Indicator Variables--------------------------
 	double m_ailDamInd = 0.0;
@@ -477,27 +462,27 @@ private:
 
 double Airframe::setAileron(double dt)
 {
-	double input = m_input.m_roll; // +m_input.m_rollTrim(); // m_rollTrim kommt noch
+	double input = m_input.getRoll(); // +m_input.m_rollTrim(); // m_rollTrim kommt noch
 	return m_actuatorAil.inputUpdate(input, dt);
 }
 
 //Folgend Auskommentierungen zum Testen des Stabilizers, da Aileron und Rudder so funktionieren
 double Airframe::setStabilizer(double dt)
 {
-	double input = m_input.m_pitch; // +m_stabilizerZeroForceDeflection;
+	double input = m_input.getPitch();//m_input.getPitch(); // +m_stabilizerZeroForceDeflection;
 	return m_actuatorStab.inputUpdate(input, dt);
 	
 }
 
 double Airframe::setRudder(double dt)
 {
-	double input = m_input.m_yaw; // +m_controls.yawTrim(); Yaw-Trim kommt noch
+	double input = m_input.getYaw(); // +m_controls.yawTrim(); Yaw-Trim kommt noch
 	return m_actuatorRud.inputUpdate(input, dt);
 }
 
 double Airframe::setFlapsPosition(double dt)
 {
-	double input = m_input.m_flaps_toggle;
+	double input = m_input.getFlapsToggle();
 	return m_actuatorFlap.inputUpdate(input, dt);
 }
 
@@ -509,31 +494,31 @@ double Airframe::setFlapsPosition(double dt)
 
 double Airframe::setGearLPosition(double dt)
 {
-	double input = m_input.m_gear_toggle; 
+	double input = m_input.getGearToggle(); 
 	return m_actuatorGearL.inputUpdate(input, dt);
 }
 
 double Airframe::setGearRPosition(double dt)
 {
-	double input = m_input.m_gear_toggle;
+	double input = m_input.getGearToggle();
 	return m_actuatorGearR.inputUpdate(input, dt);
 }
 
 double Airframe::setGearNPosition(double dt)
 {	
-	double input = m_input.m_gear_toggle;
+	double input = m_input.getGearToggle();
 	return m_actuatorGearN.inputUpdate(input, dt);
 }
 
 double Airframe::setAirbrakePosition(double dt)
 {
-	double input = m_input.m_airbrk;
+	double input = m_input.getAirbrake();
 	return m_actuatorAirbrk.inputUpdate(input, dt);
 }
 
 double Airframe::setHookPosition(double dt)
 {
-	double input = m_input.m_hooktgl;
+	double input = m_input.getHookToggle();
 	return m_actuatorHook.inputUpdate(input, dt);
 }
 
@@ -544,7 +529,7 @@ void Airframe::setMass(double mass)
 
 double Airframe::setNoseWheelAngle(double dt)
 {
-	double input = m_input.m_yaw;
+	double input = m_input.getYaw();
 	return m_actuatorNosewheel.inputUpdate(input, dt);
 }
 
@@ -702,16 +687,16 @@ double Airframe::getMass() const
 //--------------Flaps Lever--------------------------------------------------
 double Airframe::getFlapLevPos()
 {
-	if (m_input.m_flaps_toggle == 0.0)
+	if (m_input.getFlapsToggle() == 0.0)
 	{
 		m_flapsLevPos = 0.0;
 	}
-	else if (m_input.m_flaps_toggle == 0.5)
+	else if (m_input.getFlapsToggle() == 0.5)
 	{
 		m_flapsLevPos = 0.5;
 	}
 
-	else if (m_input.m_flaps_toggle == 1.0)
+	else if (m_input.getFlapsToggle() == 1.0)
 	{
 		m_flapsLevPos = 1.0;
 	}
