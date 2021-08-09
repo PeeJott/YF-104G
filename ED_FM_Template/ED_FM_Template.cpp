@@ -672,6 +672,30 @@ void ed_fm_set_command(int command,
 			s_input->m_ail_left_stop = 0.0;
 		}*/
 		break;
+	case COMMAND_ELECTRIC_SYSTEM:
+		s_input->electricSystem();
+		break;
+	case COMMAND_CROSSHAIR_LEFT:
+		s_input->crossHLeft();
+		break;
+	case COMMAND_CROSSHAIR_RIGHT:
+		s_input->crossHRight();
+		break;
+	case COMMAND_CROSSHAIR_UP:
+		s_input->crossHUp();
+		break;
+	case COMMAND_CROSSHAIR_DOWN:
+		s_input->crossHDown();
+		break;
+	case COMMAND_HUD_DARK:
+		s_input->hudDark();
+		break;
+	case COMMAND_SIGHT_HORIZONTAL:
+		s_input->sightHorizontal(value);
+		break;
+	case COMMAND_SIGHT_VERTICAL:
+		s_input->sightVertical(value);
+		break;
 	/*case COMMAND_NOSEWHEEL_STEERING_ENGAGE:
 		s_input->m_nwsteeringeng = value;
 		break;
@@ -685,8 +709,8 @@ void ed_fm_set_command(int command,
 		s_input->m_starterbutton = value;
 		break;*/
 	
-	//default:
-		//printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
+	default:
+		printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
 	}
 }
 /*
@@ -859,8 +883,8 @@ void ed_fm_set_draw_args (EdDrawArgument * drawargs,size_t size)
 	drawargs[89].f = s_airframe->getNozzlePosition();//Engine Nozzle Stage 1 - 0 - 1
 	drawargs[2].f = s_airframe->getNoseWheelAngle();//Nosewheel Angle +/- 60°
 	drawargs[35].f = s_airframe->brkChutePosition();
-	drawargs[36].f = s_airframe->brkChuteSlewY();//slew chute in Y-Axis (-1 to +1)
-	drawargs[37].f = s_airframe->brkChuteSlewZ();//slew chute in Z-Axis (-1 to +1)
+	drawargs[36].f = s_airframe->getChutePositionY();//slew chute in Y-Axis (-1 to +1)
+	drawargs[37].f = s_airframe->getChutePositionZ();//slew chute in Z-Axis (-1 to +1)
 
 }
 
@@ -875,19 +899,27 @@ void ed_fm_set_fc3_cockpit_draw_args_v2(float* data, size_t size)
 
 	data[531] = s_airframe->fuelFlowIndGaugeUpdate();//FuelFlow-Indicator
 
-	data[602] = s_engine->overHeat();//OverHeat-Warning-Light 0.0/0.5/0.75 == off/yellow/red
+	data[602] = s_engine->overHeatInd();//OverHeat-Warning-Light 0.0/0.5/0.75 == off/yellow/red
 	data[601] = s_engine->overSpeedInd();//OverSpeed Warning indicator
-	data[606] = s_input->getAutoPEng();// 0=aus 1.0 = grün-an
+	data[606] = s_airframe->getAutoPilotInd();// 0=aus 1.0 = grün-an
 	data[603] = s_input->getLightToggle();//0=aus 0.5 = gelb 1.0=grün
 	data[604] = s_fuelsystem->lowFuelWarning();//LowFuelIndicator
 	//data[607] = s_fuelsystem->getFuelQtyTotal();//Fuel-Indicator for total Fuel
 	data[608] = s_fuelsystem->getAdjFuelQtyExternal();//Fuel-Indicator for External Fuel only
-	data[609] = s_airframe->brkChutePosition();//Chute-Position_Indicator 0.0 = aus 1.0 = Chute released
-	data[226] = s_airframe->getHookPosition(); //Hook-Position Indicator 1.0 = ausgefahren 0.0 = eingefahren
+	data[609] = s_airframe->brkChuteInd();//Chute-Position_Indicator 0.0 = aus 1.0 = Chute released
+	data[226] = s_airframe->getHookInd(); //Hook-Position Indicator 1.0 = ausgefahren 0.0 = eingefahren
 	data[225] = s_fuelsystem->bingoFuelWarning();//BingoFuel Indicator 1.0 = an/rot 0.0 = aus
-	data[200] = s_airframe->getSpeedBrakePosition();//SpdBrk-Position-Indicator 1.0 = an 0.0 = aus
+	data[200] = s_airframe->getSpeedBrakeInd();//SpdBrk-Position-Indicator 1.0 = an 0.0 = aus
 	data[221] = s_airframe->ailDamageIndicator();//Damage-Indicator for aileron Damage 1.0 = an; 0.0=aus
 	data[209] = s_airframe->stabDamageIndicator();//Damage-Indicator for horizontal stabilizer 1.0=an; 0.0=aus
+	data[610] = s_airframe->airSpeedInKnotsEASInd();// Airspeedindicator in Knots 0.0 = 0; 1.0 = 1.000
+	data[611] = s_airframe->airSpeedInMachInd();//Airspeedindicator in Mach 0.0 = 0; 1.0 = Mach 10
+	data[616] = s_airframe->getCrossHairHori();//CrossHair horizontal movement
+	data[615] = s_airframe->getCrossHairVerti();//CrossHair vertical movement
+	data[617] = s_airframe->getAltIndHundreds();//Altimeter 100er
+	data[618] = s_airframe->getAltIndThousands();//Altimeter 1000er
+	data[619] = s_airframe->getAltIndTenThousands();//Altimeter 10000er
+	data[620] = s_airframe->getAltIndHundreds();//Altimeter in 10er
 }
 
 
@@ -1057,6 +1089,16 @@ void ed_fm_repair()
 {
 	s_airframe->resetDamage();
 	s_engine->repairHeatDamage();
+}
+
+bool ed_fm_need_to_be_repaired()
+{
+	if (s_engine->overHeatInd() == 1.0)
+		return true;
+	else
+	{
+		return false;
+	}
 }
 
 double ed_fm_get_shake_amplitude()

@@ -38,7 +38,8 @@ enum Command
 	COMMAND_ENGINE_STOP = 310,
 	COMMAND_AUTOPILOT_ENG = 389,
 	COMMAND_LIGHT_TOGGLE = 328,
-	
+	COMMAND_ELECTRIC_SYSTEM = 315,
+
 	COMMAND_ELEV_UP_GO = 195,
 	COMMAND_ELEV_UP_STOP = 196,
 	COMMAND_ELEV_DOWN_GO = 193,
@@ -51,6 +52,16 @@ enum Command
 	COMMAND_AIL_RIGHT_STOP = 200,
 	COMMAND_AIL_LEFT_GO = 197,
 	COMMAND_AIL_LEFT_STOP = 198,
+
+	COMMAND_CROSSHAIR_UP = 302,
+	COMMAND_CROSSHAIR_DOWN = 303,
+	COMMAND_CROSSHAIR_LEFT = 562,
+	COMMAND_CROSSHAIR_RIGHT = 301,
+
+	COMMAND_HUD_DARK = 747,
+
+	COMMAND_SIGHT_HORIZONTAL = 2142,//eigentlich 2142
+	COMMAND_SIGHT_VERTICAL = 2143,//eigentlich 2143
 
 
 	//--------------------------------------
@@ -95,6 +106,17 @@ class Input
 			m_nwsteering = 0.0;
 			m_autoPilotEng = 0.0;
 			m_light_toggle = 0.0;
+			m_electricSystem = 0.0;
+
+			m_crossHUp = 0.0;
+			m_crossHDown = 0.0;
+			m_crossHLeft = 0.0;
+			m_crossHRight = 0.0;
+
+			m_hudDark = 50.0;
+
+			m_sightVertical = 0.0;
+			m_sightHorizontal = 0.0;
 
 			m_elev_up_go = 0.0;
 			m_elev_up_stop = 0.0;
@@ -130,18 +152,20 @@ class Input
 			zeroInit();
 			m_engine_start = 1.0;
 			m_gear_toggle = 1.0;
+			m_electricSystem = 1.0;
 		}
 
 		virtual void airborneInit()
 		{
 			zeroInit();
 			m_engine_start = 1.0;
+			m_electricSystem = 1.0;
 		}
 
-		inline const double pitch(double value)
+		inline const void pitch(double value) //von "inline const double" zu "inline const void
 		{
 			m_pitch = value;
-			return m_pitch;
+			//return m_pitch;
 		}
 
 		inline const double getPitch() //ob das geht werden wir mal testen...wenn nicht, checken wo ich überall m_pitch zu getPitch verändert habe
@@ -149,10 +173,10 @@ class Input
 			return m_pitch;
 		}
 
-		inline const double roll(double value)
+		inline const void roll(double value)
 		{
 			m_roll = value;
-			return m_roll;
+			//return m_roll;
 		}
 
 		inline const double getRoll()
@@ -160,10 +184,10 @@ class Input
 			return m_roll;
 		}
 
-		inline const double throttle(double value)
+		inline const void throttle(double value)
 		{
 			m_throttle = value;
-			return m_throttle;
+			//return m_throttle;
 		}
 
 		inline const double getThrottle()
@@ -171,10 +195,10 @@ class Input
 			return m_throttle;
 		}
 
-		inline const double yaw(double value)
+		inline const void yaw(double value)
 		{
 			m_yaw = value;
-			return m_yaw;
+			//return m_yaw;
 		}
 
 		inline const double getYaw()
@@ -182,7 +206,7 @@ class Input
 			return m_yaw;
 		}
 
-		inline const double trimmUP()
+		inline const void trimmUP()
 		{
 			if (m_trimm_up == 0.0)
 			{
@@ -193,7 +217,7 @@ class Input
 				m_trimm_up += 0.0002;
 			}
 
-			return m_trimm_up;
+			//return m_trimm_up;
 		}
 
 		inline const double getTrimmUp()
@@ -201,7 +225,7 @@ class Input
 			return m_trimm_up;
 		}
 
-		inline const double trimmDOWN()
+		inline const void trimmDOWN()
 		{
 			if (m_trimm_down == 0.0)
 			{
@@ -211,7 +235,7 @@ class Input
 			{
 				m_trimm_down += 0.0002;
 			}
-			return m_trimm_down;
+			//return m_trimm_down;
 		}
 
 		inline const double getTrimmDown()
@@ -219,7 +243,7 @@ class Input
 			return m_trimm_down;
 		}
 
-		inline const double trimmAilL()
+		inline const void trimmAilL()
 		{
 			if (m_trimm_ail_l == 0.0)
 			{
@@ -230,7 +254,7 @@ class Input
 				m_trimm_ail_l += 0.0002;
 			}
 
-			return m_trimm_ail_l;
+			//return m_trimm_ail_l;
 		}
 
 		inline const double getTrimmAilL()
@@ -239,7 +263,7 @@ class Input
 		}
 
 
-		inline const double trimmAilR()
+		inline const void trimmAilR()
 		{
 			if (m_trimm_ail_r == 0.0)
 			{
@@ -249,7 +273,7 @@ class Input
 			{
 				m_trimm_ail_r += 0.0002;
 			}
-			return m_trimm_ail_r;
+			//return m_trimm_ail_r;
 		}
 
 		inline const double getTrimmAilR()
@@ -257,7 +281,7 @@ class Input
 			return m_trimm_ail_r;
 		}
 
-		inline const double gearToggle()
+		inline const void gearToggle()
 		{
 			if (m_gear_toggle == 0.0)
 			{
@@ -267,7 +291,7 @@ class Input
 			{
 				m_gear_toggle = 0.0;
 			}
-			return m_gear_toggle;
+			//return m_gear_toggle;
 		}
 
 		inline const double getGearToggle()
@@ -275,7 +299,7 @@ class Input
 			return m_gear_toggle;
 		}
 
-		inline const double gearUP()
+		inline const void gearUP()
 		{
 			
 			if (m_gearup == 0.0)
@@ -286,10 +310,10 @@ class Input
 			{
 				m_gearup = 0.0;
 			}
-			return m_gearup;
+			//return m_gearup;
 		}
 
-		inline const double gearDOWN()
+		inline const void gearDOWN()
 		{
 			if (m_geardown == 0.0)
 			{
@@ -300,10 +324,10 @@ class Input
 				m_geardown = 0.0;
 			}
 
-			return m_geardown;
+			//return m_geardown;
 		}
 
-		inline const double brake()
+		inline const void brake()
 		{
 			if (m_brake == 0.0)
 			{
@@ -313,7 +337,7 @@ class Input
 			{
 				m_brake = 0.0;
 			}
-			return m_brake;
+			//return m_brake;
 		}
 
 		inline const double getBrake()
@@ -321,7 +345,7 @@ class Input
 			return m_brake;
 		}
 
-		inline const double releaseBrake()
+		inline const void releaseBrake()
 		{
 			if (m_release_brake == 0.0)
 			{
@@ -331,7 +355,7 @@ class Input
 			{
 				m_release_brake = 0.0;
 			}
-			return m_release_brake;
+			//return m_release_brake;
 		}
 
 		inline const double getReleaseBrake()
@@ -339,7 +363,7 @@ class Input
 			return m_release_brake;
 		}
 
-		inline const double flapsDown()
+		inline const void flapsDown()
 		{
 			if (m_flapsdown == 0.0)
 			{
@@ -349,10 +373,10 @@ class Input
 			{
 				m_flapsdown = 0.0;
 			}
-			return m_flapsdown;
+			//return m_flapsdown;
 		}
 
-		inline const double flapsToggle()
+		inline const void flapsToggle()
 		{
 			if (m_flaps_toggle == 0.0)
 			{
@@ -367,7 +391,7 @@ class Input
 				m_flaps_toggle = 0.0;
 			}
 
-			return m_flaps_toggle;
+			//return m_flaps_toggle;
 		}
 		
 		inline const double getFlapsToggle()
@@ -375,7 +399,7 @@ class Input
 			return m_flaps_toggle;
 		}
 
-		inline const double flapsUp()
+		inline const void flapsUp()
 		{
 			if (m_flapsup == 0.0)
 			{
@@ -385,10 +409,10 @@ class Input
 			{
 				m_flapsup = 0.0;
 			}
-			return m_flapsup;
+			//return m_flapsup;
 		}
 
-		inline const double airbrake()
+		inline const void airbrake()
 		{
 			if (m_airbrk == 0.0)
 			{
@@ -398,7 +422,7 @@ class Input
 			{
 				m_airbrk = 0.0;
 			}
-			return m_airbrk;
+			//return m_airbrk;
 		}
 
 		inline const double getAirbrake()
@@ -406,7 +430,7 @@ class Input
 			return m_airbrk;
 		}
 
-		inline const double airbrakeExt()
+		inline const void airbrakeExt()
 		{
 			if (m_airbrkext == 0.0)
 			{
@@ -416,10 +440,10 @@ class Input
 			{
 				m_airbrkext = 0.0;
 			}
-			return m_airbrkext;
+			//return m_airbrkext;
 		}
 
-		inline const double airbrakeRet()
+		inline const void airbrakeRet()
 		{
 			if (m_airbrkret == 0.0)
 			{
@@ -429,10 +453,10 @@ class Input
 			{
 				m_airbrkret = 0.0;
 			}
-			return m_airbrkret;
+			//return m_airbrkret;
 		}
 
-		inline const double hookToggle()
+		inline const void hookToggle()
 		{
 			if (m_hooktgl == 0.0)
 			{
@@ -442,7 +466,7 @@ class Input
 			{
 				m_hooktgl = 0.0;
 			}
-			return m_hooktgl;
+			//return m_hooktgl;
 		}
 
 		inline const double getHookToggle()
@@ -450,7 +474,7 @@ class Input
 			return m_hooktgl;
 		}
 
-		inline const double nwSteering()
+		inline const void nwSteering()
 		{
 			if (m_nwsteering == 0.0)
 			{
@@ -460,7 +484,7 @@ class Input
 			{
 				m_nwsteering = 0.0;
 			}
-			return m_nwsteering;
+			//return m_nwsteering;
 		}
 
 		inline const double getNWS()
@@ -468,7 +492,7 @@ class Input
 			return m_nwsteering;
 		}
 
-		inline const double brakeChute()
+		inline const void brakeChute()
 		{
 			if (m_brkchute == 0.0)
 			{
@@ -478,7 +502,7 @@ class Input
 			{
 				m_brkchute = 0.0;
 			}
-			return m_brkchute;
+			//return m_brkchute;
 		}
 
 		inline const double getBrkChute()
@@ -486,7 +510,7 @@ class Input
 			return m_brkchute;
 		}
 
-		inline const double engineStart()
+		inline const void engineStart()
 		{
 			if (m_engine_start == 0.0)
 			{
@@ -497,7 +521,7 @@ class Input
 			{
 				m_engine_start = 0.0;
 			}
-			return m_engine_start;
+			//return m_engine_start;
 		}
 
 		inline const double getEngineStart()
@@ -505,7 +529,7 @@ class Input
 			return m_engine_start;
 		}
 
-		inline const double engineStop()
+		inline const void engineStop()
 		{
 			if (m_engine_stop == 0.0)
 			{
@@ -513,7 +537,7 @@ class Input
 				m_engine_stop = 1.0;
 			}
 			
-			return m_engine_stop;
+			//return m_engine_stop;
 		}
 
 		inline const double getEngineStop()
@@ -521,7 +545,7 @@ class Input
 			return m_engine_stop;
 		}
 
-		inline const double autoPilotEng()
+		inline const void autoPilotEng()
 		{
 			if (m_autoPilotEng == 0.0)
 			{
@@ -532,7 +556,7 @@ class Input
 				m_autoPilotEng = 0.0;
 			}
 
-			return m_autoPilotEng;
+			//return m_autoPilotEng;
 		}
 
 		inline const double getAutoPEng()
@@ -540,7 +564,7 @@ class Input
 			return m_autoPilotEng;
 		}
 
-		inline const double lightToggle()
+		inline const void lightToggle()
 		{
 			if (m_light_toggle == 0.0)
 			{
@@ -555,12 +579,135 @@ class Input
 				m_light_toggle = 0.0;
 			}
 
-			return m_light_toggle;
+			//return m_light_toggle;
 		}
 
 		inline const double getLightToggle()
 		{
 			return m_light_toggle;
+		}
+
+		inline const void electricSystem()
+		{
+			if (m_electricSystem == 0.0)
+			{
+				m_electricSystem = 1.0;
+			}
+			else
+			{
+				m_electricSystem = 0.0;
+			}
+		}
+
+		inline const double getElectricSystem()
+		{
+			return m_electricSystem;
+		}
+
+//----------Crosshair-Test-Functions-------------
+
+		inline const void crossHRight()
+		{
+			if (m_crossHRight == 0.0)
+			{
+				m_crossHRight = 0.05;
+			}
+			else if (m_crossHRight >= 0.05)
+			{
+				m_crossHRight += 0.05;
+			}
+		}
+
+		void resetCrossHairs();
+
+		inline const double getCrossHRight()
+		{
+			return m_crossHRight;
+		}
+
+
+		inline const void crossHLeft()
+		{
+			if (m_crossHLeft == 0.0)
+			{
+				m_crossHLeft = -0.05;
+			}
+			else if (m_crossHLeft <= -0.05)
+			{
+				m_crossHLeft -= 0.05;
+			}
+		}
+
+		inline const double getCrossHLeft()
+		{
+			return m_crossHLeft;
+		}
+
+		inline const void crossHUp()
+		{
+			if (m_crossHUp == 0.0)
+			{
+				m_crossHUp = +0.05;
+			}
+			else if (m_crossHUp >= 0.05)
+			{
+				m_crossHUp += 0.05;
+			}
+		}
+
+		inline const double getCrossHUp()
+		{
+			return m_crossHUp;
+		}
+
+		inline const void crossHDown()
+		{
+			if (m_crossHDown == 0.0)
+			{
+				m_crossHDown = -0.05;
+			}
+			else if (m_crossHDown <= -0.05)
+			{
+				m_crossHDown -= 0.05;
+			}
+		}
+
+		inline const double getCrossHDown()
+		{
+			return m_crossHDown;
+		}
+
+		inline const void hudDark()
+		{
+			if (m_hudDark == 0.0)
+			{
+				m_hudDark = 50.0;
+			}
+		}
+
+		inline const double getHudDark()
+		{
+			return m_hudDark;
+		}
+
+		inline const void sightHorizontal(double value)//eigentlich (double value)
+		{
+			m_sightHorizontal = value;
+		}
+
+		inline const double getSightHorizontal()
+		{
+			return -(m_sightHorizontal);
+		}
+
+		inline const void sightVertical(double value)
+		{
+			m_sightVertical = value;
+		}
+
+		inline const double getSightVertical()
+		{
+			return m_sightVertical;
 		}
 
 //---------Key Command Functions-----------------
@@ -841,6 +988,17 @@ class Input
 
 	double m_engine_start = 0.0;
 	double m_engine_stop = 0.0;
+
+	double m_electricSystem = 0.0;
+
+	double m_crossHUp = 0.0;
+	double m_crossHDown = 0.0;
+	double m_crossHLeft = 0.0;
+	double m_crossHRight = 0.0;
+	double m_hudDark = 0.0;
+
+	double m_sightVertical = 0.0;
+	double m_sightHorizontal = 0.0;
 	
 	double m_elev_up_go = 0.0;
 	double m_elev_up_stop = 0.0;

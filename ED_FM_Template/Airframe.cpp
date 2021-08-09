@@ -29,7 +29,9 @@ Airframe::Airframe
 	m_actuatorGearR(0.2),
 	m_actuatorHook(0.6),
 	m_actuatorNozzle(1.1),
-	m_actuatorNosewheel(2.0)
+	m_actuatorNosewheel(2.0),
+	m_actuatorChuteY(3.0),
+	m_actuatorChuteZ(3.0)
 
 {
 	m_integrityElement = new float[(int)Damage::COUNT];
@@ -89,6 +91,20 @@ void Airframe::zeroInit()
 	//------aerodynamic surfaces-------
 	m_flapsPosition = 0.0;
 	m_speedBrakePosition = 0.0;
+
+	m_vMetEAS = 0.0;
+	m_vKnotsEAS = 0.0;
+	m_vKnotsEASInd = 0.0;
+	m_vKnotsCAS = 0.0;
+	m_vMach = 0.0;
+	m_altInM = 0;
+	m_altInFt = 0;
+	m_altIndTenThousands = 0;
+	m_altIndThousands = 0;
+	m_altIndHundreds = 0.0;
+	m_altIndTens = 0.0;
+	m_retAltIndTK = 0.0;
+	m_retAltIndK = 0.0;
 	
 	m_aileronLeft = 0.0;
 	m_aileronRight = 0.0;
@@ -96,6 +112,7 @@ void Airframe::zeroInit()
 	m_rudder = 0.0;
 	
 	m_hookPosition = 0.0;
+	m_hookInd = 0.0;
 
 	m_noseWheelAngle = 0.0;
 
@@ -107,15 +124,23 @@ void Airframe::zeroInit()
 
 	//set to "0" after each init
 	//m_input.m_brake = 0.0; geht nicht, da jetzt funktion
+	
+	//m_chuteSlewingZ = false;
+	//m_chuteSlewingY = false;//Neu eingefügt zum Testen für Chute return 0.0;
+	//m_chuteTimeZPassed = 0;
+	//m_chuteTimeYPassed = 0;
 
 	m_nwsEngage = 0.0;
 	m_chuteState = 0.0;
+	m_brkChuteInd = 0.0;
+	m_speedBrakeInd = 0.0;
 	m_mass = 1.0;
 	m_damageStack.clear();
 	
 	m_timePassed = 0;
 
 	m_engDmgMulti = 1.0;
+
 
 	m_desiredAlt = 0.0;
 	m_previousAlt = 0.0;
@@ -128,6 +153,8 @@ void Airframe::zeroInit()
 	m_level = false;
 	m_acendHoldAngle = false;
 	m_decendHoldAngle = false;
+
+	m_autoPilotInd = 0.0;
 
 	m_flapsLevPos = 0.0;
 	m_flapsIndTEPos = 0.0;
@@ -155,6 +182,47 @@ void Airframe::zeroInit()
 	m_ailDamInd = 0.0;
 	m_stabDamInd = 0.0;
 
+	m_scalarVelocity = 0.0;
+
+	m_chuteYAxis = 0.0;
+	m_chuteZAxis = 0.0;
+
+	//-----------CrossHair Test Stuff------------
+	m_crossHairHori = 0.0;
+	m_crossHairVerti = 0.46;
+
+	m_vertAccPrevY = 0.0;
+	m_vertAccdotY = 0.0;
+	m_vertAccPrevZ = 0.0;
+	m_vertAccdotZ = 0.0;
+
+	m_CHforceVerticalDPure = 0.0;
+	m_CHforceVerticalDSmooth = 0.0;
+	m_CHforceHori = 0.0;
+
+	m_smoothingValue = 0.0;
+	m_smoothingValue2 = 0.0;
+	m_smoothingFactor = 0.0;
+	m_firstCallV = true;
+
+	m_radiusV = 0.0;
+	m_radiusH = 0.0;
+	m_defAngleVCOS = 0.0;
+	m_defAngleV = 0.0;
+	m_defAngleHCOS = 0.0;
+	m_defAngleH = 0.0;
+	m_angleIndNen = 0.0;
+	m_thetaV = 0.0;
+	m_thetaH = 0.0;
+	m_omegaV = 0.0;
+	m_omegaH = 0.0;
+	m_targetDist = 600.0;
+	m_bulletSpeed = 1050.0;
+	m_defAngleVCNen = 0.1;
+	m_centriPetalV = 0.0;
+
+	m_moveSightH = 0.0;
+	m_moveSightV = 0.0;
 }
 
 void Airframe::coldInit()
@@ -249,10 +317,250 @@ void Airframe::airborneInit()
 	zeroInit();
 }
 
+void Airframe::crossHairHori()
+{
+	if (m_input.getCrossHRight() > 0.0)
+	{
+		m_crossHairHori = m_input.getCrossHRight();
+	}
+	else if (m_input.getCrossHLeft() < 0.0)
+	{
+		m_crossHairHori = m_input.getCrossHLeft();
+	}
+	else
+	{
+		m_crossHairHori = 0.00 + m_CHforceHori;
+	}
+
+}
+
+void Airframe::crossHairVerti()
+{
+	if (m_input.getCrossHUp() > 0.0)
+	{
+		m_crossHairVerti = 0.50 + m_input.getCrossHUp();
+	}
+	else if (m_input.getCrossHDown() < 0.0)
+	{
+		m_crossHairVerti = 0.50 + m_input.getCrossHDown();
+	}
+	else
+	{
+		m_crossHairVerti = 0.50 + (m_CHforceVerticalDSmooth * 2.2);// -(m_state.m_angle.z * 0.012738);
+	}
+
+}
+// OLD vertical-movement-function
+/*void Airframe::CHforceMovementV(double dt)
+{
+	
+	if ((m_state.m_localAcceleration.y >= 0.00) && (m_vertAccdotY > 0.0))//es war (m_state.m_localAcceleration.y >= 9.81) 
+	{
+		m_CHforceVerticalD = -((m_state.m_localAcceleration.y) * 0.03); //0.02 jetzt 0.3 is just the factor for the output on the HUD (-1.0 - +1.0) // war -((m_state.m_localAcceleration.y - 9.81) * 0.02)
+	}
+
+	if ((m_state.m_localAcceleration.y >= 0.00) && (m_vertAccdotY < 0.0))
+	{
+		m_CHforceVerticalD = -((m_state.m_localAcceleration.y) * 0.03);
+	}
+
+	if ((m_state.m_localAcceleration.y <= 0.00) && (m_vertAccdotY < 0.0))
+	{
+		m_CHforceVerticalD = -((m_state.m_localAcceleration.y) * 0.03);
+	}
+	if ((m_state.m_localAcceleration.y <= 0.00) && (m_vertAccdotY > 0.0))
+	{
+		m_CHforceVerticalD = -((m_state.m_localAcceleration.y) * 0.03);
+	}
+	if ((m_state.m_localAcceleration.y == 0.00) && (m_vertAccdotY == 0.00))
+	{
+		m_CHforceVerticalD = 0.00;
+		//m_CHforceVerticalU = 0.25;
+	}
+}*/
+
+//------------ungeglättete crazy Gun-Pipper Funktion von JNelson 
+/*void Airframe::CHforceMovementV(double dt)
+{
+	m_defAngleVCNen = sqrt(pow(m_radiusV, 2.0) * pow((1.0 - cos(m_thetaV)), 2.0) + pow((m_targetDist - m_radiusV * sin(m_thetaV)), 2.0));
+
+	if (m_defAngleVCNen == 0.0)
+	{
+		m_defAngleVCNen = 0.1;
+	}
+
+	m_defAngleVCOS = (m_targetDist * cos(m_thetaV) - m_radiusV * sin(m_thetaV)) / m_defAngleVCNen;//sqrt(pow(m_radiusV, 2.0) * pow((1.0 - cos(m_thetaV)), 2.0) + pow((m_targetDist - m_radiusV * sin(m_thetaV)), 2.0));
+
+	m_defAngleV = toDegrees(acos(m_defAngleVCOS)); //in Degree
+
+	m_CHforceVerticalD = -(sin(m_defAngleV) / sin(90.0 - m_defAngleV));
+
+
+
+}*/
+
+void Airframe::CHforceMovementV(double dt)
+{
+	m_smoothingFactor = 0.2;
+
+	m_defAngleVCNen = sqrt(pow(m_radiusV, 2.0) * pow((1.0 - cos(m_thetaV)), 2.0) + pow((m_targetDist - m_radiusV * sin(m_thetaV)), 2.0));
+
+	if (m_defAngleVCNen == 0.0)
+	{
+		m_defAngleVCNen = 0.1;
+	}
+	
+	/*if (m_state.m_localAcceleration.y <= 10.0)
+	{
+		if ((m_state.m_localAcceleration.y <= 0.00) && (m_vertAccdotY < 0.0))
+		{
+			m_CHforceVerticalDSmooth = -((m_state.m_localAcceleration.y) * 0.03);
+		}
+		if ((m_state.m_localAcceleration.y <= 0.00) && (m_vertAccdotY > 0.0))
+		{
+			m_CHforceVerticalDSmooth = -((m_state.m_localAcceleration.y) * 0.03);
+		}
+		if ((m_state.m_localAcceleration.y == 0.00) && (m_vertAccdotY == 0.00))
+		{
+			m_CHforceVerticalDSmooth = 0.00;
+			//m_CHforceVerticalU = 0.25;
+		}
+	}*/
+	//else
+	//{
+		
+	if (m_state.m_localAcceleration.y >= 9.81)
+	{
+
+		m_defAngleVCOS = (m_targetDist * cos(m_thetaV) - m_radiusV * sin(m_thetaV)) / m_defAngleVCNen;//sqrt(pow(m_radiusV, 2.0) * pow((1.0 - cos(m_thetaV)), 2.0) + pow((m_targetDist - m_radiusV * sin(m_thetaV)), 2.0));
+
+		m_defAngleV = toDegrees(acos(m_defAngleVCOS)); //in Degree
+
+		m_angleIndNen = 90.0 - m_defAngleV;
+
+		m_CHforceVerticalDPure = -1.0 * ((sin(toRad(m_defAngleV))) / (sin(toRad(m_angleIndNen))));
+
+		if (m_firstCallV == true)
+		{
+
+			m_smoothingValue = m_CHforceVerticalDPure;
+
+			m_firstCallV = false;
+
+		}
+		else
+		{
+
+			m_smoothingValue2 = m_smoothingFactor * m_smoothingValue + (1 - m_smoothingFactor) * m_smoothingValue;
+
+			m_firstCallV = true;
+
+			m_CHforceVerticalDSmooth = m_smoothingValue2;
+			
+		}
+	}
+	else
+	{
+		m_defAngleVCOS = (m_targetDist * cos(m_thetaV) - m_radiusV * sin(m_thetaV)) / m_defAngleVCNen;//sqrt(pow(m_radiusV, 2.0) * pow((1.0 - cos(m_thetaV)), 2.0) + pow((m_targetDist - m_radiusV * sin(m_thetaV)), 2.0));
+
+		m_defAngleV = toDegrees(acos(m_defAngleVCOS)); //in Degree
+
+		m_angleIndNen = 90.0 - m_defAngleV;
+
+		m_CHforceVerticalDPure = ((sin(toRad(m_defAngleV))) / (sin(toRad(m_angleIndNen))));
+
+		if (m_firstCallV == true)
+		{
+
+			m_smoothingValue = m_CHforceVerticalDPure;
+
+			m_firstCallV = false;
+
+		}
+		else
+		{
+
+			m_smoothingValue2 = m_smoothingFactor * m_smoothingValue + (1 - m_smoothingFactor) * m_smoothingValue;
+
+			m_firstCallV = true;
+
+			m_CHforceVerticalDSmooth = m_smoothingValue2;
+
+		}
+	}
+}
+
+void Airframe::CHforceMovementH(double dt)
+{
+	if ((m_state.m_localAcceleration.z >= 0.00) && (m_vertAccdotZ > 0.0))//es war (m_state.m_localAcceleration.y >= 9.81) 
+	{
+		m_CHforceHori = -((m_state.m_localAcceleration.z) * 0.03); //0.02/ jetzt 0.3 is just the factor for the output on the HUD (-1.0 - +1.0) // war -((m_state.m_localAcceleration.y - 9.81) * 0.02)
+	}
+
+	if ((m_state.m_localAcceleration.z >= 0.00) && (m_vertAccdotZ < 0.0))
+	{
+		m_CHforceHori = -((m_state.m_localAcceleration.z) * 0.03);
+	}
+
+	if ((m_state.m_localAcceleration.z <= 0.00) && (m_vertAccdotZ < 0.0))
+	{
+		m_CHforceHori = -((m_state.m_localAcceleration.z) * 0.03);
+	}
+	if ((m_state.m_localAcceleration.z <= 0.00) && (m_vertAccdotZ > 0.0))
+	{
+		m_CHforceHori = -((m_state.m_localAcceleration.z) * 0.03);
+	}
+	if ((m_state.m_localAcceleration.z == 0.00) && (m_vertAccdotZ == 0.00))
+	{
+		m_CHforceHori = 0.00;
+		//m_CHforceVerticalU = 0.25;
+	}
+}
+
+void Airframe::moveSightHorizontal()
+{
+	m_moveSightH = 0.44 * (m_input.getSightHorizontal());
+}
+
+void Airframe::moveSightVertical()
+{
+	m_moveSightV = m_input.getSightVertical();
+}
+
 
 void Airframe::airframeUpdate(double dt)
 {
 	//printf( "I %lf, L %lf, C %lf, R %lf\n", m_fuel[0], m_fuel[1], m_fuel[2], m_fuel[3] );
+
+	m_scalarVelocity = magnitude(m_state.m_localAirspeed);
+
+	m_vertAccdotY = (m_state.m_localAcceleration.y - m_vertAccPrevY) / dt; //rate of change of G-Force//OLD
+	m_vertAccPrevY = m_state.m_localAcceleration.y;//previous G-Force//OLD
+
+	m_vertAccdotZ = (m_state.m_localAcceleration.z - m_vertAccPrevZ);//OLD aber noch gebraucht
+	m_vertAccPrevZ = m_state.m_localAcceleration.z;//OLD aber noch gebraucht
+
+	m_omegaV = m_state.m_omega.z;
+	m_thetaV = m_omegaV * m_targetDist / m_bulletSpeed;
+	
+	m_centriPetalV = m_state.m_localAcceleration.y;
+
+	if ((m_centriPetalV < 1.0) && (m_centriPetalV > -1.0))
+	{
+		m_centriPetalV = 1.0;
+	}
+	
+	m_radiusV = m_centriPetalV / pow(m_omegaV, 2.0);
+
+	if (m_radiusV <= -10000.0)
+	{
+		m_radiusV = -10000.0;
+	}
+	if (m_radiusV >= 10000.0)
+	{
+		m_radiusV = 10000.0;
+	}
+
 
 	/*if (m_input.m_hook())
 	{
@@ -286,6 +594,9 @@ void Airframe::airframeUpdate(double dt)
 
 	
 	m_hookPosition = setHookPosition(dt);
+
+	m_chuteYAxis = setChutePositionY(dt);
+	m_chuteZAxis = setChutePositionZ(dt);
 
 	m_nozzlePosition = setNozzlePosition(dt);
 
@@ -344,6 +655,62 @@ void Airframe::airframeUpdate(double dt)
 	//BLCsystem();
 	getEngineDamageMult();
 
+	//----SpeedIndicator-Functions------------
+	airSpeedInKnotsEASInd();
+	//airSpeedInKnotsCASInd();
+	airSpeedInMachInd();
+	altitudeInd();
+	
+	//printf("AS_Knots_EAS_Indicator %f \n", airSpeedInKnotsEASInd());
+	//printf("AS_Knots_CAS_Indicator %f \n", airSpeedInKnotsCASInd());
+	//printf("AirSpeed_Mach_Indicator %f \n", airSpeedInMachInd());
+	//printf("True_Mach %f \n", m_state.m_mach);
+	//printf("Altitude_in_Ft_Indicator %f \n", altitudeInd());
+	//printf("Current_Air_Pressure %f \n", m_state.m_pressure);
+
+	crossHairHori();
+	crossHairVerti();
+	CHforceMovementV(dt);
+	CHforceMovementH(dt);
+
+	moveSightHorizontal();
+	moveSightVertical();
+
+	//printf("Input_CrossH_Right %f \n", m_input.getCrossHRight());
+	//printf("Input_CrossH_Left %f \n", m_input.getCrossHLeft());
+	//printf("CrossH_Hori %f \n", m_crossHairHori);
+
+	//printf("Input_CrossH_Up %f \n", m_input.getCrossHUp());
+	//printf("Input_CrossH_Down %f \n", m_input.getCrossHDown());
+	
+
+	//printf("Yaw-Force %f \n", m_state.m_localAcceleration.z);
+	//printf("Pitch and G-Force %f \n", m_state.m_localAcceleration.y);
+	//printf("Nenner_Crazy_Funktion %f \n", m_defAngleVCNen);
+	
+	//printf("Radius_V %f \n", m_radiusV);
+	//printf("OmegaV %f \n", m_omegaV);
+	
+	//printf("Deflection_Angel_Vertical_in_Degree %f \n", m_defAngleV);
+	//printf("Pure neg def Angle %f \n", m_CHforceVerticalDPure);
+	//printf("Smoothed neg def Angle %f \n", m_CHforceVerticalDSmooth);
+	
+	//printf("CrossH_Verti %f \n", m_crossHairVerti);
+
+
+	//---------PrintF's for Altitude and AltInd-----------
+	/*printf("Alt_In_10ks %i \n", m_altIndTenThousands);
+	printf("Alt_In_1ks %i \n", m_altIndThousands);
+	printf("Alt_In_100s %f \n", m_altIndHundreds);
+	printf("Alt_In_10s %f \n", m_altIndTens);
+	printf("Ret_Val_10ks %f \n", m_retAltIndTK);
+	printf("Ret_Val_1ks %f \n", m_retAltIndK);
+	printf("AltIn_Feet %i \n", m_altInFt);
+	printf("AltIn_Meter %i \n", m_altInM);
+	*/
+
+	printf("Horizontal Sicht FLOAT %f \n", m_input.getSightHorizontal());
+	printf("Vertikale Sicht FLOAT %f \n", m_input.getSightVertical());
 
 
 }
@@ -442,20 +809,39 @@ double Airframe::NWSstate()
 
 double Airframe::brkChutePosition()
 {
-	int timeToGo = 50;
+	int timeToGo1 = 20; //war 50, jetzt aber meherere Stationen
+	int timeToGo2 = 40;
+	int timeToGo3 = 60;
+	int timeToGo4 = 80;
 
-	if ((m_input.getBrkChute() == 1) && (m_timePassed < timeToGo))
+	if ((m_input.getBrkChute() == 1) && (m_timePassed < timeToGo1))
 	{
-		m_chuteState = 0.5;
+		m_chuteState = 0.2;
 	}
-	if (m_chuteState == 0.5) 
+	if (m_chuteState == 0.2) 
 	{
 		m_timePassed++;
 	}
-	if ((m_chuteState == 0.5) && (m_timePassed >= timeToGo)) 
+	if ((m_chuteState == 0.2) && (m_timePassed >= timeToGo1) && (m_timePassed < timeToGo2)) 
+	{
+		m_chuteState = 0.5;
+	}
+	if (m_chuteState == 0.5)
+	{
+		m_timePassed++;
+	}
+	if ((m_chuteState == 0.5) && (m_timePassed >= timeToGo2) && (m_timePassed <= timeToGo3))
+	{
+		m_chuteState = 0.7;
+	}
+	if (m_chuteState == 0.7)
+	{
+		m_timePassed++;
+	}
+	if ((m_chuteState == 0.7) && (m_timePassed >= timeToGo3))
 	{
 		m_chuteState = 1.0;
-		m_timePassed = 55;
+		m_timePassed = 85;
 	}
 	else if (m_input.getBrkChute() == 0.0)
 	{
@@ -466,10 +852,23 @@ double Airframe::brkChutePosition()
 	return m_chuteState;
 }
 
+double Airframe::brkChuteInd()
+{
+	if (m_input.getElectricSystem() == 1.0)
+	{
+		m_brkChuteInd = brkChutePosition();
+	}
+	else
+	{
+		m_brkChuteInd = 0.0;
+	}
+	return m_brkChuteInd;
+}
+
 
 double Airframe::brkChuteSlewY()
 {
-	m_chuteSlewY = 0.0;
+	m_chuteSlewY = 0.0; 
 	double m_chuteDiceRoll = 0.0;
 	int dice_roll = 0;
 	int dice_roll1 = 0;
@@ -479,13 +878,14 @@ double Airframe::brkChuteSlewY()
 	
 	if (m_chuteState != 0)
 	{
+		
 		if (m_mach_speed >= 0.12)
 		{
 			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 19);
 			dice_roll = distribution(generator);  // generates number in the range 1-19 */
 			
-			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+			int mill_seconds = (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) / 100;
 
 			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
 
@@ -494,50 +894,59 @@ double Airframe::brkChuteSlewY()
 			if ((dice_roll == 2) || (dice_roll == 1))
 			{
 				m_chuteDiceRoll = -0.65;	
+				//m_chuteSlewingY = true; //Neu überall eingefügt, ggf. wieder hier und im If entfernen
 			}
 			if ((dice_roll == 3) || (dice_roll ==4 ))
 			{
-				m_chuteDiceRoll = -0.55;	
+				m_chuteDiceRoll = -0.55;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 5) || (dice_roll == 6))
 			{
-				m_chuteDiceRoll = -0.40;	
+				m_chuteDiceRoll = -0.40;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 7) || (dice_roll == 8))
 			{
 				m_chuteDiceRoll = -0.19;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 9) || (dice_roll == 10))
 			{
-				m_chuteDiceRoll = 0;	
+				m_chuteDiceRoll = 0;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 11) || (dice_roll == 12))
 			{
 				m_chuteDiceRoll = 0.19;	
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 13) || (dice_roll == 14))
 			{
 				m_chuteDiceRoll = 0.40;	
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 15) || (dice_roll == 16))
 			{
 				m_chuteDiceRoll = 0.55;	
+				//m_chuteSlewingY = true;
 			}
 			if (dice_roll >= 17)
 			{
 				m_chuteDiceRoll = 0.65;	
+				//m_chuteSlewingY = true;
 			}
 			
 			m_chuteSlewY = m_chuteDiceRoll;
 			return m_chuteSlewY;
 		}
-		if ((m_mach_speed >= 0.05) && (m_mach_speed < 0.11))
+		if ((m_mach_speed >= 0.05) && (m_mach_speed < 0.11))// && (m_chuteSlewing == false))
 		{
 			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 11);
 			dice_roll1 = distribution(generator);  // generates number in the range -0.20....0.20*/ 
 			
-			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+			int mill_seconds = (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) / 100;
 
 			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
 
@@ -546,33 +955,38 @@ double Airframe::brkChuteSlewY()
 			if (dice_roll1 <= 2)
 			{
 				m_chuteDiceRoll = -0.35;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll1 == 3) || (dice_roll1 == 4))
 			{
 				m_chuteDiceRoll = -0.15;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll1 == 5) || (dice_roll1 == 6))
 			{
 				m_chuteDiceRoll = -0.05;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll1 == 7) || (dice_roll1 == 8))
 			{
 				m_chuteDiceRoll = 0.10;
+				//m_chuteSlewingY = true;
 			}
 			if (dice_roll1 >= 9)
 			{
-				m_chuteDiceRoll = 0.19;
+				m_chuteDiceRoll = 0.25;
+				//m_chuteSlewingY = true;
 			}
 			m_chuteSlewY = m_chuteDiceRoll;
 			return m_chuteSlewY;
 		}
-		if ((m_mach_speed < 0.05) && (m_mach_speed > 0.00))
+		if ((m_mach_speed < 0.05) && (m_mach_speed > 0.00))// && (m_chuteSlewing == false))
 		{
 			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 11);
 			dice_roll2 = distribution(generator);  // generates number in the range -0.20....0.20*/
 			
-			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+			int mill_seconds = (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) / 100;
 
 			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
 
@@ -582,22 +996,27 @@ double Airframe::brkChuteSlewY()
 			if (dice_roll2 <= 2)
 			{
 				m_chuteDiceRoll = -0.99;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll2 == 3) || (dice_roll2 == 4))
 			{
 				m_chuteDiceRoll = -0.92;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll2 == 5) || (dice_roll2 == 6))
 			{
 				m_chuteDiceRoll = -0.90;
+				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll2 == 7) || (dice_roll2 == 8))
 			{
 				m_chuteDiceRoll = -0.89;
+				//m_chuteSlewingY = true;
 			}
 			if (dice_roll2 >= 9)
 			{
 				m_chuteDiceRoll = -0.87;
+				//m_chuteSlewingY = true;
 			}
 			m_chuteSlewY = m_chuteDiceRoll;
 			return m_chuteSlewY;
@@ -605,14 +1024,38 @@ double Airframe::brkChuteSlewY()
 		if (m_mach_speed == 0.00)
 		{
 		m_chuteSlewY = -1.00;
+		//m_chuteSlewingY = false;
+
 		return m_chuteSlewY;
 		}
+		
 	}
-}
+
+	/*if (m_chuteSlewingY == true)
+	{
+	int chuteTimeToPass = 10;
+
+		if (m_chuteTimeYPassed < chuteTimeToPass)
+		{
+			m_chuteTimeYPassed++;
+		}
+		if (m_chuteTimeYPassed >= chuteTimeToPass)
+		{
+			m_chuteSlewingY = false;
+			m_chuteTimeYPassed = 0;
+			m_chuteSlewY = 0.0;
+			return m_chuteSlewY;
+		}
+	//return m_chuteSlewY;
+	}
+
+	printf("ChuteYTimePassed %f \n", m_chuteTimeYPassed);
+	*/
+	}
 
 double Airframe::brkChuteSlewZ()
 {
-	m_chuteSlewZ = 0.0;
+	//m_chuteSlewZ = 0.0; auskommentiert zum testen
 	double m_chuteDiceRoll = 0.0;
 	int dice_roll = 0;
 	int dice_roll1 = 0;
@@ -620,7 +1063,7 @@ double Airframe::brkChuteSlewZ()
 	double m_mach_speed = 0.0;
 	m_mach_speed = m_state.m_mach;
 
-	if (m_chuteState != 0)
+	if (m_chuteState != 0)// && (m_chuteSlewingZ == false))
 	{
 	
 		if (m_mach_speed >= 0.12)
@@ -629,7 +1072,7 @@ double Airframe::brkChuteSlewZ()
 			std::uniform_int_distribution<int> distribution(1, 19);
 			dice_roll = distribution(generator);  // generates number in the range -0.75....0.75 
 			*/
-			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+			int mill_seconds = (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) / 100;
 
 			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
 
@@ -637,52 +1080,61 @@ double Airframe::brkChuteSlewZ()
 
 			if (dice_roll <= 3)
 			{
-				m_chuteDiceRoll = -0.65;
-				dice_roll = 0;
+				m_chuteDiceRoll = -0.95;
+				//m_chuteSlewingZ = true;
+				//dice_roll = 0;
 			}
 			if ((dice_roll == 4) || (dice_roll == 5))
 			{
-				m_chuteDiceRoll = -0.55;
+				m_chuteDiceRoll = -0.75;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll == 6) || (dice_roll == 7))
 			{
-				m_chuteDiceRoll = -0.40;
+				m_chuteDiceRoll = -0.44;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll == 8) || (dice_roll == 9))
 			{
 				m_chuteDiceRoll = -0.19;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll == 10) || (dice_roll == 11))
 			{
 				m_chuteDiceRoll = 0;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll == 12) || (dice_roll == 13))
 			{
 				m_chuteDiceRoll = 0.19;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll == 14) || (dice_roll == 15))
 			{
-				m_chuteDiceRoll = 0.40;
+				m_chuteDiceRoll = 0.44;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll == 16) || (dice_roll == 17))
 			{
-				m_chuteDiceRoll = 0.55;
+				m_chuteDiceRoll = 0.75;
+				//m_chuteSlewingZ = true;
 			}
 			if (dice_roll >= 18)
 			{
-				m_chuteDiceRoll = 0.65;
+				m_chuteDiceRoll = 0.95;
+				//m_chuteSlewingZ = true;
 			}
 			m_chuteSlewZ = m_chuteDiceRoll;
 			return m_chuteSlewZ;
 			}
-		if ((m_mach_speed >= 0.05) && (m_mach_speed <= 0.11))
+		if ((m_mach_speed >= 0.05) && (m_mach_speed < 0.12))
 			{
 			/*std::default_random_engine generator;
 			std::uniform_int_distribution<int> distribution(1, 11);
 			dice_roll1 = distribution(generator);  // generates number in the range -0.20....0.20 
 			*/
 
-			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+			int mill_seconds = (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) / 100;
 
 			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
 
@@ -690,23 +1142,28 @@ double Airframe::brkChuteSlewZ()
 
 			if (dice_roll1 <= 2)
 			{
-				m_chuteDiceRoll = -0.25;
+				m_chuteDiceRoll = -0.45;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll1 == 3) || (dice_roll1 == 4))
 			{
-				m_chuteDiceRoll = -0.15;
+				m_chuteDiceRoll = -0.25;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll1 == 5) || (dice_roll1 == 6))
 			{
-				m_chuteDiceRoll = -0.00;
+				m_chuteDiceRoll = 0.00;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll1 == 7) || (dice_roll1 == 8))
 			{
-				m_chuteDiceRoll = 0.15;
+				m_chuteDiceRoll = 0.25;
+				//m_chuteSlewingZ = true;
 			}
 			if (dice_roll1 >= 9)
 			{
-				m_chuteDiceRoll = 0.25;
+				m_chuteDiceRoll = 0.45;
+				//m_chuteSlewingZ = true;
 			}
 			m_chuteSlewZ = m_chuteDiceRoll;
 			return m_chuteSlewZ;
@@ -717,7 +1174,7 @@ double Airframe::brkChuteSlewZ()
 			std::uniform_int_distribution<int> distribution(1, 11);
 			dice_roll2 = distribution(generator);  // generates number in the range -0.20....0.20 
 			*/
-			int mill_seconds = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count(); //NEU wegen Chrono
+			int mill_seconds = (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) / 100; //NEU wegen Chrono
 
 			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
 
@@ -725,23 +1182,28 @@ double Airframe::brkChuteSlewZ()
 
 			if (dice_roll2 <= 2)
 			{
-				m_chuteDiceRoll = -0.09;
+				m_chuteDiceRoll = -0.15;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll2 == 3) || (dice_roll2 == 4))
 			{
-				m_chuteDiceRoll = -0.05;
+				m_chuteDiceRoll = -0.07;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll2 == 5) || (dice_roll2 == 6))
 			{
 				m_chuteDiceRoll = 0.00;
+				//m_chuteSlewingZ = true;
 			}
 			if ((dice_roll2 == 7) || (dice_roll2 == 8))
 			{
-				m_chuteDiceRoll = 0.05;
+				m_chuteDiceRoll = 0.07;
+				//m_chuteSlewingZ = true;
 			}
 			if (dice_roll2 >= 9)
 			{
-				m_chuteDiceRoll = 0.09;
+				m_chuteDiceRoll = 0.15;
+				//m_chuteSlewingZ = true;
 			}
 			m_chuteSlewZ = m_chuteDiceRoll;
 			return m_chuteSlewZ;
@@ -749,13 +1211,32 @@ double Airframe::brkChuteSlewZ()
 		if (m_mach_speed == 0.00)
 		{
 		m_chuteSlewZ = 0.0;
+		//m_chuteSlewingZ = false;
 		
 		//printf("ChuteSlewZ-Value %f \n", m_chuteSlewZ);
 
 		return m_chuteSlewZ;
 		}
-
 	}
+	
+	/*if (m_chuteSlewingZ == true)
+	{
+	int chuteTimeToPass = 10;
+
+		if (m_chuteTimeZPassed < chuteTimeToPass)
+		{
+			m_chuteTimeZPassed++;
+		}
+		if (m_chuteTimeZPassed >= chuteTimeToPass)
+		{
+			m_chuteSlewingZ = false;
+			m_chuteTimeZPassed = 0;
+			m_chuteSlewZ = 0.0;
+			return m_chuteSlewZ;
+		}
+	//return m_chuteSlewY;
+	}*/
+	//printf("TimeZPassed %f \n", m_chuteTimeZPassed);
 }
 
 double Airframe::BLCsystem()
@@ -953,19 +1434,135 @@ double Airframe::fuelFlowIndGaugeUpdate()
 {
 	//direct fuelFlowGauge has 1-100 with 12.000 = 100 and 0 = 0; 0-70 = 0 - 6.000 lbs/h; 72,5 = 7.000 lbs/h; 75 = 8.000 lbs/h; 81,25 = 9; 87,5 = 10; 93,75 = 11; 100 = 12
 
-	if (m_engine.FuelFlowUpdate() <= 6000.0)
+	if (m_input.getElectricSystem() == 1.0)
 	{
-		m_fuelThousand = m_engine.FuelFlowUpdate() * 0.01166;
+		if (m_engine.FuelFlowUpdate() <= 6000.0)
+		{
+			m_fuelThousand = m_engine.FuelFlowUpdate() * 0.01166;
+		}
+		else if ((m_engine.FuelFlowUpdate() > 6000) && (m_engine.FuelFlowUpdate() < 12000.0))
+		{
+			m_fuelThousand = (m_engine.FuelFlowUpdate() * 0.005) + 40.0;
+		}
+		else if (m_engine.FuelFlowUpdate() >= 12000.0)
+		{
+			m_fuelThousand = 100.0;
+		}
 	}
-	else if ((m_engine.FuelFlowUpdate() > 6000) && (m_engine.FuelFlowUpdate() < 12000.0))
+	else
 	{
-		m_fuelThousand = (m_engine.FuelFlowUpdate() * 0.005) + 40.0;
-	}
-	else if (m_engine.FuelFlowUpdate() >= 12000.0)
-	{
-		m_fuelThousand = 100.0;
+		m_fuelThousand = 0.0;
 	}
 
 	return m_fuelThousand * 0.01;
 }
+
+double Airframe::airSpeedInKnotsEASInd()
+{
+	m_vMetEAS = (m_scalarVelocity / sqrt(CON_sDay_den / m_state.m_airDensity)); //Geschwindigkeit TAS zu EAS in m/s 
+	m_vKnotsEAS = m_vMetEAS * 1.94384;
+
+	if (m_input.getElectricSystem() == 1.0)
+	{
+		if ((m_vKnotsEAS >= 0.0) && (m_vKnotsEAS <= 400.0))
+		{
+			m_vKnotsEASInd = (0.6 / 400.0) * m_vKnotsEAS;//(m_vKnotsEAS / 1000) * 1.5;
+		}
+		else if ((m_vKnotsEAS > 400.0) && (m_vKnotsEAS <= 700.0))
+		{
+			m_vKnotsEASInd = (0.26 / 300.0) * (m_vKnotsEAS - 400.0) + 0.6; //((((m_vKnotsEAS / 1000) - 0.4) * 0.866 ) + 0.60);
+		}
+		else if ((m_vKnotsEAS > 700.0) && (m_vKnotsEAS <= 1000.0))
+		{
+			m_vKnotsEASInd = (0.14 / 300) * (m_vKnotsEAS - 700.0) + 0.86;//((((m_vKnotsEAS / 1000) - 0.7) * 0.466) + 0.86);
+		}
+	}
+	else
+	{
+		m_vKnotsEASInd = 0.0;
+	}
+
+	return m_vKnotsEASInd; //EAS in Knoten / 1000 = Werte von 0.0 - 1.0
+}
+
+double Airframe::airSpeedInKnotsCASInd()
+{
+	double d = m_state.m_pressure / CON_sDay_pr;
+	double M = m_state.m_mach;
+	m_vKnotsCAS = m_vKnotsEAS * (1.0 + 0.125 * (1.0 - d) * M * M + (3.0 / 640.0 * (1.0 - 10.0 * d + 9 * d * d) * M * M * M * M));
+
+	return (m_vKnotsCAS * 1.94384) / 1000; //CAS in Knoten / 1000 = Werte von 0.0 bis 1.0
+}
+
+//Erläuterung: Machmeter hat 2 Steigungen 1: Mach 0.0 - 1.0 = 0.117/1 = 0.117 und 2: Mach 1.0 - 2.5 = (1.0 - 0.117) / (2.5 -1.0) = 0.5846666
+//jetzt für Ermittlung der "Höhe" im 2ten Abshcnitt am Schluss die Höhe des Endes des ersten Abschnitts (0.117) addieren...
+
+double Airframe::airSpeedInMachInd()
+{
+	
+	if (m_input.getElectricSystem() == 1.0)
+	{
+		if (m_state.m_mach <= 1.0)
+		{
+			m_vMach = 0.117 * m_state.m_mach; //Skala aktuell Mach 0-1.0 = 2/17
+		}
+		else if ((m_state.m_mach > 1.0) && (m_state.m_mach <= 2.5))
+		{
+			m_vMach = ((m_state.m_mach) - 1.0) * (0.883 / 1.5) + 0.117;//((m_state.m_mach / 2.5) * (15.0 / 17.0)) + (2.0 / 17.0);
+		}
+		else if (m_state.m_mach > 2.5)
+		{
+			m_vMach = 1.0;
+		}
+	}
+	else
+	{
+		m_vMach = 0.0;
+	}
+	
+	return m_vMach;//mit dem Faktor * 0.4 ist 2,5 = 1.0 mit dem Quotienten 10 ist 10 = 1.0
+}
+
+void Airframe::altitudeInd()
+{
+	if (m_input.getElectricSystem() == 1.0)
+	{
+		m_altInM = ((288.15 / 0.0065) * (1.0 - pow((m_state.m_pressure / 101325.00), (1.0 / 5.255))));
+	}
+	else
+	{
+		m_altInM = 0;
+	}
+
+	m_altInFt = (m_altInM * 3.28084) * 1000.0; //hier * 100 um die INT um 3 Stellen zu vergrößern, damit die Gleitkomma-Zahl nachher schöner ist
+
+	m_altIndTenThousands = m_altInFt / 10000000; //gibt immer glatte 10k aus also 10000, 20000, 30000 usw.
+	m_altIndThousands = (m_altInFt % 10000000) / 1000000 ;//gibt immer 1 - 9999 aus
+	m_altIndHundreds = (m_altInFt % 1000000) / 100000.0;//gibt 1 - 999 aus
+	m_altIndTens = (m_altInFt % 1000) / 10.0;
+
+	m_retAltIndTK = m_altIndTenThousands / 10.0;
+	m_retAltIndK = m_altIndThousands / 10.0;
+}
+
+double Airframe::getAltIndTenThousands()
+{
+	return m_retAltIndTK;
+}
+
+double Airframe::getAltIndThousands()
+{
+	return m_retAltIndK;
+}
+
+double Airframe::getAltIndHundreds()
+{
+	return m_altIndHundreds / 10.0;
+}
+
+double Airframe::getAltIndTens()
+{
+	return m_altIndTens / 10.0;
+}
+
 

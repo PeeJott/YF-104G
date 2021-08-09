@@ -53,6 +53,10 @@ public:
 	//Hook
 	inline double setHookPosition(double dt);
 
+	//BrakeChute
+	inline double setChutePositionY(double dt);
+	inline double setChutePositionZ(double dt);
+
 	//Engine Nozzle
 	double setNozzlePosition(double dt); //verschoben nach Airframe CPP wegen der Größe
 
@@ -75,8 +79,12 @@ public:
 	inline double getGearFLamp(); //Gear-Lamp-front
 
 	inline double getSpeedBrakePosition() const;
+	inline double getSpeedBrakeInd();
+	inline double getHookInd();
 	
 	inline double getHookPosition() const;
+	inline double getChutePositionY() const;
+	inline double getChutePositionZ() const;
 	inline double getMass() const;
 	inline double getAileron() const;
 	inline double getRudder() const;
@@ -119,10 +127,12 @@ public:
 	double brkChutePosition(); //verschoben nach CPP, daher inline gespart
 	double brkChuteSlewZ();
 	double brkChuteSlewY();
+	double brkChuteInd();
 
 	//Auto-Pilot-Funktionen
 	void autoPilotAltH(double dt);
 	inline double getAutoPilotAltH();
+	inline double getAutoPilotInd();
 
 	//FlapsPosition Handle and Lights
 	inline double getFlapLevPos();
@@ -132,9 +142,35 @@ public:
 	//FuelFlow direct gauge-steering and Indicators
 	double fuelFlowIndGaugeUpdate();
 
+	//Altimeter and SpeedO-Meter-----------------
+	double airSpeedInKnotsEASInd();
+	double airSpeedInKnotsCASInd();
+	double airSpeedInMachInd();
+	void altitudeInd();
+	double getAltIndTenThousands();
+	double getAltIndThousands();
+	double getAltIndHundreds();
+	double getAltIndTens();
+
+	//-----------Crosshair Test Functions-------------
+	void crossHairHori();
+	void crossHairVerti();
+	inline double getCrossHairHori();
+	inline double getCrossHairVerti();
+	void CHforceMovementV(double dt);
+	void CHforceMovementH(double dt);
+	void moveSightHorizontal();
+	void moveSightVertical();
+	//inline double getSightHorizontal();//vielleicht überflüssig
+	//inline double getSIghtVertical();//vielleicht überflüssig
+
+
 	//-------Damage Indicators Aileron and Stabilizer-------------
 	inline double ailDamageIndicator();
 	inline double stabDamageIndicator();
+
+	//---------Damage to Damage-Modell---------------
+	void overHeatToDamage();
 
 	
 
@@ -406,6 +442,18 @@ private:
 	double m_chuteSlewY = 0.0;
 	double m_chuteSlewZ = 0.0;
 	int m_timePassed = 0;
+	double m_brkChuteInd = 0.0;
+
+	//bool m_chuteSlewingZ = false;//neu eingefügt zum Testenfür Rückkehr 0-Position
+	//bool m_chuteSlewingY = false;
+	//int m_chuteTimeZPassed = 0;
+	//int m_chuteTimeYPassed = 0;
+
+	double m_chuteYAxis = 0.0;
+	double m_chuteZAxis = 0.0;
+
+	double m_speedBrakeInd = 0.0;
+	double m_hookInd = 0.0;
 
 	//---------AutoPilot Stuff Alt-Hold--------------
 	double m_desiredAlt = 0.0;
@@ -421,6 +469,7 @@ private:
 	bool m_acendHoldAngle = false;
 	bool m_decendHoldAngle = false;
 	//double m_speedPrevious = 0.0;
+	double m_autoPilotInd = 0.0;
 
 	//-----------Flaps and Gear Systems and Indicators------------
 	double m_blcLift = 0.0;
@@ -433,9 +482,62 @@ private:
 	double m_fuelThousand = 0.0;
 	double m_fuelDivide = 0.0;
 
+	//-----------Speedo-Meter in kn und Mach und Höhe-------------------------
+	double m_vMetEAS = 0.0;
+	double m_vKnotsEAS = 0.0;
+	double m_vKnotsEASInd = 0.0;
+	double m_vKnotsCAS = 0.0;
+	double m_vMach = 0.0;
+	int m_altInM = 0;
+	int m_altInFt = 0;
+	int m_altIndTenThousands = 0.0;
+	int m_altIndThousands = 0.0;
+	double m_altIndHundreds = 0.0;
+	double m_altIndTens = 0.0;
+	double m_retAltIndTK = 0.0;
+	double m_retAltIndK = 0.0;
+
+	//------------CrossHair Movement--------------------------------
+	double m_crossHairHori = 0.0;
+	double m_crossHairVerti = 0.0;
+	double m_vertAccPrevY = 0.0;
+	double m_vertAccdotY = 0.0;
+	double m_vertAccPrevZ = 0.0;
+	double m_vertAccdotZ = 0.0;
+	double m_CHforceVerticalDPure = 0.0;
+	double m_CHforceVerticalDSmooth = 0.0;
+	double m_CHforceHori = 0.0;
+
+	double m_radiusV = 0.0;
+	double m_radiusH = 0.0;
+	double m_defAngleV = 0.0;
+	double m_defAngleVCOS = 0.0;
+	double m_defAngleH = 0.0;
+	double m_defAngleHCOS = 0.0;
+	double m_defAngleVCNen = 0.1;
+	double m_angleIndNen = 0.0;
+	double m_thetaV = 0.0;
+	double m_thetaH = 0.0;
+	double m_omegaV = 0.0;
+	double m_omegaH = 0.0;
+	double m_bulletSpeed = 1050.0;//Geschwindikgeit M61 Kugel m/s
+	double m_targetDist = 600.0;//Entfernung zum Ziel fix in m
+	double m_centriPetalV = 0.0;
+
+	double m_moveSightV = 0.0;
+	double m_moveSightH = 0.0;
+
+	//----Smoothing the movement--------
+	double m_smoothingValue = 0.0;
+	double m_smoothingValue2 = 0.0;
+	double m_smoothingFactor = 0.0;
+	bool m_firstCallV = true;
+
+
 	//-----------Damage Indicator Variables--------------------------
 	double m_ailDamInd = 0.0;
 	double m_stabDamInd = 0.0;
+
 
 	//---------------Actuators--------------------------------------
 
@@ -450,6 +552,8 @@ private:
 	Actuator m_actuatorHook;
 	Actuator m_actuatorNozzle;
 	Actuator m_actuatorNosewheel;
+	Actuator m_actuatorChuteY;
+	Actuator m_actuatorChuteZ;
 
 
 	//double m_stabilizerZeroForceDeflection = 0.0;
@@ -457,6 +561,8 @@ private:
 	double m_mass = 1.0;
 
 	float* m_integrityElement;
+
+	double m_scalarVelocity = 0.0;
 
 };
 
@@ -522,6 +628,18 @@ double Airframe::setHookPosition(double dt)
 	return m_actuatorHook.inputUpdate(input, dt);
 }
 
+double Airframe::setChutePositionY(double dt)
+{
+	double input = brkChuteSlewY();
+	return m_actuatorChuteY.inputUpdate(input, dt);
+}
+
+double Airframe::setChutePositionZ(double dt)
+{
+	double input = brkChuteSlewZ();
+	return m_actuatorChuteZ.inputUpdate(input, dt);
+}
+
 void Airframe::setMass(double mass)
 {
 	m_mass = mass;
@@ -556,9 +674,16 @@ double Airframe::getGearNPosition() const
 // Neu eingefügt den Lampen-Kram zur directen Steuerung der FC-3 Cockpit-Args
 double Airframe::getGearLLamp()
 {
-	if (getGearLPosition() == 1.0)
+	if (m_input.getElectricSystem() == 1.0)
 	{
-		m_gearLLamp = 1.0;
+		if (getGearLPosition() == 1.0)
+		{
+			m_gearLLamp = 1.0;
+		}
+		else
+		{
+			m_gearLLamp = 0.0;
+		}
 	}
 	else
 	{
@@ -570,9 +695,16 @@ double Airframe::getGearLLamp()
 
 double Airframe::getGearRLamp()
 {
-	if (getGearRPosition() == 1.0)
+	if (m_input.getElectricSystem() == 1.0)
 	{
-		m_gearRLamp = 1.0;
+		if (getGearRPosition() == 1.0)
+		{
+			m_gearRLamp = 1.0;
+		}
+		else
+		{
+			m_gearRLamp = 0.0;
+		}
 	}
 	else
 	{
@@ -584,9 +716,17 @@ double Airframe::getGearRLamp()
 
 double Airframe::getGearFLamp()
 {
-	if (getGearNPosition() == 1.0)
+	if (m_input.getElectricSystem() == 1.0)
 	{
-		m_gearFLamp = 1.0;
+
+		if (getGearNPosition() == 1.0)
+		{
+			m_gearFLamp = 1.0;
+		}
+		else
+		{
+			m_gearFLamp = 0.0;
+		}
 	}
 	else
 	{
@@ -602,9 +742,45 @@ double Airframe::getSpeedBrakePosition() const
 	return m_speedBrakePosition;
 }
 
+double Airframe::getSpeedBrakeInd()
+{
+	if (m_input.getElectricSystem() == 1.0)
+	{
+		m_speedBrakeInd = getSpeedBrakePosition();
+	}
+	else
+	{
+		m_speedBrakeInd = 0.0;
+	}
+	return m_speedBrakeInd;
+}
+
 double Airframe::getHookPosition() const
 {
 	return m_hookPosition;
+}
+
+double Airframe::getChutePositionY() const
+{
+	return m_chuteYAxis;
+}
+
+double Airframe::getChutePositionZ() const
+{
+	return m_chuteZAxis;
+}
+
+double Airframe::getHookInd()
+{
+	if (m_input.getElectricSystem() == 1.0)
+	{
+		m_hookInd = getHookPosition();
+	}
+	else
+	{
+		m_hookInd = 0.0;
+	}
+	return m_hookInd;
 }
 
 double Airframe::getAileron() const
@@ -749,9 +925,16 @@ double Airframe::getFlapIndTEPos()
 
 double Airframe::ailDamageIndicator()
 {
-	if (getAileronDamage() <= 0.5)
+	if (m_input.getElectricSystem() == 1.0)
 	{
-		m_ailDamInd = 1.0;
+		if (getAileronDamage() <= 0.5)
+		{
+			m_ailDamInd = 1.0;
+		}
+		else
+		{
+			m_ailDamInd = 0.0;
+		}
 	}
 	else
 	{
@@ -763,9 +946,16 @@ double Airframe::ailDamageIndicator()
 
 double Airframe::stabDamageIndicator()
 {
-	if (getHoriStabDamage() <= 0.5)
+	if (m_input.getElectricSystem() == 1.0)
 	{
-		m_stabDamInd = 1.0;
+		if (getHoriStabDamage() <= 0.5)
+		{
+			m_stabDamInd = 1.0;
+		}
+		else
+		{
+			m_stabDamInd = 0.0;
+		}
 	}
 	else
 	{
@@ -779,6 +969,30 @@ double Airframe::stabDamageIndicator()
 double Airframe::getAutoPilotAltH()
 {
 	return m_pitchAPadj;
+}
+
+double Airframe::getAutoPilotInd()
+{
+	if (m_input.getElectricSystem() == 1.0)
+	{
+		m_autoPilotInd = m_input.getAutoPEng();
+	}
+	else
+	{
+		m_autoPilotInd = 0.0;
+	}
+	return m_autoPilotInd;
+}
+
+//-------------CrossHair Test-Stuff-------------------------
+double Airframe::getCrossHairHori()
+{
+	return m_crossHairHori;
+}
+
+double Airframe::getCrossHairVerti()
+{
+	return m_crossHairVerti;
 }
 
 //----------Damage-Stuff-------------------------------------

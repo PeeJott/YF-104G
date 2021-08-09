@@ -341,26 +341,43 @@ double Fuelsystem::addFuelToTank(Tank tank, double dm, double min)
 
 double Fuelsystem::lowFuelWarning()
 {
-	if (getFuelQtyTotal() <= 454.0)
+	if (m_input.getElectricSystem() == 1.0)
 	{
-		m_lowFuel = 1.0;
+		if (getFuelQtyTotal() <= 454.0)
+		{
+			m_lowFuel = 1.0;
+		}
+		else
+		{
+			m_lowFuel = 0.0;
+		}
 	}
 	else
 	{
 		m_lowFuel = 0.0;
 	}
+
 	return m_lowFuel;
 }
 
 double Fuelsystem::bingoFuelWarning()
 {
-	if (getFuelQtyTotal() <= 908.0)
+	if (m_input.getElectricSystem() == 1.0)
 	{
-		m_bingoFuel = 1.0;
+
+		if (getFuelQtyTotal() <= 908.0)
+		{
+			m_bingoFuel = 1.0;
+		}
+		else
+		{
+			m_bingoFuel = 0.0;
+		}
 	}
 	else
 	{
 		m_bingoFuel = 0.0;
 	}
+
 	return m_bingoFuel;
 }

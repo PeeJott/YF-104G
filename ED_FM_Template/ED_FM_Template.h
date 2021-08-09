@@ -187,6 +187,7 @@ extern "C"
 	ED_FM_TEMPLATE_API void ed_fm_hot_start_in_air();
 
 	ED_FM_TEMPLATE_API void ed_fm_repair(); //neu eingefügt wegen den repairs
+	ED_FM_TEMPLATE_API bool ed_fm_need_to_be_repaired();//um anzuzeigen dass internes Damage einen Repair braucht...
 
 	ED_FM_TEMPLATE_API double ed_fm_get_shake_amplitude(); //neu eingefügt wegen Cockpit-Shaker-Function in flightModel.h und flightModel.cpp
 

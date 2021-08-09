@@ -11,6 +11,10 @@ void Input::inputUpdate(double dt)
 	setKeyRoll();
 	setKeyYaw();
 	setBrake();
+
+	resetCrossHairs();
+
+	
 }
 
 void Input::setKeyPitch()
@@ -158,4 +162,21 @@ void Input::setBrake()
 			m_release_brake = 0.0;
 		}
 	}
+}
+
+void Input::resetCrossHairs()
+{
+	if ((m_crossHRight > 0.0) && (m_crossHLeft < 0.0))
+	{
+		m_crossHRight = 0.0;
+		m_crossHLeft = 0.0;
+	}
+
+	if ((m_crossHUp > 0.0) && (m_crossHDown < 0.0))
+	{
+		m_crossHUp = 0.0;
+		m_crossHDown = 0.0;
+	}
+
+
 }

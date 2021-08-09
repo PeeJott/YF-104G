@@ -46,6 +46,7 @@ public:
 	
 	double overHeatCount();
 	double overHeat();
+	double overHeatInd();
 	//void heatCoolDown();
 	void repairHeatDamage();
 	double overSpeedInd();
@@ -120,6 +121,7 @@ private:
 	int m_heatTimerUP = 0;
 	int m_heatTimerDOWN = 0;
 	double m_overSpeedInd = 0.0;
+	double m_overHeatInd = 0.0;
 	
 
 	//-------------Thrust Tables init------------------------

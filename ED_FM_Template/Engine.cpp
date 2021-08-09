@@ -76,6 +76,7 @@ void Engine::zeroInit()
 	m_heatTimerDOWN = 0;
 	m_overSpeedInd = 0.0;
 	m_heatFailure = false;
+	m_overHeatInd = 0.0;
 
 }
 
@@ -207,6 +208,7 @@ void Engine::update(double dt)
 	overHeatCount();
 	overSpeedInd();
 	restartNeeded();
+	overHeatInd();
 }
 
 double Engine::updateThrust() //Wenn Veränderungen dann hier verändern NICHT oben!!!!! //dt in die Klammer eingefügt//double zu void mit double dt verändert
@@ -413,7 +415,7 @@ double Engine::updateSpool()
 	m_deltaSpoolABS = abs(m_deltaSpool);
 	//m_spoolFactor = EngDel(m_deltaSpoolABS);//die alte Idee mit der Alten "Table"
 	int indexInArray = m_deltaSpoolABS / 0.02; //hier wird der Index für den Array aus einer "double" in eine "int" umgemünzt, damit ganze Zahlen generiert werden// kein Factor, damit nicht außerhalb des Arrays verschoben wird
-	m_spoolFactor = (DAT_EngSpool[indexInArray]);//Variale indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht
+	m_spoolFactor = (DAT_EngSpool[indexInArray])/5;//Variale indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht// /5 hinzugefügt, für langsameres Ansprechen testweise
 	m_newSpoolStep = m_deltaSpool * m_spoolFactor;
 	m_newThrottle = m_oldThrottle + m_newSpoolStep;
 	
@@ -435,7 +437,7 @@ double Engine::updateSpoolCold()
 		m_spoolCDeltaABS = abs(m_spoolCDelta);
 		//m_spoolFactor = EngDel(m_deltaSpoolABS);//die alte Idee mit der Alten "Table"
 		int indexInArray = m_spoolCDeltaABS / 0.014; //hier wird der Index für den Array aus einer "double" in eine "int" umgemünzt, damit ganze Zahlen generiert werden// kein Factor, damit nicht außerhalb des Arrays verschoben wird
-		m_spoolCFactor = (DAT_EngSpool[indexInArray]) / 10;//Variale indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht
+		m_spoolCFactor = (DAT_EngSpool[indexInArray]) / 18;//von /10 auf / 15 hochgesetzt für langsameren Cold-Start//Variable indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht
 		m_spoolCSpoolStep = m_spoolCDelta * m_spoolCFactor;
 		m_spoolCNewSpool = m_spoolCOldSpool + m_spoolCSpoolStep + 0.000001;
 		m_spoolCOldSpool = m_spoolCNewSpool;
@@ -455,7 +457,7 @@ double Engine::updateSpoolHot()
 		m_spoolHDeltaABS = abs(m_spoolHDelta);
 		//m_spoolFactor = EngDel(m_deltaSpoolABS);//die alte Idee mit der Alten "Table"
 		int indexInArray = m_spoolHDeltaABS / 0.022; //hier wird der Index für den Array aus einer "double" in eine "int" umgemünzt, damit ganze Zahlen generiert werden// kein Factor, damit nicht außerhalb des Arrays verschoben wird
-		m_spoolHFactor = (DAT_HtoCspool[indexInArray]) / 5;//Variale indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht
+		m_spoolHFactor = (DAT_HtoCspool[indexInArray]) / 15;//Variale indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht
 		m_spoolHSpoolStep = (m_spoolHDelta * m_spoolHFactor) - 0.00001;
 		m_spoolHNewSpool = m_spoolHOldSpool + m_spoolHSpoolStep;
 		m_spoolHOldSpool = m_spoolHNewSpool;
@@ -585,11 +587,38 @@ double Engine::overHeat()
 	return m_overHeat;
 }
 
+double Engine::overHeatInd()
+{
+	if (m_input.getElectricSystem() == 1.0)
+	{
+		if ((overHeat() >= 0.75) || (m_heatFailure == true))
+		{
+			m_overHeatInd = 1.0;
+		}
+		else
+		{
+			m_overHeatInd = 0.0;
+		}
+	}
+	else
+	{
+		m_overHeatInd = 0.0;
+	}
+	return m_overHeatInd;
+}
+
 double Engine::overSpeedInd()
 {
-	if (((m_state.m_mach > 1.10) && (m_state.m_airDensity > 1.112)) || ((m_state.m_mach > 1.25) && ((m_state.m_airDensity > 0.9093) && (m_state.m_airDensity <= 1.112))) || ((m_state.m_mach > 1.60) && ((m_state.m_airDensity > 0.6601) && (m_state.m_airDensity < 0.9093))) || ((m_state.m_mach > 2.2) && (m_state.m_airDensity < 0.6601)))
+	if (m_input.getElectricSystem() == 1.0)
 	{
-		m_overSpeedInd = 1.0;
+		if (((m_state.m_mach > 1.10) && (m_state.m_airDensity > 1.112)) || ((m_state.m_mach > 1.25) && ((m_state.m_airDensity > 0.9093) && (m_state.m_airDensity <= 1.112))) || ((m_state.m_mach > 1.60) && ((m_state.m_airDensity > 0.6601) && (m_state.m_airDensity < 0.9093))) || ((m_state.m_mach > 2.2) && (m_state.m_airDensity < 0.6601)))
+		{
+			m_overSpeedInd = 1.0;
+		}
+		else
+		{
+			m_overSpeedInd = 0.0;
+		}
 	}
 	else
 	{
@@ -602,6 +631,7 @@ double Engine::overSpeedInd()
 void Engine::repairHeatDamage()
 {
 	m_overHeat = 0.0;
+	m_overHeatInd = 0.0;
 	//m_input.m_engine_start = 0.0;
 	//m_input.m_engine_stop = 0.0;
 	m_heatFailure = false;
