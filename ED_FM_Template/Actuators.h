@@ -1,6 +1,18 @@
 #pragma once
 #include "BaseComponent.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: Actuators.h
+//		AUTHOR		: A4-Comunity-Team & Paul Stich
+//		Copyright	: A4-Comunity-Team & Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	:	Actuators for visual movements (Ailerons etc.)
+//
+//================================ Includes ===============================//
+//=========================================================================//
+
 class Actuator
 {
 public:

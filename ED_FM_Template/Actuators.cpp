@@ -2,6 +2,18 @@
 #include "Maths.h"
 #include <cmath>
 
+//=========================================================================//
+//
+//		FILE NAME	: Actuators.cpp
+//		AUTHOR		: A4-Comunity-Team & Paul Stich
+//		Copyright	: A4-Comunity-Team & Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	:	Actuators for visual movements (Ailerons etc.)
+//
+//================================ Includes ===============================//
+//=========================================================================//
+
 Actuator::Actuator() : m_actuatorSpeed{ 10.0 }, m_actuatorPos{ 0.0 }, m_actuatorTargetPos{ 0.0 }, m_actuatorFactor{ 1.0 }
 {
 

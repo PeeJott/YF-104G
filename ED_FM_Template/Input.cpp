@@ -1,5 +1,18 @@
 #include "input.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: Input.cpp
+//		AUTHOR		: Paul Stich
+//		Copyright	: Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	: Reset and update functions for Key-Flightcontrol-Inputs  
+//					  and Brake-Inputs.
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 Input::Input()
 {
 

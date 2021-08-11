@@ -1,5 +1,18 @@
 #include "Timer.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: Timer.cpp
+//		AUTHOR		: A4-Comunity-Team
+//		Copyright	: A4-Comunity-Team
+//		DATE		: May 2020
+//
+//		DESCRIPTION	: A Timer-Class...which times...time...sort off...  
+//					  
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 Timer::Timer(double time) : m_time{ time }, m_timeElapsed{ 0.0 }, m_isActive{ false }
 {
 

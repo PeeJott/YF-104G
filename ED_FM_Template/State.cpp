@@ -1,5 +1,18 @@
 #include "State.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: State.cpp
+//		AUTHOR		: Paul Stich
+//		Copyright	: Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	: Class to store the info regarding the surroundings of DCS.  
+//					  CPP is just for init.
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 void State::zeroInit()
 {
 

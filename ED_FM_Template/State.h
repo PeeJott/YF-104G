@@ -5,6 +5,19 @@
 #include "Vec3.h"
 #include"BaseComponent.h" //eingefügt
 
+//=========================================================================//
+//
+//		FILE NAME	: State.h
+//		AUTHOR		: Joshua Nelson
+//		Copyright	: Joshua Nelson
+//		DATE		: May 2020
+//
+//		DESCRIPTION	: Class to store the info regarding the surroundings of DCS.  
+//					  CPP is just for init.
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 struct State
 {
 	State() {}

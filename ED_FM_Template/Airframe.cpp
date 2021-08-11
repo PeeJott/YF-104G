@@ -5,6 +5,19 @@
 #include <ctime>
 #include <chrono>
 
+//=========================================================================//
+//
+//		FILE NAME	: Airframe.cpp
+//		AUTHOR		: Joshua Nelson & A4-Comunity-Team & Paul Stich
+//		Copyright	: Joshua Nelson & A4-Comunity-Team & Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	: All moving parts, gauges, indicators, stick and throttle 
+//					  and external animations that are driven from within the EFM.
+//					  AND internal damage modell.
+//================================ Includes ===============================//
+//=========================================================================//
+
 //-----------Neu eingefügt wegen Chrono und Millisekunden---------
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
@@ -885,7 +898,7 @@ double Airframe::brkChuteSlewY()
 			std::uniform_int_distribution<int> distribution(1, 19);
 			dice_roll = distribution(generator);  // generates number in the range 1-19 */
 			
-			int mill_seconds = (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) / 100;
+			int mill_seconds = (duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) / 100; //weil es eine INT ist macht / 100 Sinn, da dann nur jede 10tel-Sekunde eine neue Zahl kommt, da gerundet wird.
 
 			srand(mill_seconds); //vorher srand(timt(0)); das gab die sekunden-ticks zurück, wir brauchen aber millisekunden
 

@@ -3,6 +3,17 @@
 #include "Vec3.h"
 #include <algorithm>
 //=========================================================================//
+//
+//		FILE NAME	: Maths.h
+//		AUTHOR		: Joshua Nelson & A4-Comunity-Team
+//		Copyright	: Joshua Nelson & A4-Comunity-Team
+//		DATE		: May 2020
+//
+//		DESCRIPTION	: Makes the life easier in regards of converting
+//					  
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
 
 #undef max
 #undef min

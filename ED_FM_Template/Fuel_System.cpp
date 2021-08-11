@@ -1,5 +1,18 @@
 #include "Fuel_System.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: FuelSystem.cpp
+//		AUTHOR		: Joshua Nelson & Paul Stich
+//		Copyright	: Joshua Nelson & Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	: Simulation of the Fuelsystem. 
+//					  
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 
 Fuelsystem::Fuelsystem
 (

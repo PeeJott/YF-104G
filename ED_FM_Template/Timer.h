@@ -1,6 +1,19 @@
 #pragma once
 #include "BaseComponent.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: Timer.cpp
+//		AUTHOR		: A4-Comunity-Team
+//		Copyright	: A4-Comunity-Team
+//		DATE		: May 2020
+//
+//		DESCRIPTION	: A Timer-Class...which times...time...sort off...  
+//					  
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 class Timer : public BaseComponent
 	{
 	public:

@@ -11,6 +11,19 @@
 #include "BaseComponent.h"
 #include "Units.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: Airframe.h
+//		AUTHOR		: Joshua Nelson & A4-Comunity-Team & Paul Stich
+//		Copyright	: Joshua Nelson & A4-Comunity-Team & Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	: All moving parts, gauges, indicators, stick and throttle 
+//					  and external animations that are driven from within the EFM.
+//					  AND internal damage modell.
+//================================ Includes ===============================//
+//=========================================================================//
+
 #define DMG_ELEM(v) m_integrityElement[(int)v]
 
 class Airframe

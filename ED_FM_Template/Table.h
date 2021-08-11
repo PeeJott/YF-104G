@@ -6,6 +6,7 @@
 //
 //		FILE NAME	: Table.h
 //		AUTHOR		: Joshua Nelson
+//		Copyright	: Joshua Nelson
 //		DATE		: May 2020
 //
 //		DESCRIPTION	:	Vec3 class with added operator overloads to make maths easier.

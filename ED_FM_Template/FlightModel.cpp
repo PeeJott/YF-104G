@@ -1,5 +1,18 @@
 ﻿#include "FlightModel.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: FlightModel.cpp
+//		AUTHOR		: Joshua Nelson & Paul Stich
+//		Copyright	: Joshua Nelson & Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	: Every force that is needed for the flight-simulation. 
+//					  As well as the Camera-Shaker.
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 
 FlightModel::FlightModel
 (

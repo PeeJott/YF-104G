@@ -1,4 +1,17 @@
 #pragma once
+
+//=========================================================================//
+//
+//		FILE NAME	: BaseComponent.h
+//		AUTHOR		: Joshua Nelson & A4-Comunity-Team
+//		Copyright	: Joshua Nelson & A4-Comunity-Team
+//		DATE		: May 2020
+//
+//		DESCRIPTION	: Init. functions for all classes to set all values to "0"
+//					  
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
 class BaseComponent
 {
 public:

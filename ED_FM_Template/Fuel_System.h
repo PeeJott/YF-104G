@@ -6,6 +6,19 @@
 #include "Vec3.h"
 #include "Engine.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: FuelSystem.h
+//		AUTHOR		: Joshua Nelson & Paul Stich
+//		Copyright	: Joshua Nelson & Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	: Simulation of the Fuelsystem + Indicators and Warnings. 
+//					  
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 
 class Fuelsystem
 {

@@ -1,6 +1,19 @@
 #pragma once
 #ifndef AeroData_1
 #define AeroData_1
+
+//=========================================================================//
+//
+//		FILE NAME	: AeroData_1.h
+//		AUTHOR		: Paul Stich
+//		Copyright	: Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	:	All aerodynamic and other data (engine etc.) 
+//						as well as constants and measurements
+//
+//================================ Includes ===============================//
+//=========================================================================//
 //-------------------------------
 //Alle Koeffizienten, Derivate und Abmessungen kommen in diese Datei jeweils eingeleitet mit #define um sie den Formeln in der *-cpp Datei zugänglich zu machen
 //-------------------------------
@@ -9,8 +22,8 @@
 //---------Lift und Dragwerte-----
 //---------CD zu Mach und CDmin Werte-------
 #define DAT_CDmin {0.0143, 0.0143, 0.0143, 0.0143, 0.0144, 0.0144, 0.0145, 0.015, 0.0161, 0.0174, 0.019, 0.0208, 0.0231, 0.0258, 0.0284, 0.0317, 0.0356, 0.0399, 0.044, 0.0476, 0.0472, 0.0453, 0.044, 0.0428, 0.042, 0.0417, 0.0414,}
-#define CON_CDminmin 0.4826 //Mach Airspeed
-#define CON_CDminmax 2.0111
+#define CON_CDminmin 0.4826 //min Mach Airspeed = the speed for the first value in the column above
+#define CON_CDminmax 2.0111 //max Mach Airspeed = the speed for the last value in the column above
 
 #define DAT_CDmach_SL {0.0986, 0.0911, 0.0834, 0.0752, 0.0681, 0.0606, 0.0552, 0.0501, 0.0449, 0.0402, 0.0359, 0.0324, 0.0295, 0.0269, 0.0245, 0.0223, 0.0204, 0.0187, 0.0174, 0.0165, 0.0159, 0.0155, 0.016, 0.0174, 0.019, 0.0212, 0.0236, 0.0266, 0.0299, 0.0333, 0.0373, 0.0412, 0.0453, 0.0478, 0.0474, 0.0458, 0.0441, 0.0429, 0.0421, 0.0417, 0.0413,} 
 #define CON_CDmach_SLmin 0.2975

@@ -1,5 +1,18 @@
 #include "Engine.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: Engine.cpp
+//		AUTHOR		: Paul Stich
+//		Copyright	: Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	: Everything concerning the engine e.g. Thrust, Heat, spooling-times, 
+//					  fuel-flow and overheat-damage, warnings and indicators.
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 Engine::Engine
 (
 	State& state,
@@ -40,6 +53,15 @@ void Engine::zeroInit()
 	m_deltaSpoolABS = 0.0;
 	m_newSpoolStep = 0.0;
 	m_desiredThrottle = 0.0;
+
+	m_spoolFactorFuel = 0.0;
+	m_deltaSpoolFuel = 0.0;
+	m_newThrottleFuel = 0.0;
+	m_oldThrottleFuel = 0.0;
+	m_deltaSpoolABSFuel = 0.0;
+	m_newSpoolStepFuel = 0.0;
+	m_spoolFactorFuel1 = 0.0;
+	
 	
 	m_hasFuel = true;
 	m_ignitors = false;
@@ -354,6 +376,21 @@ double Engine::FuelFlowUpdate()
 		corrThrottle = (m_input.getThrottle() + 1.0) / 2.0;
 	}
 
+	
+	m_deltaSpoolFuel = corrThrottle - m_oldThrottleFuel;
+	m_deltaSpoolABSFuel = abs(m_deltaSpoolFuel);
+	//m_spoolFactor = EngDel(m_deltaSpoolABS);//die alte Idee mit der Alten "Table"
+	int indexInArray = m_deltaSpoolABSFuel / 0.02; //hier wird der Index für den Array aus einer "double" in eine "int" umgemünzt, damit ganze Zahlen generiert werden// kein Factor, damit nicht außerhalb des Arrays verschoben wird
+	m_spoolFactorFuel = (DAT_EngSpoolFuel[indexInArray]);//Variale indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht// /5 hinzugefügt, für langsameres Ansprechen testweise
+	m_spoolFactorFuel1 = m_spoolFactorFuel * 10;
+	m_newSpoolStepFuel = m_deltaSpoolFuel * m_spoolFactorFuel1;
+	m_newThrottleFuel = m_oldThrottleFuel + m_newSpoolStepFuel;
+
+	m_oldThrottleFuel = m_newThrottleFuel; //m_newThrottleFuel ist der Wert anstatt des corrThrottle
+
+	//printf("Throttle %f \n", corrThrottle);
+	//printf("NEW_Throttle %f \n", m_newThrottle);
+	
 	//---------------------FuelFlow-OLD an RPM-angelehnt, funktioniert aber-----------------------
 	/*if ((updateSpool() < 0.01) && (m_ignitors == true) && (m_hasFuel == true))
 	{
@@ -377,16 +414,16 @@ double Engine::FuelFlowUpdate()
 	
 	if ((corrThrottle < 0.01) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_fuelFlow = spoolUpFactor * (1500.0 * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * (0.60 * corrThrottle * (CON_FuCoMil * PMax(m_state.m_mach) / 1000.0))));
+		m_fuelFlow = spoolUpFactor * (1500.0 * (m_state.m_airDensity / CON_sDay_den) + (m_state.m_mach * (0.60 * m_newThrottleFuel * (CON_FuCoMil * PMax(m_state.m_mach) / 1000.0))));
 	}
 
 	else if ((corrThrottle >= 0.01) && (corrThrottle < 0.85) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_fuelFlow = spoolUpFactor *((corrThrottle * ((CON_FuCoMil * PMax(m_state.m_mach)) / 1000.0) + 1500.0) * (m_state.m_airDensity / CON_sDay_den)); //+ (m_state.m_mach * (0.60 * updateSpool() * CON_CeMax * 3600 * 2.205));
+		m_fuelFlow = spoolUpFactor *((m_newThrottleFuel * ((CON_FuCoMil * PMax(m_state.m_mach)) / 1000.0) + 1500.0) * (m_state.m_airDensity / CON_sDay_den)); //+ (m_state.m_mach * (0.60 * updateSpool() * CON_CeMax * 3600 * 2.205));
 	}
 	else if ((corrThrottle >= 0.85) && (m_ignitors == true) && (m_hasFuel == true))
 	{
-		m_fuelFlow = spoolUpFactor * ((corrThrottle * ((CON_FuCoAB * PFor(m_state.m_mach)) / 1000.0) + 1500.0) * (m_state.m_airDensity / CON_sDay_den)); // (m_state.m_mach * (0.60 * updateSpool() * CON_CeFor * 3600 * 2.205));
+		m_fuelFlow = spoolUpFactor * ((m_newThrottleFuel * ((CON_FuCoAB * PFor(m_state.m_mach)) / 1000.0) + 1500.0) * (m_state.m_airDensity / CON_sDay_den)); // (m_state.m_mach * (0.60 * updateSpool() * CON_CeFor * 3600 * 2.205));
 	}
 	else
 	{

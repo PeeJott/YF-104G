@@ -1,6 +1,19 @@
 ﻿#pragma once
 #include "BaseComponent.h"
 
+//=========================================================================//
+//
+//		FILE NAME	: Input.h
+//		AUTHOR		: Joshua Nelson & Paul Stich
+//		Copyright	: Joshua Nelson & Paul Stich
+//		DATE		: August 2021
+//
+//		DESCRIPTION	: Class for Input-handling.  
+//					  
+//					  
+//================================ Includes ===============================//
+//=========================================================================//
+
 enum Command
 {
 	COMMAND_PITCH = 2001,
