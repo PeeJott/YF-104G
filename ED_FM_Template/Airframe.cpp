@@ -722,8 +722,8 @@ void Airframe::airframeUpdate(double dt)
 	printf("AltIn_Meter %i \n", m_altInM);
 	*/
 
-	printf("Horizontal Sicht FLOAT %f \n", m_input.getSightHorizontal());
-	printf("Vertikale Sicht FLOAT %f \n", m_input.getSightVertical());
+	//printf("Horizontal Sicht FLOAT %f \n", m_input.getSightHorizontal());
+	//printf("Vertikale Sicht FLOAT %f \n", m_input.getSightVertical());
 
 
 }
@@ -906,47 +906,47 @@ double Airframe::brkChuteSlewY()
 
 			if ((dice_roll == 2) || (dice_roll == 1))
 			{
-				m_chuteDiceRoll = -0.65;	
+				m_chuteDiceRoll = -0.05; //was -0.65	
 				//m_chuteSlewingY = true; //Neu überall eingefügt, ggf. wieder hier und im If entfernen
 			}
 			if ((dice_roll == 3) || (dice_roll ==4 ))
 			{
-				m_chuteDiceRoll = -0.55;
+				m_chuteDiceRoll = 0.00; //was -0.55
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 5) || (dice_roll == 6))
 			{
-				m_chuteDiceRoll = -0.40;
+				m_chuteDiceRoll = 0.10;//was -0.40
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 7) || (dice_roll == 8))
 			{
-				m_chuteDiceRoll = -0.19;
+				m_chuteDiceRoll = 0.25;//was -0.19
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 9) || (dice_roll == 10))
 			{
-				m_chuteDiceRoll = 0;
+				m_chuteDiceRoll = 0.35;//was 0.0
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 11) || (dice_roll == 12))
 			{
-				m_chuteDiceRoll = 0.19;	
+				m_chuteDiceRoll = 0.55; //was 0.19	
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 13) || (dice_roll == 14))
 			{
-				m_chuteDiceRoll = 0.40;	
+				m_chuteDiceRoll = 0.65; //was 0.40	
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll == 15) || (dice_roll == 16))
 			{
-				m_chuteDiceRoll = 0.55;	
+				m_chuteDiceRoll = 0.80;//was 0.55	
 				//m_chuteSlewingY = true;
 			}
 			if (dice_roll >= 17)
 			{
-				m_chuteDiceRoll = 0.65;	
+				m_chuteDiceRoll = 0.95;//was 0.65	
 				//m_chuteSlewingY = true;
 			}
 			
@@ -967,27 +967,27 @@ double Airframe::brkChuteSlewY()
 
 			if (dice_roll1 <= 2)
 			{
-				m_chuteDiceRoll = -0.35;
+				m_chuteDiceRoll = -0.05;//was -0.35
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll1 == 3) || (dice_roll1 == 4))
 			{
-				m_chuteDiceRoll = -0.15;
+				m_chuteDiceRoll = 0.05;//was -0.15
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll1 == 5) || (dice_roll1 == 6))
 			{
-				m_chuteDiceRoll = -0.05;
+				m_chuteDiceRoll = 0.10;//was -0.05
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll1 == 7) || (dice_roll1 == 8))
 			{
-				m_chuteDiceRoll = 0.10;
+				m_chuteDiceRoll = 0.35;//was 0.10
 				//m_chuteSlewingY = true;
 			}
 			if (dice_roll1 >= 9)
 			{
-				m_chuteDiceRoll = 0.25;
+				m_chuteDiceRoll = 0.60;//was 0.25
 				//m_chuteSlewingY = true;
 			}
 			m_chuteSlewY = m_chuteDiceRoll;
@@ -1008,27 +1008,27 @@ double Airframe::brkChuteSlewY()
 
 			if (dice_roll2 <= 2)
 			{
-				m_chuteDiceRoll = -0.99;
+				m_chuteDiceRoll = -0.15;//was -0.99
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll2 == 3) || (dice_roll2 == 4))
 			{
-				m_chuteDiceRoll = -0.92;
+				m_chuteDiceRoll = -0.05;//was -0.95
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll2 == 5) || (dice_roll2 == 6))
 			{
-				m_chuteDiceRoll = -0.90;
+				m_chuteDiceRoll = 0.05;//was -0.90
 				//m_chuteSlewingY = true;
 			}
 			if ((dice_roll2 == 7) || (dice_roll2 == 8))
 			{
-				m_chuteDiceRoll = -0.89;
+				m_chuteDiceRoll = 0.15;//was -0.89
 				//m_chuteSlewingY = true;
 			}
 			if (dice_roll2 >= 9)
 			{
-				m_chuteDiceRoll = -0.87;
+				m_chuteDiceRoll = 0.25;//was -0.87
 				//m_chuteSlewingY = true;
 			}
 			m_chuteSlewY = m_chuteDiceRoll;
@@ -1036,7 +1036,7 @@ double Airframe::brkChuteSlewY()
 		}
 		if (m_mach_speed == 0.00)
 		{
-		m_chuteSlewY = -1.00;
+		m_chuteSlewY = 0.00;//was -1.0
 		//m_chuteSlewingY = false;
 
 		return m_chuteSlewY;

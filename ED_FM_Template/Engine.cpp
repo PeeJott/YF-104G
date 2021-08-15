@@ -474,7 +474,7 @@ double Engine::updateSpoolCold()
 		m_spoolCDeltaABS = abs(m_spoolCDelta);
 		//m_spoolFactor = EngDel(m_deltaSpoolABS);//die alte Idee mit der Alten "Table"
 		int indexInArray = m_spoolCDeltaABS / 0.014; //hier wird der Index für den Array aus einer "double" in eine "int" umgemünzt, damit ganze Zahlen generiert werden// kein Factor, damit nicht außerhalb des Arrays verschoben wird
-		m_spoolCFactor = (DAT_EngSpool[indexInArray]) / 18;//von /10 auf / 15 hochgesetzt für langsameren Cold-Start//Variable indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht
+		m_spoolCFactor = (DAT_EngSpool[indexInArray]) / 22;//von /10 auf / 15 hochgesetzt für langsameren Cold-Start//Variable indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht
 		m_spoolCSpoolStep = m_spoolCDelta * m_spoolCFactor;
 		m_spoolCNewSpool = m_spoolCOldSpool + m_spoolCSpoolStep + 0.000001;
 		m_spoolCOldSpool = m_spoolCNewSpool;
@@ -494,7 +494,7 @@ double Engine::updateSpoolHot()
 		m_spoolHDeltaABS = abs(m_spoolHDelta);
 		//m_spoolFactor = EngDel(m_deltaSpoolABS);//die alte Idee mit der Alten "Table"
 		int indexInArray = m_spoolHDeltaABS / 0.022; //hier wird der Index für den Array aus einer "double" in eine "int" umgemünzt, damit ganze Zahlen generiert werden// kein Factor, damit nicht außerhalb des Arrays verschoben wird
-		m_spoolHFactor = (DAT_HtoCspool[indexInArray]) / 15;//Variale indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht
+		m_spoolHFactor = (DAT_HtoCspool[indexInArray]) / 120.0;//Variale indexInArray ergibt diejenige Zahl die dem Index in dem Array entspricht
 		m_spoolHSpoolStep = (m_spoolHDelta * m_spoolHFactor) - 0.00001;
 		m_spoolHNewSpool = m_spoolHOldSpool + m_spoolHSpoolStep;
 		m_spoolHOldSpool = m_spoolHNewSpool;

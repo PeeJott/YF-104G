@@ -710,7 +710,7 @@ void ed_fm_set_command(int command,
 		break;*/
 	
 	default:
-		printf("number %d: %l f\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
+		printf("number %d: %llf\n", command, value); //neu eingefügt um "unbekannte" Kommandos zur Konsole auszugeben
 	}
 }
 /*
