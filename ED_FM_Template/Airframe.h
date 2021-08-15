@@ -456,6 +456,7 @@ private:
 	double m_chuteSlewZ = 0.0;
 	int m_timePassed = 0;
 	double m_brkChuteInd = 0.0;
+	bool m_chuteDeployed = false;
 
 	//bool m_chuteSlewingZ = false;//neu eingefügt zum Testenfür Rückkehr 0-Position
 	//bool m_chuteSlewingY = false;

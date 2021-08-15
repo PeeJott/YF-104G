@@ -511,6 +511,10 @@ class Input
 			{
 				m_brkchute = 1.0;
 			}
+			else if (m_brkchute == 1.0)
+			{
+				m_brkchute = 2.0;
+			}
 			else
 			{
 				m_brkchute = 0.0;

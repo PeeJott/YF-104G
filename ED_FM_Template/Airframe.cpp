@@ -146,6 +146,7 @@ void Airframe::zeroInit()
 	m_nwsEngage = 0.0;
 	m_chuteState = 0.0;
 	m_brkChuteInd = 0.0;
+	m_chuteDeployed = false;
 	m_speedBrakeInd = 0.0;
 	m_mass = 1.0;
 	m_damageStack.clear();
@@ -827,7 +828,7 @@ double Airframe::brkChutePosition()
 	int timeToGo3 = 60;
 	int timeToGo4 = 80;
 
-	if ((m_input.getBrkChute() == 1) && (m_timePassed < timeToGo1))
+	if ((m_input.getBrkChute() == 1) && (m_timePassed < timeToGo1) && (m_chuteDeployed == false))
 	{
 		m_chuteState = 0.2;
 	}
@@ -861,15 +862,25 @@ double Airframe::brkChutePosition()
 		m_chuteState = 0.0;
 		m_timePassed = 0.0;
 	}
+	else if (m_input.getBrkChute() == 2.0)
+	{
+		m_chuteState = 0.0;
+		m_timePassed = 0.0;
+		m_chuteDeployed = true;
+	}
+	if ((m_engine.getRPMNorm() == 0.0) && (m_state.m_mach <= 0.1))
+	{
+		m_chuteDeployed = false;
+	}
 
 	return m_chuteState;
 }
 
 double Airframe::brkChuteInd()
 {
-	if (m_input.getElectricSystem() == 1.0)
+	if ((m_input.getElectricSystem() == 1.0) && ((brkChutePosition() == 1.0) || (m_input.getBrkChute() == 2.0)))
 	{
-		m_brkChuteInd = brkChutePosition();
+		m_brkChuteInd = 1.0; //brkChutePosition();
 	}
 	else
 	{
