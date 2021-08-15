@@ -866,7 +866,7 @@ double Airframe::brkChutePosition()
 	{
 		m_chuteState = 0.0;
 		m_timePassed = 0.0;
-		m_chuteDeployed = true;
+		m_chuteDeployed = true; //jetzt gibt es keine unendlichen Bremsfallschirme mehr...
 	}
 	if ((m_engine.getRPMNorm() == 0.0) && (m_state.m_mach <= 0.1))
 	{
